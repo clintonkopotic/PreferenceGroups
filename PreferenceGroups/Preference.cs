@@ -141,11 +141,13 @@ namespace PreferenceGroups
         public abstract Type GetValueType();
 
         /// <summary>
-        /// Sets Value from <paramref name="value"/>. Implementers of this
-        /// <see langword="abstract"/> <see langword="class"/> should anticipate
-        /// a variety of different <see cref="Type"/>s that
-        /// <paramref name="value"/> can be, and not just perform a cast to set
-        /// Value.
+        /// Sets DefaultValue from <paramref name="defaultValue"/>.
+        /// </summary>
+        /// <param name="defaultValue">What to set Value to.</param>
+        public abstract void SetDefaultValueFromObject(object defaultValue);
+
+        /// <summary>
+        /// Sets Value from <paramref name="value"/>.
         /// </summary>
         /// <param name="value">What to set Value to.</param>
         public abstract void SetValueFromObject(object value);
