@@ -24,10 +24,13 @@ namespace PreferenceGroups
         /// other words, the method <see cref="IsNameValid(string)"/> must
         /// return <see langword="true"/>.
         /// </summary>
-        public abstract string Name { get; }
+        public virtual string Name { get; }
 
         /// <summary>
-        /// Is the Value of the <see cref="Preference"/> an <see cref="Enum"/>.
+        /// Is the Value of the <see cref="Preference"/> an <see cref="Enum"/>,
+        /// where the underlying type (returned by
+        /// <see cref="Type.GetEnumUnderlyingType()"/>) is the same as
+        /// <see cref="GetValueType()"/>.
         /// </summary>
         public virtual bool IsEnum => false;
 
@@ -42,16 +45,16 @@ namespace PreferenceGroups
         /// A description of the <see cref="Preference"/> that is intended to be
         /// shown to the user and in the file as a comment.
         /// </summary>
-        public virtual string Description => null;
+        public virtual string Description { get; } = null;
 
         /// <summary>
-        /// Whether or not the Value can be set to something other than what is
-        /// specified in AllowedValues. If AllowedValues is not used (it is
-        /// <see langword="null"/> or empty), then
-        /// <see cref="AllowUndefinedValues"/> must be set to
+        /// Whether or not the Value and DefaultValue properties can be set to
+        /// something other than what is specified in AllowedValues. If
+        /// AllowedValues is not used (it is <see langword="null"/> or empty),
+        /// then <see cref="AllowUndefinedValues"/> must be set to
         /// <see langword="true"/>.
         /// </summary>
-        public virtual bool AllowUndefinedValues => true;
+        public virtual bool AllowUndefinedValues { get; } = true;
 
         /// <summary>
         /// Is DefaultValue <see langword="null"/>.
@@ -63,6 +66,56 @@ namespace PreferenceGroups
         /// Is Value <see langword="null"/>.
         /// </summary>
         public virtual bool ValueIsNull => GetValueAsObject() is null;
+
+        /// <summary>
+        /// Initializes <see cref="Name"/> with <paramref name="name"/> after
+        /// it is processed with the
+        /// <see cref="ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        protected Preference(string name)
+        {
+            Name = ProcessNameOrThrowIfInvalid(name);
+        }
+
+        /// <summary>
+        /// Initializes <see cref="Name"/> with <paramref name="name"/> after
+        /// it is processed with the
+        /// <see cref="ProcessNameOrThrowIfInvalid(string)"/> method. It also
+        /// initializes the <see cref="Description"/> and
+        /// <see cref="AllowUndefinedValues"/> properties.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <param name="description">A description of the
+        /// <see cref="Preference"/> that is intended to be shown to the user
+        /// and in the file as a comment.</param>
+        /// <param name="allowUndefinedValues">Whether or not the Value and
+        /// DefaultValue properties can be set to something other than what is
+        /// specified in AllowedValues. If AllowedValues is not used (it is
+        /// <see langword="null"/> or empty), then
+        /// <see cref="AllowUndefinedValues"/> must be set to
+        /// <see langword="true"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        protected Preference(string name, string description,
+            bool allowUndefinedValues)
+            : this(name)
+        {
+            Description = description;
+            AllowUndefinedValues = allowUndefinedValues;
+        }
 
         /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
@@ -115,7 +168,7 @@ namespace PreferenceGroups
         /// <see langword="null"/>, then a <see langword="null"/> Value means
         /// that it has not been set.
         /// </summary>
-        /// <returns>The DefaultValue as an <see cref="object"/>.</returns>
+        /// <returns>The Value as an <see cref="object"/>.</returns>
         public abstract object GetValueAsObject();
 
         /// <summary>

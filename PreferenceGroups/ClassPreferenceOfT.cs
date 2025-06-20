@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace PreferenceGroups
 {
@@ -52,26 +53,177 @@ namespace PreferenceGroups
         public virtual IReadOnlyCollection<T> AllowedValues { get; }
 
         /// <summary>
-        /// The validity processor used for setting the <see cref="Value"/> and
+        /// Used for setting the <see cref="Value"/> and
         /// <see cref="DefaultValue"/> to ensure that only
         /// <see cref="ClassValueValidityResult{T}.IsValid"/> values are used.
         /// </summary>
         public virtual ClassValueValidityProcessor<T> ValidityProcessor { get; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Initializes <see cref="Preference.Name"/> with
+        /// <paramref name="name"/> after it is processed with the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        protected ClassPreference(string name) : base(name)
+        { }
+
+        /// <summary>
+        /// Initializes <see cref="Preference.Name"/> with
+        /// <paramref name="name"/> after it is processed with the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.AllowUndefinedValues"/>,
+        /// <see cref="AllowedValues"/> and <see cref="ValidityProcessor"/>
+        /// properties.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <param name="description">A description of the
+        /// <see cref="Preference"/> that is intended to be shown to the user
+        /// and in the file as a comment.</param>
+        /// <param name="allowUndefinedValues">Whether or not the Value and
+        /// DefaultValue properties can be set to something other than what is
+        /// specified in AllowedValues. If AllowedValues is not used (it is
+        /// <see langword="null"/> or empty), then
+        /// <see cref="Preference.AllowUndefinedValues"/> must be set to
+        /// <see langword="true"/>.</param>
+        /// <param name="allowedValues">A collection of values that are allowed
+        /// for the <see cref="Value"/> and <see cref="DefaultValue"/> to be set
+        /// to. If <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="true"/>, then this property is ignored. On the other
+        /// hand, if <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="false"/>, then this must not be empty or
+        /// <see langword="null"/>.</param>
+        /// <param name="validityProcessor">Used for setting the
+        /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
+        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// used.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        protected ClassPreference(string name, string description,
+            bool allowUndefinedValues, IReadOnlyCollection<T> allowedValues,
+            ClassValueValidityProcessor<T> validityProcessor)
+            : base(name, description,
+                  ProcessAllowUndefinedValues(allowUndefinedValues,
+                      allowedValues))
+        {
+            AllowedValues = allowedValues;
+            ValidityProcessor = validityProcessor;
+        }
+
+        /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
+        /// <see cref="AllowedValues"/>. The parameters are only used if
+        /// <typeparamref name="T"/> implements <see cref="IFormattable"/>,
+        /// otherwise the <see cref="object.ToString()"/> method is used.
+        /// </summary>
+        /// <param name="format">The format to use. If it is
+        /// <see langword="null"/>, then the default format will be
+        /// used.</param>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns>AllowedValues as an <see cref="Array"/> of
+        /// <see cref="string"/>s.</returns>
+        public override string[] GetAllowedValuesAsStrings(string format,
+            IFormatProvider formatProvider)
+        {
+            if (AllowedValues is null)
+            {
+                return null;
+            }
+
+            var strings = new List<string>();
+
+            foreach (var allowedValue in AllowedValues)
+            {
+                if (allowedValue is null)
+                {
+                    continue;
+                }
+
+                var @string = allowedValue is IFormattable formattable
+                    ? formattable.ToString(format, formatProvider)
+                    : allowedValue?.ToString();
+
+                if (!string.IsNullOrWhiteSpace(@string))
+                {
+                    strings.Add(@string);
+                }
+            }
+
+            return strings.ToArray();
+        }
+
+        /// <summary>
+        /// Returns <see cref="DefaultValue"/> as an <see cref="object"/> for
+        /// versitility. A <see langword="null"/> means that
+        /// <see cref="DefaultValue"/> is not used, and a <see langword="null"/>
+        /// <see cref="Value"/> means that it is set. On the other hand, if
+        /// <see cref="DefaultValue"/> is not <see langword="null"/>, then
+        /// a <see langword="null"/> <see cref="Value"/> means that it has not
+        /// been set.
+        /// </summary>
+        /// <returns><see cref="DefaultValue"/> as an
+        /// <see cref="object"/>.</returns>
         public override object GetDefaultValueAsObject() => DefaultValue;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <see cref="DefaultValue"/>
+        /// formatted. The parameters are only used if <typeparamref name="T"/>
+        /// implements <see cref="IFormattable"/>, otherwise the
+        /// <see cref="object.ToString()"/> method is used.
+        /// </summary>
+        /// <param name="format">The format to use. If it is
+        /// <see langword="null"/>, then the default format will be
+        /// used.</param>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns>DefaultValue as a <see cref="string"/>.</returns>
         public override string GetDefaultValueAsString(string format,
             IFormatProvider formatProvider)
             => DefaultValue is IFormattable formattable
                 ? formattable.ToString(format, formatProvider)
                 : DefaultValue?.ToString();
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns <see cref="Value"/> as an <see cref="object"/> for
+        /// versitility. If <see cref="DefaultValue"/> is
+        /// <see langword="null"/>, then that means a <see cref="DefaultValue"/>
+        /// is not used, and a <see langword="null"/> <see cref="Value"/> means
+        /// that it is set. On the other hand, if the <see cref="DefaultValue"/>
+        /// is not <see langword="null"/>, then a <see langword="null"/>
+        /// <see cref="Value"/> means that it has not been set.
+        /// </summary>
+        /// <returns>The Value as an <see cref="object"/>.</returns>
         public override object GetValueAsObject() => Value;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <see cref="Value"/>
+        /// formatted. The parameters are only used if <typeparamref name="T"/>
+        /// implements <see cref="IFormattable"/>, otherwise the
+        /// <see cref="object.ToString()"/> method is used.
+        /// </summary>
+        /// <param name="format">The format to use. If it is
+        /// <see langword="null"/>, then the default format will be
+        /// used.</param>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns>DefaultValue as a <see cref="string"/>.</returns>
         public override string GetValueAsString(string format,
             IFormatProvider formatProvider)
             => Value is IFormattable formattable
@@ -85,29 +237,60 @@ namespace PreferenceGroups
         public override Type GetValueType() => typeof(T);
 
         /// <summary>
-        /// Sets Value from <paramref name="defaultValue"/>.
+        /// Sets <see cref="DefaultValue"/> from
+        /// <paramref name="defaultValue"/>.
         /// </summary>
         /// <param name="defaultValue">What to set Value to.</param>
-        /// <exception cref="InvalidCastException">
+        /// <exception cref="SetValueException">
         /// <paramref name="defaultValue"/> is not <see langword="null"/> and
         /// cannot be cast to the
         /// <c>typeof(<typeparamref name="T"/>)</c>.</exception>
         public override void SetDefaultValueFromObject(object defaultValue)
         {
-            DefaultValue = defaultValue is null ? null : (T)defaultValue;
+            try
+            {
+                DefaultValue = defaultValue is null ? null : (T)defaultValue;
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Casting);
+            }
         }
 
         /// <summary>
-        /// Sets Value from <paramref name="value"/>.
+        /// Sets <see cref="Value"/> from <paramref name="value"/>.
         /// </summary>
         /// <param name="value">What to set Value to.</param>
-        /// <exception cref="InvalidCastException"><paramref name="value"/> is
+        /// <exception cref="SetValueException"><paramref name="value"/> is
         /// not <see langword="null"/> and cannot be cast to the
         /// <c>typeof(<typeparamref name="T"/>)</c>.</exception>
         public override void SetValueFromObject(object value)
         {
-            Value = value is null ? null : (T)value;
+            try
+            {
+                Value = value is null ? null : (T)value;
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Casting);
+            }
         }
+
+        /// <summary>
+        /// A helper <see langword="static"/> method for ensuring that
+        /// <see cref="AllowedValues"/> is only <see langword="true"/>
+        /// when <paramref name="allowedValues"/> is already
+        /// <see langword="true"/>, or it is <see langword="false"/> and
+        /// <paramref name="allowedValues"/> is <see langword="null"/> or
+        /// empty.
+        /// </summary>
+        /// <param name="allowUndefinedValues"></param>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public static bool ProcessAllowUndefinedValues(
+            bool allowUndefinedValues, IReadOnlyCollection<T> allowedValues)
+            => !allowUndefinedValues
+            && (allowedValues is null || allowedValues.Count <= 0);
 
         /// <summary>
         /// A helper <see langword="static"/> method for setting the
