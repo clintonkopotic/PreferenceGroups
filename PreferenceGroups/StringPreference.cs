@@ -94,7 +94,8 @@ namespace PreferenceGroups
             bool allowUndefinedValues,
             IReadOnlyCollection<string> allowedValues,
             ClassValueValidityProcessor<string> validityProcessor)
-            : base(name, description, allowUndefinedValues, allowedValues, validityProcessor)
+            : base(name, description, allowUndefinedValues, allowedValues,
+                  validityProcessor)
         { }
 
         /// <summary>
