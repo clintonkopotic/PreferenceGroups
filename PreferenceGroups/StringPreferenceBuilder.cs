@@ -8,7 +8,6 @@ namespace PreferenceGroups
     /// </summary>
     public class StringPreferenceBuilder
     {
-
         private string description;
 
         private string name = string.Empty;
@@ -62,7 +61,7 @@ namespace PreferenceGroups
         /// Builds the <see cref="StringPreference"/> by:
         /// <list type="bullet">
         /// <item>Running the
-        /// <see cref="PreferenceBuilderHelpers.ProcessAllowedValues{T}(
+        /// <see cref="PreferenceBuilderHelper.ProcessAllowedValuesForClass{T}(
         /// IEnumerable{T}, bool)"/>
         /// method.</item>
         /// <item>Ensures that the <see cref="Preference.AllowUndefinedValues"/>
@@ -82,7 +81,7 @@ namespace PreferenceGroups
         public StringPreference Build()
         {
             IReadOnlyCollection<string> allowedValuesOut
-                = PreferenceBuilderHelpers.ProcessAllowedValues(
+                = PreferenceBuilderHelper.ProcessAllowedValuesForClass(
                     allowedValues, sortAllowedValues);
 
             if ((allowedValuesOut is null || allowedValuesOut.Count <= 0)
