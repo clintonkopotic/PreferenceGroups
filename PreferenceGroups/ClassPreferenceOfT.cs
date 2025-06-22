@@ -113,13 +113,60 @@ namespace PreferenceGroups
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
         protected ClassPreference(string name, string description,
-            bool allowUndefinedValues, IReadOnlyCollection<T> allowedValues,
+            bool allowUndefinedValues, IEnumerable<T> allowedValues,
+            ClassValueValidityProcessor<T> validityProcessor)
+            : this(name, description, allowUndefinedValues, allowedValues,
+                  sortAllowedValues: false, validityProcessor)
+        { }
+
+        /// <summary>
+        /// Initializes <see cref="Preference.Name"/> with
+        /// <paramref name="name"/> after it is processed with the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.AllowUndefinedValues"/>,
+        /// <see cref="AllowedValues"/> and <see cref="ValidityProcessor"/>
+        /// properties.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <param name="description">A description of the
+        /// <see cref="Preference"/> that is intended to be shown to the user
+        /// and in the file as a comment.</param>
+        /// <param name="allowUndefinedValues">Whether or not the Value and
+        /// DefaultValue properties can be set to something other than what is
+        /// specified in AllowedValues. If AllowedValues is not used (it is
+        /// <see langword="null"/> or empty), then
+        /// <see cref="Preference.AllowUndefinedValues"/> must be set to
+        /// <see langword="true"/>.</param>
+        /// <param name="allowedValues">A collection of values that are allowed
+        /// for the <see cref="Value"/> and <see cref="DefaultValue"/> to be set
+        /// to. If <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="true"/>, then this property is ignored. On the other
+        /// hand, if <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="false"/>, then this must not be empty or
+        /// <see langword="null"/>.</param>
+        /// <param name="sortAllowedValues"></param>
+        /// <param name="validityProcessor">Used for setting the
+        /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
+        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// used.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        protected ClassPreference(string name, string description,
+            bool allowUndefinedValues, IEnumerable<T> allowedValues,
+            bool sortAllowedValues,
             ClassValueValidityProcessor<T> validityProcessor)
             : base(name, description,
-                  ProcessAllowUndefinedValues(allowUndefinedValues,
-                      allowedValues))
+                  ProcessAllowUndefinedValuesAndAllowedValues(
+                      allowUndefinedValues, allowedValues, sortAllowedValues,
+                      out var allowedValuesOut))
         {
-            AllowedValues = allowedValues;
+            AllowedValues = allowedValuesOut;
             ValidityProcessor = validityProcessor;
         }
 
@@ -277,20 +324,82 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// A helper <see langword="static"/> method for ensuring that
-        /// <see cref="AllowedValues"/> is only <see langword="true"/>
-        /// when <paramref name="allowedValues"/> is already
-        /// <see langword="true"/>, or it is <see langword="false"/> and
-        /// <paramref name="allowedValues"/> is <see langword="null"/> or
-        /// empty.
+        /// Processes <paramref name="allowedValues"/> by instatiating either
+        /// a <see cref="SortedSet{T}"/>, if
+        /// <paramref name="sortAllowedValues"/> is <see langword="true"/>, or a
+        /// <see cref="HashSet{T}"/> if <paramref name="sortAllowedValues"/> is
+        /// <see langword="false"/>. If <paramref name="allowedValues"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned. Any
+        /// elements of <paramref name="allowedValues"/> that are
+        /// <see langword="null"/> will not be added to the returning
+        /// <see cref="IReadOnlyCollection{T}"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <param name="sortAllowedValues"></param>
+        /// <returns>The processed <paramref name="allowedValues"/>.</returns>
+        public static IReadOnlyCollection<T> ProcessAllowedValues(
+            IEnumerable<T> allowedValues, bool sortAllowedValues)
+        {
+            IReadOnlyCollection<T> allowedValuesOut = null;
+
+            if (!(allowedValues is null))
+            {
+                if (sortAllowedValues)
+                {
+                    var set = new SortedSet<T>();
+
+                    foreach (var allowedValue in allowedValues)
+                    {
+                        if (!(allowedValue is null))
+                        {
+                            _ = set.Add(allowedValue);
+                        }
+                    }
+
+                    allowedValuesOut = set;
+                }
+                else
+                {
+                    var set = new HashSet<T>();
+
+                    foreach (var allowedValue in allowedValues)
+                    {
+                        if (!(allowedValue is null))
+                        {
+                            _ = set.Add(allowedValue);
+                        }
+                    }
+
+                    allowedValuesOut = set;
+                }
+            }
+
+            return allowedValuesOut;
+        }
+
+        /// <summary>
+        /// Processes both the <paramref name="allowUndefinedValues"/> and the
+        /// <paramref name="allowedValuesIn"/> by calling in sequence the
+        /// <see cref="ProcessAllowedValues(IEnumerable{T}, bool)"/> and the
+        /// <see cref="Preference.ProcessAllowUndefinedValues(bool, int?)"/>
         /// </summary>
         /// <param name="allowUndefinedValues"></param>
-        /// <param name="allowedValues"></param>
-        /// <returns></returns>
-        public static bool ProcessAllowUndefinedValues(
-            bool allowUndefinedValues, IReadOnlyCollection<T> allowedValues)
-            => !allowUndefinedValues
-            && (allowedValues is null || allowedValues.Count <= 0);
+        /// <param name="allowedValuesIn"></param>
+        /// <param name="sortAllowedValues"></param>
+        /// <param name="allowedValuesOut">The processed
+        /// <paramref name="allowedValuesIn"/>.</param>
+        /// <returns>The processed
+        /// <paramref name="allowUndefinedValues"/>.</returns>
+        public static bool ProcessAllowUndefinedValuesAndAllowedValues(
+            bool allowUndefinedValues, IEnumerable<T> allowedValuesIn,
+            bool sortAllowedValues, out IReadOnlyCollection<T> allowedValuesOut)
+        {
+            allowedValuesOut = ProcessAllowedValues(allowedValuesIn,
+                sortAllowedValues);
+
+            return ProcessAllowUndefinedValues(allowUndefinedValues,
+                allowedValuesOut?.Count);
+        }
 
         /// <summary>
         /// A helper <see langword="static"/> method for setting the

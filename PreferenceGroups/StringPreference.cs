@@ -92,10 +92,56 @@ namespace PreferenceGroups
         /// characters.</exception>
         public StringPreference(string name, string description,
             bool allowUndefinedValues,
-            IReadOnlyCollection<string> allowedValues,
+            IEnumerable<string> allowedValues,
             ClassValueValidityProcessor<string> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
+        { }
+
+        /// <summary>
+        /// Initializes <see cref="Preference.Name"/> with
+        /// <paramref name="name"/> after it is processed with the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.AllowUndefinedValues"/>,
+        /// <see cref="ClassPreference{T}.AllowedValues"/> and
+        /// <see cref="ClassPreference{T}.ValidityProcessor"/> properties.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <param name="description">A description of the
+        /// <see cref="Preference"/> that is intended to be shown to the user
+        /// and in the file as a comment.</param>
+        /// <param name="allowUndefinedValues">Whether or not the Value and
+        /// DefaultValue properties can be set to something other than what is
+        /// specified in AllowedValues. If AllowedValues is not used (it is
+        /// <see langword="null"/> or empty), then
+        /// <see cref="Preference.AllowUndefinedValues"/> must be set to
+        /// <see langword="true"/>.</param>
+        /// <param name="allowedValues">A collection of values that are allowed
+        /// for the <see cref="Value"/> and <see cref="DefaultValue"/> to be set
+        /// to. If <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="true"/>, then this property is ignored. On the other
+        /// hand, if <see cref="Preference.AllowUndefinedValues"/> is
+        /// <see langword="false"/>, then this must not be empty or
+        /// <see langword="null"/>.</param>
+        /// <param name="sortAllowedValues"></param>
+        /// <param name="validityProcessor">Used for setting the
+        /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
+        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// used.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        public StringPreference(string name, string description,
+            bool allowUndefinedValues,
+            IEnumerable<string> allowedValues, bool sortAllowedValues,
+            ClassValueValidityProcessor<string> validityProcessor)
+            : base(name, description, allowUndefinedValues, allowedValues,
+                  sortAllowedValues, validityProcessor)
         { }
 
         /// <summary>

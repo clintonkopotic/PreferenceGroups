@@ -58,51 +58,16 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Builds the <see cref="StringPreference"/> by:
-        /// <list type="bullet">
-        /// <item>Running the
-        /// <see cref="PreferenceBuilderHelper.ProcessAllowedValuesForClass{T}(
-        /// IEnumerable{T}, bool)"/>
-        /// method.</item>
-        /// <item>Ensures that the <see cref="Preference.AllowUndefinedValues"/>
-        /// will be set correctly (i.e., if <c>AllowUndefinedValues</c> was
-        /// already set to <see langword="false"/> and <c>AllowValues</c> is
-        /// <see langword="null"/> or empty, then
-        /// <see cref="Preference.AllowUndefinedValues"/> will be set to
-        /// <see langword="true"/>).</item>
-        /// <item>Runs the
-        /// <see cref="StringPreference.ValidityProcessForSetValue(string,
-        /// string, ClassValueValidityProcessor{string}, bool,
-        /// IReadOnlyCollection{string})"/>
-        /// method on <c>Value</c> and <c>DefaultValue</c></item>.
-        /// </list>
+        /// Builds the <see cref="StringPreference"/>.
         /// </summary>
         /// <returns></returns>
         public StringPreference Build()
-        {
-            IReadOnlyCollection<string> allowedValuesOut
-                = PreferenceBuilderHelper.ProcessAllowedValuesForClass(
-                    allowedValues, sortAllowedValues);
-
-            if ((allowedValuesOut is null || allowedValuesOut.Count <= 0)
-                && !allowUndefinedValues)
+            => new StringPreference(name, description, allowUndefinedValues,
+                allowedValues, sortAllowedValues, validityProcessor)
             {
-                allowUndefinedValues = true;
-            }
-
-            var valueOut = StringPreference.ValidityProcessForSetValue(name,
-                value, validityProcessor, allowUndefinedValues, allowedValues);
-            var defaultValueOut = StringPreference.ValidityProcessForSetValue(
-                name, defaultValue, validityProcessor, allowUndefinedValues,
-                allowedValues);
-
-            return new StringPreference(name, description, allowUndefinedValues,
-                allowedValuesOut, validityProcessor)
-            {
-                Value = valueOut,
-                DefaultValue = defaultValueOut,
+                Value = value,
+                DefaultValue = defaultValue,
             };
-        }
 
         /// <summary>
         /// The <c>AllowedValues</c> collection will not be sorted upon

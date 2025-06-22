@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 
@@ -216,6 +217,23 @@ namespace PreferenceGroups
             => !string.IsNullOrWhiteSpace(name);
 
         /// <summary>
+        /// Processes <paramref name="allowUndefinedValues"/> by ensuring that
+        /// <see cref="AllowUndefinedValues"/> is only
+        /// <see langword="true"/> when <paramref name="allowUndefinedValues"/>
+        /// is already <see langword="true"/>, or it is <see langword="false"/>
+        /// and <paramref name="allowedValuesCount"/> is <see langword="null"/>
+        /// or not positive.
+        /// </summary>
+        /// <param name="allowUndefinedValues"></param>
+        /// <param name="allowedValuesCount"></param>
+        /// <returns>The processed
+        /// <paramref name="allowUndefinedValues"/>.</returns>
+        public static bool ProcessAllowUndefinedValues(
+            bool allowUndefinedValues, int? allowedValuesCount)
+            => allowUndefinedValues || (!allowUndefinedValues
+            && (allowedValuesCount is null || allowedValuesCount <= 0));
+
+        /// <summary>
         /// Processes <paramref name="name"/> by trimming it (by calling
         /// <see cref="string.Trim()"/>), or throw an exception
         /// if it is not valid.
@@ -235,13 +253,13 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(name));
             }
 
-            if (!string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException(paramName: nameof(name),
                     message: "Cannot be empty.");
             }
 
-            if (!string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException(paramName: nameof(name),
                     message: "Cannot consist only of white-space characters.");
