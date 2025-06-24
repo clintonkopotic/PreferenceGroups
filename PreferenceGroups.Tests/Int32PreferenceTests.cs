@@ -534,6 +534,18 @@ namespace PreferenceGroups.Tests
             Assert.IsNull(preference.AllowedValues);
             Assert.IsTrue(preference.AllowUndefinedValues);
 
+            _ = Assert.ThrowsException<ArgumentNullException>(() =>
+            {
+                preference = Int32PreferenceBuilder
+                    .Create(name)
+                    .WithValue(0)
+                    .WithDescription(null)
+                    .WithDefaultValue(null)
+                    .AllowOnlyDefinedValues()
+                    .WithValidityProcessor(null) // Cannot be null.
+                    .Build();
+            });
+
             var exception = Assert.ThrowsException<SetValueException>(() =>
             {
                 preference = Int32PreferenceBuilder
@@ -567,7 +579,7 @@ namespace PreferenceGroups.Tests
 
             Assert.IsNotNull(exception);
             Assert.IsNotNull(exception.InnerException);
-            Assert.AreEqual(typeof(ArgumentException),
+            Assert.AreEqual(typeof(ArgumentNullException),
                 exception.InnerException.GetType());
 
             exception = Assert.ThrowsException<SetValueException>(() =>

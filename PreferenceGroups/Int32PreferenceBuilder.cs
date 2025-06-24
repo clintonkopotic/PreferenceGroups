@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PreferenceGroups
 {
@@ -8,22 +9,22 @@ namespace PreferenceGroups
     /// </summary>
     public class Int32PreferenceBuilder
     {
-        private string description;
+        private string _description;
 
-        private string name = string.Empty;
+        private string _name = string.Empty;
 
-        private int? value = null;
+        private int? _value = null;
 
-        private int? defaultValue = null;
+        private int? _defaultValue = null;
 
-        private bool allowUndefinedValues = true;
+        private List<int?> _allowedValues = null;
 
-        private bool sortAllowedValues = false;
+        private bool _allowUndefinedValues = true;
 
-        private StructValueValidityProcessor<int> validityProcessor
+        private bool _sortAllowedValues = false;
+
+        private StructValueValidityProcessor<int> _validityProcessor
             = new StructValueValidityProcessor<int>();
-
-        private List<int?> allowedValues = null;
 
         private Int32PreferenceBuilder() { }
 
@@ -39,7 +40,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder AllowOnlyDefinedValues()
         {
-            allowUndefinedValues = false;
+            _allowUndefinedValues = false;
 
             return this;
         }
@@ -52,7 +53,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder AllowUndefinedValues()
         {
-            allowUndefinedValues = true;
+            _allowUndefinedValues = true;
 
             return this;
         }
@@ -61,12 +62,12 @@ namespace PreferenceGroups
         /// Builds the <see cref="Int32Preference"/>.
         /// </summary>
         /// <returns></returns>
-        public Int32Preference Build()
-            => new Int32Preference(name, description, allowUndefinedValues,
-                allowedValues, sortAllowedValues, validityProcessor)
+        public Int32Preference Build() =>
+            new Int32Preference(_name, _description, _allowUndefinedValues,
+                _allowedValues, _sortAllowedValues, _validityProcessor)
             {
-                Value = value,
-                DefaultValue = defaultValue,
+                Value = _value,
+                DefaultValue = _defaultValue,
             };
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder DoNotSortAllowedValues()
         {
-            sortAllowedValues = false;
+            _sortAllowedValues = false;
 
             return this;
         }
@@ -89,7 +90,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder SortAllowedValues()
         {
-            sortAllowedValues = true;
+            _sortAllowedValues = true;
 
             return this;
         }
@@ -101,10 +102,18 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValues(
             IEnumerable<int?> allowedValues)
         {
-            this.allowedValues = new List<int?>(allowedValues);
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            _allowedValues = new List<int?>(allowedValues);
 
             return this;
         }
@@ -116,9 +125,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValues(
             params int?[] allowedValues)
-            => WithAllowedValues((IEnumerable<int?>)allowedValues);
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues((IEnumerable<int?>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
@@ -128,10 +147,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
             IEnumerable<int?> allowedValues)
-            => WithAllowedValues(allowedValues)
-            .DoNotSortAllowedValues();
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).DoNotSortAllowedValues();
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
@@ -141,10 +169,20 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
             params int?[] allowedValues)
-            => WithAllowedValuesAndDoNotSort(
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndDoNotSort(
                 (IEnumerable<int?>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
@@ -153,10 +191,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValuesAndSort(
             IEnumerable<int?> allowedValues)
-            => WithAllowedValues(allowedValues)
-            .SortAllowedValues();
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).SortAllowedValues();
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
@@ -165,9 +212,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithAllowedValuesAndSort(
             params int?[] allowedValues)
-            => WithAllowedValuesAndSort((IEnumerable<int?>)allowedValues);
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndSort((IEnumerable<int?>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.DefaultValue"/> to
@@ -177,7 +234,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder WithDefaultValue(int? defaultValue)
         {
-            this.defaultValue = defaultValue;
+            _defaultValue = defaultValue;
 
             return this;
         }
@@ -194,7 +251,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder WithDescription(string description)
         {
-            this.description = description?.Trim();
+            _description = description?.Trim();
 
             return this;
         }
@@ -206,7 +263,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder WithNoAllowedValues()
         {
-            allowedValues = null;
+            _allowedValues = null;
 
             return this;
         }
@@ -217,10 +274,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="processor"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithValidityProcessor(
             Int32ValueValidityProcessor processor)
-            => WithValidityProcessor(
+        {
+            if (processor is null)
+            {
+                throw new ArgumentNullException(nameof(processor));
+            }
+
+            return WithValidityProcessor(
                 (StructValueValidityProcessor<int>)processor);
+        }
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.ValidityProcessor"/> to
@@ -228,10 +294,17 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="processor"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithValidityProcessor(
             StructValueValidityProcessor<int> processor)
         {
-            validityProcessor = processor;
+            if (processor is null)
+            {
+                throw new ArgumentNullException(nameof(processor));
+            }
+
+            _validityProcessor = processor;
 
             return this;
         }
@@ -244,7 +317,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public Int32PreferenceBuilder WithValue(int? value)
         {
-            this.value = value;
+            _value = value;
 
             return this;
         }
@@ -268,6 +341,11 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static Int32Preference Build(string name)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name)).Build();
 
@@ -280,6 +358,11 @@ namespace PreferenceGroups
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static Int32Preference Build(string name, int? value)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name))
                 .WithValue(value)
@@ -292,10 +375,15 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static Int32PreferenceBuilder Create(string name)
             => new Int32PreferenceBuilder()
             {
-                name = Preference.ProcessNameOrThrowIfInvalid(name),
+                _name = Preference.ProcessNameOrThrowIfInvalid(name),
             };
     }
 }

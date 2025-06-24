@@ -73,5 +73,11 @@ namespace PreferenceGroups
         /// <see cref="Exception"/> was generated.
         /// </summary>
         PostProcessing,
+
+        /// <summary>
+        /// While setting the value an <see cref="Exception"/> was
+        /// generated.
+        /// </summary>
+        SettingValue,
     }
 }

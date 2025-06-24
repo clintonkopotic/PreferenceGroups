@@ -25,16 +25,46 @@ namespace PreferenceGroups
         public override string DefaultValue
         {
             get => _defaultValue;
-            set => _defaultValue = ValidityProcessForSetValue(Name, value,
-                ValidityProcessor, AllowUndefinedValues, AllowedValues);
+            set
+            {
+                try
+                {
+                    _defaultValue = ValidityProcessForSetValue(Name, value,
+                        ValidityProcessor, AllowUndefinedValues, AllowedValues);
+                }
+                catch (SetValueException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new SetValueException(ex,
+                        SetValueStepFailure.SettingValue);
+                }
+            }
         }
 
         /// <inheritdoc/>
         public override string Value
         {
             get => _value;
-            set => _value = ValidityProcessForSetValue(Name, value,
-                ValidityProcessor, AllowUndefinedValues, AllowedValues);
+            set
+            {
+                try
+                {
+                    _value = ValidityProcessForSetValue(Name, value,
+                        ValidityProcessor, AllowUndefinedValues, AllowedValues);
+                }
+                catch (SetValueException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new SetValueException(ex,
+                        SetValueStepFailure.SettingValue);
+                }
+            }
         }
 
         /// <summary>
@@ -207,7 +237,7 @@ namespace PreferenceGroups
         /// <param name="name">The name of the <see cref="Preference"/>. This is
         /// used for context with any possible excepctions.</param>
         /// <param name="valueIn">What is to be set.</param>
-        /// <param name="valueProcessor">Contains the functions for processing
+        /// <param name="validityProcessor">Contains the functions for processing
         /// and checking the validity of <paramref name="valueIn"/>.</param>
         /// <param name="allowUndefinedValues">Whether or not the value can be
         /// set to something other than what is specified in
@@ -226,10 +256,18 @@ namespace PreferenceGroups
         /// <paramref name="valueIn"/> cannot be processed or is not
         /// valid.</exception>
         public static new string ValidityProcessForSetValue(string name,
-            string valueIn, ClassValueValidityProcessor<string> valueProcessor,
+            string valueIn,
+            ClassValueValidityProcessor<string> validityProcessor,
             bool allowUndefinedValues,
             IReadOnlyCollection<string> allowedValues)
         {
+            if (validityProcessor is null)
+            {
+                throw new SetValueException(
+                    new ArgumentNullException(nameof(validityProcessor)),
+                    SetValueStepFailure.Unknown);
+            }
+
             string processedName;
 
             try
@@ -252,7 +290,7 @@ namespace PreferenceGroups
 
             try
             {
-                var result = valueProcessor.Pre(valueOut);
+                var result = validityProcessor.Pre(valueOut);
                 valueOut = result.ValueOut;
                 exception = result.Exception;
             }
@@ -289,7 +327,7 @@ namespace PreferenceGroups
                 if (allowedValues is null || allowedValues.Count <= 0
                     || (!isAllowedValue && exception is null))
                 {
-                    var result = valueProcessor.IsValid(valueOut);
+                    var result = validityProcessor.IsValid(valueOut);
 
                     if (!result.Valid && !(result.Exception is null))
                     {
@@ -310,7 +348,7 @@ namespace PreferenceGroups
 
             try
             {
-                var result = valueProcessor.Post(valueOut);
+                var result = validityProcessor.Post(valueOut);
                 valueOut = result.ValueOut;
                 exception = result.Exception;
             }

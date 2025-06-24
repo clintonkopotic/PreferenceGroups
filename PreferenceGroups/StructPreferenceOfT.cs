@@ -27,8 +27,23 @@ namespace PreferenceGroups
         public virtual T? DefaultValue
         {
             get => _defaultValue;
-            set => _defaultValue = ValidityProcessForSetValue(Name, value,
-                ValidityProcessor, AllowUndefinedValues, AllowedValues);
+            set
+            {
+                try
+                {
+                    _defaultValue = ValidityProcessForSetValue(Name, value,
+                        ValidityProcessor, AllowUndefinedValues, AllowedValues);
+                }
+                catch (SetValueException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new SetValueException(ex,
+                        SetValueStepFailure.SettingValue);
+                }
+            }
         }
 
         /// <summary>
@@ -37,8 +52,23 @@ namespace PreferenceGroups
         public virtual T? Value
         {
             get => _value;
-            set => _value = ValidityProcessForSetValue(Name, value,
-                ValidityProcessor, AllowUndefinedValues, AllowedValues);
+            set
+            {
+                try
+                {
+                    _value = ValidityProcessForSetValue(Name, value,
+                        ValidityProcessor, AllowUndefinedValues, AllowedValues);
+                }
+                catch (SetValueException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new SetValueException(ex,
+                        SetValueStepFailure.SettingValue);
+                }
+            }
         }
 
         /// <summary>
@@ -67,11 +97,11 @@ namespace PreferenceGroups
         /// <param name="name">The name of the <see cref="Preference"/> and
         /// must be not <see langword="null"/>, not empty and not consist only
         /// of white-space characters.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
-        /// <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         protected StructPreference(string name) : base(name)
         { }
 
@@ -107,11 +137,12 @@ namespace PreferenceGroups
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
         /// only <see cref="StructValueValidityResult{T}.IsValid"/> values are
         /// used.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
-        /// <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/> or <paramref name="validityProcessor"/> is
+        /// <see langword="null"/>.</exception>
         protected StructPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<T?> allowedValues,
             StructValueValidityProcessor<T> validityProcessor)
@@ -152,11 +183,12 @@ namespace PreferenceGroups
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
         /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
         /// used.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
-        /// <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/> or <paramref name="validityProcessor"/> is
+        /// <see langword="null"/>.</exception>
         protected StructPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<T?> allowedValues,
             bool sortAllowedValues,
@@ -166,6 +198,11 @@ namespace PreferenceGroups
                       allowUndefinedValues, allowedValues, sortAllowedValues,
                       out var allowedValuesOut))
         {
+            if (validityProcessor is null)
+            {
+                throw new ArgumentNullException(nameof(validityProcessor));
+            }
+
             AllowedValues = allowedValuesOut;
             ValidityProcessor = validityProcessor;
         }
@@ -182,7 +219,7 @@ namespace PreferenceGroups
         /// <param name="formatProvider">The provider to use to format the
         /// value. If it is <see langword="null"/>, then the
         /// <see cref="Thread.CurrentCulture"/> will be used.</param>
-        /// <returns>AllowedValues as an <see cref="Array"/> of
+        /// <returns><see cref="AllowedValues"/> as an <see cref="Array"/> of
         /// <see cref="string"/>s.</returns>
         public override string[] GetAllowedValuesAsStrings(string format,
             IFormatProvider formatProvider)
@@ -294,13 +331,29 @@ namespace PreferenceGroups
         /// <c>typeof(<typeparamref name="T"/>)</c>.</exception>
         public override void SetDefaultValueFromObject(object defaultValue)
         {
+            T? tDefaultValue;
+
             try
             {
-                DefaultValue = defaultValue is null ? null : (T?)defaultValue;
+                tDefaultValue = (T?)defaultValue;
             }
             catch (Exception ex)
             {
                 throw new SetValueException(ex, SetValueStepFailure.Casting);
+            }
+
+            try
+            {
+                Value = tDefaultValue;
+            }
+            catch (SetValueException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex,
+                    SetValueStepFailure.SettingValue);
             }
         }
 
@@ -313,13 +366,29 @@ namespace PreferenceGroups
         /// <c>typeof(<typeparamref name="T"/>)</c>.</exception>
         public override void SetValueFromObject(object value)
         {
+            T? tValue;
+
             try
             {
-                Value = value is null ? null : (T?)value;
+                tValue = (T?)value;
             }
             catch (Exception ex)
             {
                 throw new SetValueException(ex, SetValueStepFailure.Casting);
+            }
+
+            try
+            {
+                Value = tValue;
+            }
+            catch (SetValueException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex,
+                    SetValueStepFailure.SettingValue);
             }
         }
 
@@ -408,7 +477,7 @@ namespace PreferenceGroups
         /// <param name="name">The name of the <see cref="Preference"/>. This is
         /// used for context with any possible excepctions.</param>
         /// <param name="valueIn">What is to be set.</param>
-        /// <param name="valueProcessor">Contains the functions for processing
+        /// <param name="validityProcessor">Contains the functions for processing
         /// and checking the validity of <paramref name="valueIn"/>.</param>
         /// <param name="allowUndefinedValues">Whether or not the value can be
         /// set to something other than what is specified in
@@ -427,9 +496,16 @@ namespace PreferenceGroups
         /// <paramref name="valueIn"/> cannot be processed or is not
         /// valid.</exception>
         public static T? ValidityProcessForSetValue(string name, T? valueIn,
-            StructValueValidityProcessor<T> valueProcessor,
+            StructValueValidityProcessor<T> validityProcessor,
             bool allowUndefinedValues, IReadOnlyCollection<T?> allowedValues)
         {
+            if (validityProcessor is null)
+            {
+                throw new SetValueException(
+                    new ArgumentNullException(nameof(validityProcessor)),
+                    SetValueStepFailure.Unknown);
+            }
+
             string processedName;
 
             try
@@ -452,7 +528,7 @@ namespace PreferenceGroups
 
             try
             {
-                var result = valueProcessor.Pre(valueOut);
+                var result = validityProcessor.Pre(valueOut);
                 valueOut = result.ValueOut;
                 exception = result.Exception;
             }
@@ -489,7 +565,7 @@ namespace PreferenceGroups
                 if (allowedValues is null || allowedValues.Count <= 0
                     || (!isAllowedValue && exception is null))
                 {
-                    var result = valueProcessor.IsValid(valueOut);
+                    var result = validityProcessor.IsValid(valueOut);
 
                     if (!result.Valid && !(result.Exception is null))
                     {
@@ -510,7 +586,7 @@ namespace PreferenceGroups
 
             try
             {
-                var result = valueProcessor.Post(valueOut);
+                var result = validityProcessor.Post(valueOut);
                 valueOut = result.ValueOut;
                 exception = result.Exception;
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PreferenceGroups
 {
@@ -8,22 +9,22 @@ namespace PreferenceGroups
     /// </summary>
     public class StringPreferenceBuilder
     {
-        private string description;
+        private string _description;
 
-        private string name = string.Empty;
+        private string _name = string.Empty;
 
-        private string value = null;
+        private string _value = null;
 
-        private string defaultValue = null;
+        private string _defaultValue = null;
 
-        private bool allowUndefinedValues = true;
+        private List<string> _allowedValues = null;
 
-        private bool sortAllowedValues = false;
+        private bool _allowUndefinedValues = true;
 
-        private ClassValueValidityProcessor<string> validityProcessor
+        private bool _sortAllowedValues = false;
+
+        private ClassValueValidityProcessor<string> _validityProcessor
             = new ClassValueValidityProcessor<string>();
-
-        private List<string> allowedValues = null;
 
         private StringPreferenceBuilder() { }
 
@@ -39,7 +40,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder AllowOnlyDefinedValues()
         {
-            allowUndefinedValues = false;
+            _allowUndefinedValues = false;
 
             return this;
         }
@@ -52,7 +53,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder AllowUndefinedValues()
         {
-            allowUndefinedValues = true;
+            _allowUndefinedValues = true;
 
             return this;
         }
@@ -61,12 +62,12 @@ namespace PreferenceGroups
         /// Builds the <see cref="StringPreference"/>.
         /// </summary>
         /// <returns></returns>
-        public StringPreference Build()
-            => new StringPreference(name, description, allowUndefinedValues,
-                allowedValues, sortAllowedValues, validityProcessor)
+        public StringPreference Build() =>
+            new StringPreference(_name, _description, _allowUndefinedValues,
+                _allowedValues, _sortAllowedValues, _validityProcessor)
             {
-                Value = value,
-                DefaultValue = defaultValue,
+                Value = _value,
+                DefaultValue = _defaultValue,
             };
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder DoNotSortAllowedValues()
         {
-            sortAllowedValues = false;
+            _sortAllowedValues = false;
 
             return this;
         }
@@ -89,7 +90,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder SortAllowedValues()
         {
-            sortAllowedValues = true;
+            _sortAllowedValues = true;
 
             return this;
         }
@@ -101,10 +102,18 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValues(
             IEnumerable<string> allowedValues)
         {
-            this.allowedValues = new List<string>(allowedValues);
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            _allowedValues = new List<string>(allowedValues);
 
             return this;
         }
@@ -116,9 +125,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValues(
             params string[] allowedValues)
-            => WithAllowedValues((IEnumerable<string>)allowedValues);
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues((IEnumerable<string>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
@@ -128,10 +147,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValuesAndDoNotSort(
             IEnumerable<string> allowedValues)
-            => WithAllowedValues(allowedValues)
-            .DoNotSortAllowedValues();
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).DoNotSortAllowedValues();
+        }
 
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
@@ -141,10 +169,20 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValuesAndDoNotSort(
             params string[] allowedValues)
-            => WithAllowedValuesAndDoNotSort(
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndDoNotSort(
                 (IEnumerable<string>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
@@ -153,10 +191,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValuesAndSort(
             IEnumerable<string> allowedValues)
-            => WithAllowedValues(allowedValues)
-            .SortAllowedValues();
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).SortAllowedValues();
+        }
 
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
@@ -165,9 +212,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="allowedValues"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithAllowedValuesAndSort(
             params string[] allowedValues)
-            => WithAllowedValuesAndSort((IEnumerable<string>)allowedValues);
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndSort((IEnumerable<string>)allowedValues);
+        }
 
         /// <summary>
         /// Will set <see cref="StringPreference.DefaultValue"/> to
@@ -177,7 +234,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder WithDefaultValue(string defaultValue)
         {
-            this.defaultValue = defaultValue;
+            _defaultValue = defaultValue;
 
             return this;
         }
@@ -194,7 +251,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder WithDescription(string description)
         {
-            this.description = description?.Trim();
+            _description = description?.Trim();
 
             return this;
         }
@@ -206,7 +263,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder WithNoAllowedValues()
         {
-            allowedValues = null;
+            _allowedValues = null;
 
             return this;
         }
@@ -217,10 +274,19 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="processor"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithValidityProcessor(
             StringValueValidityProcessor processor)
-            => WithValidityProcessor(
+        {
+            if (processor is null)
+            {
+                throw new ArgumentNullException(nameof(processor));
+            }
+
+            return WithValidityProcessor(
                 (ClassValueValidityProcessor<string>)processor);
+        }
 
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.ValidityProcessor"/> to
@@ -228,10 +294,17 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="processor"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithValidityProcessor(
             ClassValueValidityProcessor<string> processor)
         {
-            validityProcessor = processor;
+            if (processor is null)
+            {
+                throw new ArgumentNullException(nameof(processor));
+            }
+
+            _validityProcessor = processor;
 
             return this;
         }
@@ -244,7 +317,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public StringPreferenceBuilder WithValue(string value)
         {
-            this.value = value;
+            _value = value;
 
             return this;
         }
@@ -268,6 +341,11 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static StringPreference Build(string name)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name)).Build();
 
@@ -280,6 +358,11 @@ namespace PreferenceGroups
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static StringPreference Build(string name, string value)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name))
                 .WithValue(value)
@@ -292,10 +375,15 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         public static StringPreferenceBuilder Create(string name)
             => new StringPreferenceBuilder()
             {
-                name = Preference.ProcessNameOrThrowIfInvalid(name),
+                _name = Preference.ProcessNameOrThrowIfInvalid(name),
             };
     }
 }

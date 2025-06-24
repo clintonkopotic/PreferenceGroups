@@ -532,6 +532,18 @@ namespace PreferenceGroups.Tests
             Assert.IsNull(preference.AllowedValues);
             Assert.IsTrue(preference.AllowUndefinedValues);
 
+            _ = Assert.ThrowsException<ArgumentNullException>(() =>
+            {
+                preference = StringPreferenceBuilder
+                    .Create(name)
+                    .WithValue(" ")
+                    .WithDescription(null)
+                    .WithDefaultValue(null)
+                    .AllowOnlyDefinedValues()
+                    .WithValidityProcessor(null) // Cannot be null.
+                    .Build();
+            });
+
             var exception = Assert.ThrowsException<SetValueException>(() =>
             {
                 preference = StringPreferenceBuilder
