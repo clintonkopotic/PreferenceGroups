@@ -267,37 +267,32 @@ namespace PreferenceGroups
             return _dictionary.Remove(processedName);
         }
 
-        /// <summary>
-        /// Removes the first occurrence of a <see cref="Preference"/> from the
-        /// group where the <see cref="Preference.Name"/> of
-        /// <paramref name="preference"/> matches the
-        /// <see cref="Preference.Name"/> of a <see cref="Preference"/> in the
-        /// group.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <returns><see langword="true"/> if the <see cref="Preference"/> is
-        /// successfully found and removed; otherwise, <see langword="false"/>,
-        /// even if the <see cref="Preference.Name"/> of
-        /// <paramref name="preference"/> was not found.</returns>
-        /// <exception cref="ArgumentException">The
-        /// <see cref="Preference.Name"/> of <paramref name="preference"/> is an
-        /// empty <see langword="string"/> or conists only of white-space
-        /// characters.</exception>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/> or the
-        /// <see cref="Preference.Name"/> of <paramref name="preference"/> is
-        /// <see langword="null"/>.</exception>
+        /// <inheritdoc/>
         public bool Remove(Preference preference)
         {
             if (preference is null)
             {
-                throw new ArgumentNullException(nameof(preference));
+                return false;
             }
 
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                preference.Name);
+            var remove = false;
 
-            return RemoveByName(processedName);
+            foreach (var p in _dictionary.Values)
+            {
+                if (p == preference)
+                {
+                    remove = true;
+                    
+                    break;
+                }
+            }
+
+            if (remove)
+            {
+                return RemoveByName(preference.Name);
+            }
+
+            return false;
         }
 
         /// <summary>
