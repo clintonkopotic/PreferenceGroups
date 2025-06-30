@@ -120,6 +120,37 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
+        /// <c>AllowedValues</c> by calling the
+        /// <see cref="GetAllowedValuesAsStrings(string, IFormatProvider)"/>
+        /// method with a <see langword="null"/> for both parameters.
+        /// </summary>
+        /// <returns><c>AllowedValues</c> as an <see cref="Array"/> of
+        /// <see cref="string"/>s.</returns>
+        public string[] GetAllowedValuesAsStrings()
+            => GetAllowedValuesAsStrings(null, null);
+
+        /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
+        /// <c>AllowedValues</c>. The parameter
+        /// <paramref name="formatProvider"/> is only used if
+        /// <see cref="GetValueType()"/> implements <see cref="IFormattable"/>
+        /// (along with a <see langword="null"/> for the <c>format</c> parameter
+        /// when calling the
+        /// <see cref="GetAllowedValuesAsStrings(string, IFormatProvider)"/>
+        /// method), otherwise the <see cref="object.ToString()"/> method is
+        /// used.
+        /// </summary>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns><c>AllowedValues</c> as an <see cref="Array"/> of
+        /// <see cref="string"/>s.</returns>
+        public string[] GetAllowedValuesAsStrings(
+            IFormatProvider formatProvider)
+            => GetAllowedValuesAsStrings(null, formatProvider);
+
+        /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
         /// <c>AllowedValues</c>. The parameters are only used if
         /// <see cref="GetValueType()"/> implements <see cref="IFormattable"/>,
         /// otherwise the <see cref="object.ToString()"/> method is used.
@@ -136,6 +167,24 @@ namespace PreferenceGroups
             IFormatProvider formatProvider);
 
         /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
+        /// <c>AllowedValues</c>. The parameter <paramref name="format"/> is
+        /// only used if <see cref="GetValueType()"/> implements
+        /// <see cref="IFormattable"/> (along with a <see langword="null"/> for
+        /// the <c>formatProvider</c> parameter when calling the
+        /// <see cref="GetAllowedValuesAsStrings(string, IFormatProvider)"/>
+        /// method), otherwise the <see cref="object.ToString()"/> method is
+        /// used.
+        /// </summary>
+        /// <param name="format">The format to use. If it is
+        /// <see langword="null"/>, then the default format will be
+        /// used.</param>
+        /// <returns><c>AllowedValues</c> as an <see cref="Array"/> of
+        /// <see cref="string"/>s.</returns>
+        public string[] GetAllowedValuesAsStrings(string format)
+            => GetAllowedValuesAsStrings(format, null);
+
+        /// <summary>
         /// Returns the <c>DefaultValue</c> as an <see cref="object"/>. A
         /// <see langword="null"/> means that the <c>DefaultValue</c> is not
         /// used, and a <see langword="null"/> <c>Value</c> means that it is
@@ -146,6 +195,33 @@ namespace PreferenceGroups
         /// <returns>The <c>DefaultValue</c> as an
         /// <see cref="object"/>.</returns>
         public abstract object GetDefaultValueAsObject();
+
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <c>DefaultValue</c> formatted
+        /// by calling the
+        /// <see cref="GetDefaultValueAsString(string, IFormatProvider)"/>
+        /// method with a <see langword="null"/> for both parameters.
+        /// </summary>
+        /// <returns><c>DefaultValue</c> as a <see cref="string"/>.</returns>
+        public string GetDefaultValueAsString()
+            => GetDefaultValueAsString(null, null);
+
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <c>DefaultValue</c> formatted.
+        /// The parameter <paramref name="formatProvider"/> is only used if
+        /// <see cref="GetValueType()"/> implements <see cref="IFormattable"/>
+        /// (along with a <see langword="null"/> for the <c>format</c> parameter
+        /// when calling the
+        /// <see cref="GetDefaultValueAsString(string, IFormatProvider)"/>
+        /// method), otherwise the <see cref="object.ToString()"/> method is
+        /// used.
+        /// </summary>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns><c>DefaultValue</c> as a <see cref="string"/>.</returns>
+        public string GetDefaultValueAsString(IFormatProvider formatProvider)
+            => GetDefaultValueAsString(null, formatProvider);
 
         /// <summary>
         /// Returns a <see cref="string"/> of the <c>DefaultValue</c> formatted.
@@ -159,9 +235,26 @@ namespace PreferenceGroups
         /// <param name="formatProvider">The provider to use to format the
         /// value. If it is <see langword="null"/>, then the
         /// <see cref="Thread.CurrentCulture"/> will be used.</param>
-        /// <returns>DefaultValue as a <see cref="string"/>.</returns>
+        /// <returns><c>DefaultValue</c> as a <see cref="string"/>.</returns>
         public abstract string GetDefaultValueAsString(string format,
             IFormatProvider formatProvider);
+
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <c>DefaultValue</c> formatted.
+        /// The parameter <paramref name="format"/> is only used if
+        /// <see cref="GetValueType()"/> implements <see cref="IFormattable"/>
+        /// (along with a <see langword="null"/> for the <c>formatProvider</c>
+        /// parameter when calling the
+        /// <see cref="GetDefaultValueAsString(string, IFormatProvider)"/>
+        /// method), otherwise the <see cref="object.ToString()"/> method is
+        /// used.
+        /// </summary>
+        /// <param name="format">The format to use. If it is
+        /// <see langword="null"/>, then the default format will be
+        /// used.</param>
+        /// <returns><c>DefaultValue</c> as a <see cref="string"/>.</returns>
+        public string GetDefaultValueAsString(string format)
+            => GetDefaultValueAsString(format, null);
 
         /// <summary>
         /// Returns the <c>Value</c> as an <see cref="object"/>. If
@@ -173,6 +266,32 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns>The <c>Value</c> as an <see cref="object"/>.</returns>
         public abstract object GetValueAsObject();
+
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <c>Value</c> formatted by
+        /// calling the <see cref="GetValueAsString(string, IFormatProvider)"/>
+        /// method with a <see langword="null"/> for both parameters.
+        /// </summary>
+        /// <returns><c>Value</c> as a <see cref="string"/>.</returns>
+        public string GetValueAsString()
+            => GetValueAsString(null, null);
+
+        /// <summary>
+        /// Returns a <see cref="string"/> of the <c>Value</c> formatted. The
+        /// parameter <paramref name="formatProvider"/> is only used if
+        /// <see cref="GetValueType()"/> implements <see cref="IFormattable"/>
+        /// (along with a <see langword="null"/> for the <c>format</c> parameter
+        /// when calling the
+        /// <see cref="GetValueAsString(string, IFormatProvider)"/>
+        /// method), otherwise the <see cref="object.ToString()"/> method is
+        /// used.
+        /// </summary>
+        /// <param name="formatProvider">The provider to use to format the
+        /// value. If it is <see langword="null"/>, then the
+        /// <see cref="Thread.CurrentCulture"/> will be used.</param>
+        /// <returns><c>Value</c> as a <see cref="string"/>.</returns>
+        public string GetValueAsString(IFormatProvider formatProvider)
+            => GetValueAsString(null, formatProvider);
 
         /// <summary>
         /// Returns a <see cref="string"/> of the <c>Value</c> formatted. The
