@@ -118,5 +118,37 @@ namespace PreferenceGroups
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
+
+        /// <summary>
+        /// Uses <see cref="Convert.ToInt32(object)"/> to convert
+        /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
+        /// <see cref="int"/>. If <paramref name="value"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">An exception was thrown while
+        /// converting.</exception>
+        public override int? ConvertObjectToValue(object value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (value is int intValue)
+                {
+                    return intValue;
+                }
+
+                return Convert.ToInt32(value);
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Converting);
+            }
+        }
     }
 }

@@ -216,6 +216,25 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Casts <paramref name="value"/> to <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException"><paramref name="value"/>
+        /// could not be cast to <typeparamref name="T"/>.</exception>
+        public virtual T ConvertObjectToValue(object value)
+        {
+            try
+            {
+                return (T)value;
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Casting);
+            }
+        }
+
+        /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
         /// <see cref="AllowedValues"/>. The parameters are only used if
         /// <typeparamref name="T"/> implements <see cref="IFormattable"/>,
@@ -343,11 +362,15 @@ namespace PreferenceGroups
 
             try
             {
-                tDefaultValue = (T)defaultValue;
+                tDefaultValue = ConvertObjectToValue(defaultValue);
+            }
+            catch (SetValueException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                throw new SetValueException(ex, SetValueStepFailure.Casting);
+                throw new SetValueException(ex, SetValueStepFailure.Converting);
             }
 
             try
@@ -378,11 +401,15 @@ namespace PreferenceGroups
 
             try
             {
-                tValue = (T)value;
+                tValue = ConvertObjectToValue(value);
+            }
+            catch (SetValueException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                throw new SetValueException(ex, SetValueStepFailure.Casting);
+                throw new SetValueException(ex, SetValueStepFailure.Converting);
             }
 
             try

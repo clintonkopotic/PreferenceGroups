@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups.Tests
 {
@@ -12,6 +13,11 @@ namespace PreferenceGroups.Tests
                 PreferenceGroupBuilder.BuildEmpty());
 
             Assert.AreEqual("{}", jsonString);
+
+            var jObject = JsonPeeler.Create(jsonString).AsJObject();
+
+            Assert.IsNotNull(jObject);
+            Assert.AreEqual(0, jObject.Count);
         }
 
         [TestMethod]
@@ -21,6 +27,11 @@ namespace PreferenceGroups.Tests
                 groups: []);
 
             Assert.AreEqual("[]", jsonString);
+
+            var jArray = JsonPeeler.Create(jsonString).AsJArray();
+
+            Assert.IsNotNull(jArray);
+            Assert.AreEqual(0, jArray.Count);
         }
 
         [TestMethod]
@@ -36,6 +47,16 @@ namespace PreferenceGroups.Tests
             var expected = "1";
 
             Assert.AreEqual(expected, jsoncString);
+
+            var jValue = JsonPeeler.Create(jsoncString).AsJValue();
+
+            Assert.IsNotNull(jValue);
+            Assert.AreEqual(JTokenType.Integer, jValue.Type);
+
+            var value = (long?)jValue.Value;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(1L, value.Value);
+            preference.SetValueFromObject(jValue.Value);
         }
 
         [TestMethod]
@@ -51,6 +72,16 @@ namespace PreferenceGroups.Tests
             var expected = "\"1\"";
 
             Assert.AreEqual(expected, jsoncString);
+
+            var jValue = JsonPeeler.Create(jsoncString).AsJValue();
+
+            Assert.IsNotNull(jValue);
+            Assert.AreEqual(JTokenType.String, jValue.Type);
+
+            var value = (string?)jValue.Value;
+            Assert.IsNotNull(value);
+            Assert.AreEqual("1", value);
+            preference.SetValueFromObject(jValue.Value);
         }
 
         [TestMethod]
@@ -77,6 +108,11 @@ namespace PreferenceGroups.Tests
                 """;
 
             Assert.AreEqual(expected, jsoncString);
+
+            var jObject = JsonPeeler.Create(jsoncString).AsJObject();
+
+            Assert.IsNotNull(jObject);
+            Assert.AreEqual(2, jObject.Count);
         }
     }
 }

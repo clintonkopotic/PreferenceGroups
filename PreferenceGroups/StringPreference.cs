@@ -175,6 +175,39 @@ namespace PreferenceGroups
         { }
 
         /// <summary>
+        /// Uses <see cref="object.ToString()"/> to convert
+        /// <paramref name="value"/> to <see cref="string"/>, if
+        /// <paramref name="value"/> is not a <see cref="string"/>. If it is,
+        /// then it is returned. If <paramref name="value"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">An exception was thrown while
+        /// calling <see cref="object.ToString()"/>.</exception>
+        public override string ConvertObjectToValue(object value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (value is string stringValue)
+                {
+                    return stringValue;
+                }
+
+                return value.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Converting);
+            }
+        }
+
+        /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of the
         /// <see cref="ClassPreference{T}.AllowedValues"/>. The parameters are
         /// ignored since <see cref="string"/> does not implement
