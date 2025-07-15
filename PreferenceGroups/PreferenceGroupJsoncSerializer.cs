@@ -9,6 +9,8 @@ namespace PreferenceGroups
     /// being written in comments, like the
     /// <see cref="PreferenceGroup.Description"/> property.
     /// </summary>
+    /// <remarks>See <see href="https://www.jsonc.org">jsonc.org</see> for
+    /// further details about a JSONC file format.</remarks>
     public static class PreferenceGroupJsoncSerializer
     {
         /// <summary>

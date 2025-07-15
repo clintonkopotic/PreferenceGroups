@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups
@@ -26,9 +27,13 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="group"></param>
         /// <param name="jObject"></param>
+        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
+        /// were updated from <paramref name="jObject"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="group"/> is
         /// <see langword="null"/>.</exception>
-        public static void UpdateFrom(PreferenceGroup group, JObject jObject)
+        public static IReadOnlyCollection<string> UpdateFrom(
+            PreferenceGroup group, JObject jObject)
         {
             if (group is null)
             {
@@ -38,15 +43,24 @@ namespace PreferenceGroups
             if (jObject is null || jObject.Type == JTokenType.Null
                 || jObject.Count <= 0)
             {
-                return; // Assume nothing to update, leave as is.
+                return null; // Assume nothing to update, leave as is.
             }
+
+            List<string> names = new List<string>();
 
             foreach (var name in group.Names)
             {
                 var preference = group[name];
-                PreferenceJsonDeserializer.UpdateFrom(preference, jObject);
+
+                if (PreferenceJsonDeserializer.UpdateFrom(preference, jObject))
+                {
+                    names.Add(name);
+                }
+
                 group[name] = preference;
             }
+            
+            return names;
         }
     }
 }

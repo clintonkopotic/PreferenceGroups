@@ -169,26 +169,19 @@ namespace PreferenceGroups.Tests
             Assert.IsTrue(group.ContainsName(int32PreferenceName));
             Assert.AreEqual(
                 expected: int32PreferenceValue,
-                actual: (int)group.GetValue(int32PreferenceName));
+                actual: (int?)group.GetValue(int32PreferenceName));
 
             int32PreferenceValue = 456;
             group.SetValue(int32PreferenceName, int32PreferenceValue);
 
             Assert.AreEqual(
                 expected: int32PreferenceValue,
-                actual: (int)group.GetValue(int32PreferenceName));
+                actual: (int?)group.GetValue(int32PreferenceName));
 
-            var sve = Assert.ThrowsException<SetValueException>(() =>
-            {
-                group.SetValue(stringPreferenceName, int32PreferenceValue);
-            });
-
-            Assert.IsNotNull(sve);
-            Assert.IsNotNull(sve.Result);
-            Assert.AreEqual(SetValueStepFailure.Casting,
-                sve.Result.StepFailure);
-            Assert.IsInstanceOfType<InvalidCastException>(sve.InnerException);
-            Assert.IsInstanceOfType<InvalidCastException>(sve.Result.Exception);
+            group.SetValue(stringPreferenceName, int32PreferenceValue);
+            Assert.AreEqual(
+                expected: int32PreferenceValue.ToString(),
+                actual: (string?)group.GetValue(stringPreferenceName));
         }
 
         [TestMethod]

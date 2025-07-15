@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace PreferenceGroups.Tests
 {
@@ -9,29 +10,18 @@ namespace PreferenceGroups.Tests
         [TestMethod]
         public void EmptyGroupTest()
         {
-            var jsonString = JsoncSerializationContext.SerializeToString(
-                PreferenceGroupBuilder.BuildEmpty());
+            using StringWriter stringWriter = new();
+            using JsoncSerializationContext context = new(stringWriter);
+            context.Serialize(PreferenceGroupBuilder.BuildEmpty());
+            context.Flush();
+            var jsoncString = stringWriter.ToString();
 
-            Assert.AreEqual("{}", jsonString);
+            Assert.AreEqual("{}", jsoncString);
 
-            var jObject = JsonPeeler.Create(jsonString).AsJObject();
+            var jObject = JsonPeeler.Create(jsoncString).AsJObject();
 
             Assert.IsNotNull(jObject);
             Assert.AreEqual(0, jObject.Count);
-        }
-
-        [TestMethod]
-        public void EmptyGroupArrayTest()
-        {
-            var jsonString = JsoncSerializationContext.SerializeToString(
-                groups: []);
-
-            Assert.AreEqual("[]", jsonString);
-
-            var jArray = JsonPeeler.Create(jsonString).AsJArray();
-
-            Assert.IsNotNull(jArray);
-            Assert.AreEqual(0, jArray.Count);
         }
 
         [TestMethod]
@@ -42,8 +32,11 @@ namespace PreferenceGroups.Tests
                 .WithValue(1)
                 .Build();
 
-            var jsoncString = JsoncSerializationContext.SerializeToString(
-                preference);
+            using StringWriter stringWriter = new();
+            using JsoncSerializationContext context = new(stringWriter);
+            context.Serialize(preference);
+            context.Flush();
+            var jsoncString = stringWriter.ToString();
             var expected = "1";
 
             Assert.AreEqual(expected, jsoncString);
@@ -67,8 +60,11 @@ namespace PreferenceGroups.Tests
                 .WithValue("1")
                 .Build();
 
-            var jsoncString = JsoncSerializationContext.SerializeToString(
-                preference);
+            using StringWriter stringWriter = new();
+            using JsoncSerializationContext context = new(stringWriter);
+            context.Serialize(preference);
+            context.Flush();
+            var jsoncString = stringWriter.ToString();
             var expected = "\"1\"";
 
             Assert.AreEqual(expected, jsoncString);
@@ -95,8 +91,11 @@ namespace PreferenceGroups.Tests
                     .WithDescription("A string prefence."))
                 .Build();
 
-            var jsoncString = JsoncSerializationContext.SerializeToString(
-                group);
+            using StringWriter stringWriter = new();
+            using JsoncSerializationContext context = new(stringWriter);
+            context.Serialize(group);
+            context.Flush();
+            var jsoncString = stringWriter.ToString();
             var expected = """
                 {
                     // Default value: 13.

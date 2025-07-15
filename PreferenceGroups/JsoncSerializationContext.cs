@@ -10,6 +10,8 @@ namespace PreferenceGroups
     /// Facilitates serializing to formatted JSONC by using
     /// <see cref="IndentedTextWriter"/> with the <see cref="InnerWriter"/>.
     /// </summary>
+    /// <remarks>See <see href="https://www.jsonc.org">jsonc.org</see> for
+    /// further details about a JSONC file format.</remarks>
     public class JsoncSerializationContext : IDisposable
     {
         private bool _disposedValue;
@@ -70,7 +72,7 @@ namespace PreferenceGroups
         /// <summary>
         /// The <see cref="string"/> used for each indentation level of
         /// formatting. Defaults
-        /// to <see cref="IndentedTextWriter.DefaultTabString"/>.
+        /// to <see cref="JsoncSerializerHelper.DefaultTabString"/>.
         /// </summary>
         public string TabString { get; }
 
@@ -87,28 +89,20 @@ namespace PreferenceGroups
         public IndentedTextWriter Writer { get; }
 
         /// <summary>
-        /// Instantiates using <paramref name="innerWriter"/> with a default
-        /// <see cref="TabString"/> of
-        /// <see cref="IndentedTextWriter.DefaultTabString"/>.
-        /// </summary>
-        /// <param name="innerWriter"></param>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="innerWriter"/> is
-        /// <see langword="null"/>.</exception>
-        public JsoncSerializationContext(TextWriter innerWriter)
-            : this(innerWriter, IndentedTextWriter.DefaultTabString)
-        { }
-
-        /// <summary>
         /// Instantiates using <paramref name="innerWriter"/> with a
-        /// <see cref="TabString"/> being set to the result of instatiating a
-        /// <see cref="string"/> with <see cref="String(char, int)"/> with the
-        /// provided <paramref name="indentChar"/> and
+        /// <see cref="TabString"/> being set to the result of calling the
+        /// <see cref="JsoncSerializerHelper.GetTabString(char, int)"/> method
+        /// with <paramref name="indentChar"/> and
         /// <paramref name="indentDepth"/>.
         /// </summary>
         /// <param name="innerWriter"></param>
-        /// <param name="indentChar"></param>
-        /// <param name="indentDepth"></param>
+        /// <param name="indentChar">The indent character for the tab string
+        /// that will be repeated <paramref name="indentDepth"/> number of
+        /// times.</param>
+        /// <param name="indentDepth">The number of times to repeat
+        /// <paramref name="indentChar"/> for the tab string. Must not be a
+        /// negative number and if it is zero then <see cref="string.Empty"/> is
+        /// returned.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="innerWriter"/> is
         /// <see langword="null"/>.</exception>
@@ -116,7 +110,8 @@ namespace PreferenceGroups
         /// <paramref name="indentDepth"/> is negative.</exception>
         public JsoncSerializationContext(TextWriter innerWriter,
             char indentChar, int indentDepth)
-            : this(innerWriter, new string(indentChar, indentDepth))
+            : this(innerWriter,
+                  JsoncSerializerHelper.GetTabString(indentChar, indentDepth))
         { }
 
         /// <summary>
@@ -149,6 +144,19 @@ namespace PreferenceGroups
                 Indent = 0
             };
         }
+
+        /// <summary>
+        /// Instantiates using <paramref name="innerWriter"/> with a default
+        /// <see cref="TabString"/> of
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/>.
+        /// </summary>
+        /// <param name="innerWriter"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="innerWriter"/> is
+        /// <see langword="null"/>.</exception>
+        public JsoncSerializationContext(TextWriter innerWriter)
+            : this(innerWriter, JsoncSerializerHelper.DefaultTabString)
+        { }
 
         /// <inheritdoc/>
         public void Dispose()
@@ -294,63 +302,6 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Serializes <paramref name="preference"/> by calling
-        /// <see cref="Serialize(Preference)"/>and then flushes
-        /// <see cref="Writer"/> by calling <see cref="Flush()"/>.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        public void SerializeAndFlush(Preference preference)
-        {
-            if (preference is null)
-            {
-                throw new ArgumentNullException(nameof(preference));
-            }
-
-            Serialize(preference);
-            Flush();
-        }
-
-        /// <summary>
-        /// Serializes <paramref name="group"/> by calling
-        /// <see cref="Serialize(PreferenceGroup)"/>and then flushes
-        /// <see cref="Writer"/> by calling <see cref="Flush()"/>.
-        /// </summary>
-        /// <param name="group"></param>
-        /// <exception cref="ArgumentNullException"><paramref name="group"/> is
-        /// <see langword="null"/>.</exception>
-        public void SerializeAndFlush(PreferenceGroup group)
-        {
-            if (group is null)
-            {
-                throw new ArgumentNullException(nameof(group));
-            }
-
-            Serialize(group);
-            Flush();
-        }
-
-        /// <summary>
-        /// Serializes <paramref name="groups"/> by calling
-        /// <see cref="Serialize(PreferenceGroup[])"/>and then flushes
-        /// <see cref="Writer"/> by calling <see cref="Flush()"/>.
-        /// </summary>
-        /// <param name="groups"></param>
-        /// <exception cref="ArgumentNullException"><paramref name="groups"/> is
-        /// <see langword="null"/>.</exception>
-        public void SerializeAndFlush(PreferenceGroup[] groups)
-        {
-            if (groups is null)
-            {
-                throw new ArgumentNullException(nameof(groups));
-            }
-
-            Serialize(groups);
-            Flush();
-        }
-
-        /// <summary>
         /// Writes the start of an array by using the <see cref
         /// ="JsoncSerializerHelper.WriteStartArray(IndentedTextWriter)"/> and
         /// maintains <see cref="CurrentTypeAndCount"/>.
@@ -423,263 +374,6 @@ namespace PreferenceGroups
             {
                 Writer.WriteLine(JsoncSerializerHelper.ItemSeparator);
             }
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="preference"/>
-        /// serialized to JSONC using <paramref name="indentChar"/> and
-        /// <paramref name="indentDepth"/> for the <see cref="TabString"/> using
-        /// <see cref="String(char, int)"/>.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <param name="indentChar"></param>
-        /// <param name="indentDepth"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="indentDepth"/> is negative.</exception>
-        public static string SerializeToString(Preference preference,
-            char indentChar, int indentDepth)
-        {
-            if (preference is null)
-            {
-                throw new ArgumentNullException(nameof(preference));
-            }
-
-            if (indentDepth < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(indentDepth),
-                    indentDepth, "Cannot be negative.");
-            }
-
-            return SerializeToString(preference,
-                new string(indentChar, indentDepth));
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="preference"/>
-        /// serialized to JSONC using <paramref name="tabString"/> for
-        /// formatting.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <param name="tabString">Used for each indentation level of
-        /// formatting.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> or <paramref name="tabString"/> is
-        /// <see langword="null"/>.</exception>
-        public static string SerializeToString(Preference preference,
-            string tabString)
-        {
-            if (preference is null)
-            {
-                throw new ArgumentNullException(nameof(preference));
-            }
-
-            if (tabString is null)
-            {
-                throw new ArgumentNullException(nameof(tabString));
-            }
-
-            string result;
-
-            using (var stringWriter = new StringWriter())
-            {
-                using (var context = new JsoncSerializationContext(
-                    stringWriter, tabString))
-                {
-                    context.SerializeAndFlush(preference);
-                    result = stringWriter.ToString();
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="preference"/>
-        /// serialized to JSONC using
-        /// <see cref="IndentedTextWriter.DefaultTabString"/> for the
-        /// <see cref="TabString"/>.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        public static string SerializeToString(Preference preference)
-        {
-            if (preference is null)
-            {
-                throw new ArgumentNullException(nameof(preference));
-            }
-
-            return SerializeToString(preference,
-                IndentedTextWriter.DefaultTabString);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="group"/>
-        /// serialized to JSONC using <paramref name="indentChar"/> and
-        /// <paramref name="indentDepth"/> for the <see cref="TabString"/> using
-        /// <see cref="String(char, int)"/>.
-        /// </summary>
-        /// <param name="group"></param>
-        /// <param name="indentChar"></param>
-        /// <param name="indentDepth"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="group"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="indentDepth"/> is negative.</exception>
-        public static string SerializeToString(PreferenceGroup group,
-            char indentChar, int indentDepth)
-        {
-            if (group is null)
-            {
-                throw new ArgumentNullException(nameof(group));
-            }
-
-            return SerializeToString(group,
-                new string(indentChar, indentDepth));
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="group"/>
-        /// serialized to JSONC using <paramref name="tabString"/> for
-        /// formatting.
-        /// </summary>
-        /// <param name="group"></param>
-        /// <param name="tabString">Used for each indentation level of
-        /// formatting.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="group"/> or <paramref name="tabString"/> is
-        /// <see langword="null"/>.</exception>
-        public static string SerializeToString(PreferenceGroup group,
-            string tabString)
-        {
-            if (group is null)
-            {
-                throw new ArgumentNullException(nameof(group));
-            }
-
-            string result;
-
-            using (var stringWriter = new StringWriter())
-            {
-                using (var context = new JsoncSerializationContext(
-                    stringWriter, tabString))
-                {
-                    context.SerializeAndFlush(group);
-                    result = stringWriter.ToString();
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="group"/>
-        /// serialized to JSONC using
-        /// <see cref="IndentedTextWriter.DefaultTabString"/> for the
-        /// <see cref="TabString"/>.
-        /// </summary>
-        /// <param name="group"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="group"/> is <see langword="null"/>.</exception>
-        public static string SerializeToString(PreferenceGroup group)
-        {
-            if (group is null)
-            {
-                throw new ArgumentNullException(nameof(group));
-            }
-
-            return SerializeToString(group,
-                IndentedTextWriter.DefaultTabString);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="groups"/>
-        /// serialized to JSONC using <paramref name="indentChar"/> and
-        /// <paramref name="indentDepth"/> for the <see cref="TabString"/> using
-        /// <see cref="String(char, int)"/>.
-        /// </summary>
-        /// <param name="groups"></param>
-        /// <param name="indentChar"></param>
-        /// <param name="indentDepth"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="groups"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="indentDepth"/> is negative.</exception>
-        public static string SerializeToString(PreferenceGroup[] groups,
-            char indentChar, int indentDepth)
-        {
-            if (groups is null)
-            {
-                throw new ArgumentNullException(nameof(groups));
-            }
-
-            return SerializeToString(groups,
-                new string(indentChar, indentDepth));
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="groups"/>
-        /// serialized to JSONC using <paramref name="tabString"/> for
-        /// formatting.
-        /// </summary>
-        /// <param name="groups"></param>
-        /// <param name="tabString">Used for each indentation level of
-        /// formatting.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="groups"/> or <paramref name="tabString"/> is
-        /// <see langword="null"/>.</exception>
-        public static string SerializeToString(PreferenceGroup[] groups,
-            string tabString)
-        {
-            if (groups is null)
-            {
-                throw new ArgumentNullException(nameof(groups));
-            }
-
-            string result;
-
-            using (var stringWriter = new StringWriter())
-            {
-                using (var context = new JsoncSerializationContext(
-                    stringWriter, tabString))
-                {
-                    context.SerializeAndFlush(groups);
-                    result = stringWriter.ToString();
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="groups"/>
-        /// serialized to JSONC using
-        /// <see cref="IndentedTextWriter.DefaultTabString"/> for the
-        /// <see cref="TabString"/>.
-        /// </summary>
-        /// <param name="groups"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="groups"/> is <see langword="null"/>.</exception>
-        public static string SerializeToString(PreferenceGroup[] groups)
-        {
-            if (groups is null)
-            {
-                throw new ArgumentNullException(nameof(groups));
-            }
-
-            return SerializeToString(groups,
-                IndentedTextWriter.DefaultTabString);
         }
     }
 }

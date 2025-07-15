@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups
 {
@@ -10,6 +11,8 @@ namespace PreferenceGroups
     /// A <see langword="static"/> <see langword="class"/> of helper methods for
     /// JSONC (JSON with Comments) files.
     /// </summary>
+    /// <remarks>See <see href="https://www.jsonc.org">jsonc.org</see> for
+    /// further details about a JSONC file format.</remarks>
     public static class JsoncSerializerHelper
     {
         /// <summary>
@@ -17,6 +20,37 @@ namespace PreferenceGroups
         /// <see cref="Encoding.UTF8"/>.
         /// </summary>
         public static Encoding DefaultEncoding => Encoding.UTF8;
+        
+        /// <summary>
+        /// The default tab <see cref="string"/> used for each indentation
+        /// level of formatting, namely the same as the
+        /// <see cref="IndentedTextWriter.DefaultTabString"/> property (four
+        /// space characters).
+        /// </summary>
+        public static string DefaultTabString
+            => IndentedTextWriter.DefaultTabString;
+
+        /// <summary>
+        /// The default <see cref="JsonLoadSettings"/> for loading JSON data,
+        /// namely:
+        /// <list type="bullet">
+        /// <item><see cref="JsonLoadSettings.CommentHandling"/> is set to
+        /// <see cref="CommentHandling.Ignore"/>.</item>
+        /// <item><see cref="JsonLoadSettings.DuplicatePropertyNameHandling"/>
+        /// is set to
+        /// <see cref="DuplicatePropertyNameHandling.Ignore"/>.</item>
+        /// <item><see cref="JsonLoadSettings.LineInfoHandling"/> is set to
+        /// <see cref="LineInfoHandling.Load"/>.</item>
+        /// </list>
+        /// </summary>
+        public static JsonLoadSettings DefaultLoadSettings
+            => new JsonLoadSettings()
+            {
+                CommentHandling = CommentHandling.Ignore,
+                DuplicatePropertyNameHandling
+                    = DuplicatePropertyNameHandling.Ignore,
+                LineInfoHandling = LineInfoHandling.Load,
+            };
 
         /// <summary>
         /// The end of an array character, namely <c>']'</c>.
@@ -79,6 +113,114 @@ namespace PreferenceGroups
             }
 
             return JsonConvert.DeserializeObject<string>(jsonStringValue);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="string"/> used for each indentation level of
+        /// formatting from <paramref name="indentChar"/> and
+        /// <paramref name="indentDepth"/> by calling
+        /// <see cref="String(char, int)"/>. For example, an
+        /// <paramref name="indentChar"/> of <c>' '</c> (the space character)
+        /// and an <paramref name="indentDepth"/> of <c>2</c>, then the returned
+        /// tab <see cref="string"/> will be <c>"  "</c> (two spaces).
+        /// </summary>
+        /// <param name="indentChar">The indent character for the tab string
+        /// that will be repeated <paramref name="indentDepth"/> number of
+        /// times.</param>
+        /// <param name="indentDepth">The number of times to repeat
+        /// <paramref name="indentChar"/> for the tab string. Must not be a
+        /// negative number and if it is zero then <see cref="string.Empty"/> is
+        /// returned.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="indentDepth"/> cannot be negative.</exception>
+        public static string GetTabString(char indentChar, int indentDepth)
+        {
+            if (indentDepth < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(indentDepth),
+                    indentDepth, "Cannot be negative.");
+            }
+
+            return new string(indentChar, indentDepth);
+        }
+
+        /// <summary>
+        /// Attempts to read <paramref name="jToken"/> as a
+        /// <see cref="JArray"/>, where if it is <see langword="null"/> or its
+        /// <see cref="JToken.Type"/> is not <see cref="JTokenType.Array"/> then
+        /// <see langword="null"/> is returned; otherwise it is cast as
+        /// <see cref="JArray"/> and returned.
+        /// </summary>
+        /// <param name="jToken"></param>
+        /// <returns></returns>
+        public static JArray ReadAsJArray(JToken jToken)
+        {
+            if (jToken is null || jToken.Type != JTokenType.Array)
+            {
+                return null;
+            }
+
+            return (JArray)jToken;
+        }
+
+        /// <summary>
+        /// Attempts to read <paramref name="jToken"/> as a
+        /// <see cref="JObject"/>, where if it is <see langword="null"/> or
+        /// its <see cref="JToken.Type"/> is not <see cref="JTokenType.Object"/>
+        /// then <see langword="null"/> is returned; otherwise it is cast as
+        /// <see cref="JObject"/> and returned.
+        /// </summary>
+        /// <param name="jToken"></param>
+        /// <returns></returns>
+        public static JObject ReadAsJObject(JToken jToken)
+        {
+            if (jToken is null || jToken.Type != JTokenType.Object)
+            {
+                return null;
+            }
+
+            return (JObject)jToken;
+        }
+
+        /// <summary>
+        /// Attempts to read <paramref name="jToken"/> as a
+        /// <see cref="JValue"/>, otherwise it will
+        /// return <see langword="null"/>.
+        /// </summary>
+        /// <remarks><paramref name="jToken"/> will be cast as a
+        /// <see cref="JValue"/> if its <see cref="JTokenType"/> is one of the
+        /// following:
+        /// <list type="bullet">
+        /// <item><see cref="JTokenType.Integer"/></item>
+        /// <item><see cref="JTokenType.Float"/></item>
+        /// <item><see cref="JTokenType.String"/></item>
+        /// <item><see cref="JTokenType.Boolean"/></item>
+        /// <item><see cref="JTokenType.Date"/></item>
+        /// <item><see cref="JTokenType.Bytes"/></item>
+        /// <item><see cref="JTokenType.Guid"/></item>
+        /// <item><see cref="JTokenType.Uri"/></item>
+        /// <item><see cref="JTokenType.TimeSpan"/></item>
+        /// </list>
+        /// </remarks>
+        /// <param name="jToken"></param>
+        /// <returns></returns>
+        public static JValue ReadAsJValue(JToken jToken)
+        {
+            if (jToken is null || (jToken.Type != JTokenType.Integer
+                && jToken.Type != JTokenType.Float
+                && jToken.Type != JTokenType.String
+                && jToken.Type != JTokenType.Boolean
+                && jToken.Type != JTokenType.Date
+                && jToken.Type != JTokenType.Bytes
+                && jToken.Type != JTokenType.Guid
+                && jToken.Type != JTokenType.Uri
+                && jToken.Type != JTokenType.TimeSpan))
+            {
+                return null;
+            }
+
+            return (JValue)jToken;
         }
 
         /// <summary>

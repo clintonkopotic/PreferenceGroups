@@ -204,9 +204,12 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="preference"></param>
         /// <param name="jObject"></param>
+        /// <returns><see langword="true"/> if <paramref name="preference"/> was
+        /// updated from <paramref name="jObject"/>, otherwise
+        /// <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        public static void UpdateFrom(Preference preference, JObject jObject)
+        public static bool UpdateFrom(Preference preference, JObject jObject)
         {
             if (preference is null)
             {
@@ -215,16 +218,20 @@ namespace PreferenceGroups
 
             if (jObject is null || jObject.Type == JTokenType.Null)
             {
-                return;
+                return false;
             }
 
             var processedName = Preference.ProcessNameOrThrowIfInvalid(
                 preference.Name);
 
-            if (jObject.ContainsKey(processedName))
+            if (!jObject.ContainsKey(processedName))
             {
-                UpdateFrom(preference, (JValue)jObject[processedName]);
+                return false;
             }
+
+            UpdateFrom(preference, (JValue)jObject[processedName]);
+
+            return true;
         }
 
         /// <summary>
@@ -248,9 +255,12 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="preference"></param>
         /// <param name="jToken"></param>
+        /// <returns><see langword="true"/> if <paramref name="preference"/> was
+        /// updated from <paramref name="jToken"/>, otherwise
+        /// <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        public static void UpdateFrom(Preference preference, JToken jToken)
+        public static bool UpdateFrom(Preference preference, JToken jToken)
         {
             if (preference is null)
             {
@@ -261,17 +271,17 @@ namespace PreferenceGroups
             {
                 preference.SetValueFromObject(null);
 
-                return;
+                return true;
             }
             else if (jToken.Type == JTokenType.Object)
             {
-                UpdateFrom(preference, (JObject)jToken);
-
-                return;
+                return UpdateFrom(preference, (JObject)jToken);
             }
 
             // If jToken isn't an object, then assume it's a JValue.
             UpdateFrom(preference, (JValue)jToken);
+
+            return true;
         }
 
         /// <summary>

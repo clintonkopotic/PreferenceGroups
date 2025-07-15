@@ -12,6 +12,8 @@ namespace PreferenceGroups
     /// written in comments, like the <see cref="Preference.Description"/>,
     /// <c>AllowedValues</c> and the <c>DefaultValue</c>.
     /// </summary>
+    /// <remarks>See <see href="https://www.jsonc.org">jsonc.org</see> for
+    /// further details about a JSONC file format.</remarks>
     public static class PreferenceJsoncSerializer
     {
         /// <summary>
