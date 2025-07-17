@@ -18,4 +18,25 @@ PreferenceGroup group = PreferenceGroupBuilder
     .AddString(name: "String", b => b
         .WithDescription("A string prefence."))
     .Build();
+
+PreferenceFile file = new(path: "Preferences.jsonc",
+    indentChar: ' ', indentDepth: 2);
+
+// Writes group to the file, overwriting it if exists.
+file.Write(group);
+
+// Updates group according to the contents of the file.
+file.Update(group);
+```
+
+The contents of the `Preferences.jsonc` file will be:
+
+```jsonc
+{
+  // Default value: 13.
+  "Number": null,
+
+  // A string prefence.
+  "String": null
+}
 ```

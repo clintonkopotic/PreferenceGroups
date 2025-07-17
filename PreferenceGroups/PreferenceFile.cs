@@ -43,6 +43,36 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Instantiates with <paramref name="path"/>,
+        /// <paramref name="indentChar"/>, and <paramref name="indentDepth"/>.
+        /// The following properties will be defaulted to:
+        /// <list type="bullet">
+        /// <item><see cref="Encoding"/> to
+        /// <see cref="JsoncSerializerHelper.DefaultEncoding"/>.</item>
+        /// <item><see cref="LoadSettings"/> to
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        /// <param name="indentChar">The indent character for
+        /// <see cref="TabString"/> that will be repeated
+        /// <paramref name="indentDepth"/> number of times.</param>
+        /// <param name="indentDepth">The number of times to repeat
+        /// <paramref name="indentChar"/> for <see cref="TabString"/>. Must not
+        /// be a negative number and if it is zero then
+        /// <see cref="string.Empty"/> is used for
+        /// <see cref="TabString"/>.</param>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is empty
+        /// or consists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="indentDepth"/> cannot be negative.</exception>
+        public PreferenceFile(string path, char indentChar, int indentDepth)
+            : this(path, null, null, indentChar, indentDepth)
+        { }
+
+        /// <summary>
+        /// Instantiates with <paramref name="path"/>,
         /// <paramref name="encoding"/> (where if it is <see langword="null"/>
         /// then <see cref="JsoncSerializerHelper.DefaultEncoding"/> is used),
         /// <paramref name="loadSettings"/> (where if it is
@@ -181,6 +211,28 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceFile(string path, Encoding encoding)
             : this(path, encoding, null)
+        { }
+
+        /// <summary>
+        /// Instantiates with <paramref name="path"/>
+        /// and <paramref name="tabString"/>. The following properties will be
+        /// defaulted to:
+        /// <list type="bullet">
+        /// <item><see cref="Encoding"/> to
+        /// <see cref="JsoncSerializerHelper.DefaultEncoding"/>.</item>
+        /// <item><see cref="LoadSettings"/> to
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        /// <param name="tabString">The <see cref="string"/> used for each
+        /// indentation level of formatting.</param>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is empty
+        /// or consists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> or
+        /// <paramref name="tabString"/> is <see langword="null"/>.</exception>
+        public PreferenceFile(string path, string tabString)
+            : this(path, null, null, tabString)
         { }
 
         /// <summary>
