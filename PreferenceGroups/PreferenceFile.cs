@@ -263,6 +263,8 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns>A <see cref="JArray"/> upon successful reading of
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
         public JArray ReadAsJArray()
             => JsoncSerializerHelper.ReadAsJArray(ReadAsJToken());
 
@@ -274,6 +276,8 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns>A <see cref="JObject"/> upon successful reading of
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
         public JObject ReadAsJObject()
             => JsoncSerializerHelper.ReadAsJObject(ReadAsJToken());
 
@@ -298,6 +302,8 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns>A <see cref="JToken"/> upon reading of
         /// <see cref="Path"/>.</returns>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
         public JToken ReadAsJToken()
         {
             using (var fileStream = new FileStream(Path, FileMode.Open,
@@ -319,6 +325,8 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns>A <see cref="JValue"/> upon successful reading of
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
         public JValue ReadAsJValue()
             => JsoncSerializerHelper.ReadAsJValue(ReadAsJToken());
 
@@ -329,18 +337,44 @@ namespace PreferenceGroups
         /// JToken)"/> method.
         /// </summary>
         /// <param name="preference"></param>
+        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// file specified by <see cref="Path"/> is not found, then the
+        /// <see cref="Write(Preference)"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="false"/> and the file specified by <see cref="Path"/>
+        /// is not found, then the <see cref="FileNotFoundException"/> is
+        /// thrown.</param>
         /// <returns><see langword="true"/> if <paramref name="preference"/> was
         /// updated successfully from the file at <see cref="Path"/>; otherwise,
         /// <see langword="false"/>.</returns>
-        public bool Update(Preference preference)
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
+        public bool Update(Preference preference,
+            bool writeFileIfNotFound = true)
         {
             if (preference is null)
             {
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            return PreferenceJsonDeserializer.UpdateFrom(preference,
-                ReadAsJToken());
+            try
+            {
+                return PreferenceJsonDeserializer.UpdateFrom(preference,
+                    ReadAsJToken());
+            }
+            catch (FileNotFoundException)
+            {
+                if (writeFileIfNotFound)
+                {
+                    Write(preference);
+
+                    return false;
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -348,18 +382,44 @@ namespace PreferenceGroups
         /// <paramref name="group"/>.
         /// </summary>
         /// <param name="group"></param>
+        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// file specified by <see cref="Path"/> is not found, then the
+        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="null"/> and the file specified by <see cref="Path"/>
+        /// is not found, then the <see cref="FileNotFoundException"/> is
+        /// thrown.</param>
         /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
         /// were updated from the file in <paramref name="group"/>.</returns>
-        public IReadOnlyCollection<string> Update(PreferenceGroup group)
+        /// <exception cref="ArgumentNullException"><paramref name="group"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found.</exception>
+        public IReadOnlyCollection<string> Update(PreferenceGroup group,
+            bool writeFileIfNotFound = true)
         {
             if (group is null)
             {
                 throw new ArgumentNullException(nameof(group));
             }
 
-            return PreferenceGroupJsonDeserializer.UpdateFrom(group,
-                ReadAsJObject());
+            try
+            {
+                return PreferenceGroupJsonDeserializer.UpdateFrom(group,
+                    ReadAsJObject());
+            }
+            catch (FileNotFoundException)
+            {
+                if (writeFileIfNotFound)
+                {
+                    Write(group);
+
+                    return null;
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
