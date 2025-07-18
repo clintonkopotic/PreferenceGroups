@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups
@@ -131,111 +128,6 @@ namespace PreferenceGroups
         /// <returns></returns>
         public static JsonPeeler Create(JToken token)
             => new JsonPeeler(root: token);
-
-        /// <summary>
-        /// Creates a <see cref="JsonPeeler"/> by first creating a
-        /// <see cref="StreamReader"/> with the
-        /// <see cref="StreamReader(Stream, Encoding)"/> constructor with
-        /// <paramref name="stream"/> and
-        /// <paramref name="encoding"/>, where if
-        /// <paramref name="encoding"/> is <see langword="null"/> the
-        /// <see cref="JsoncSerializerHelper.DefaultEncoding"/> will be used.
-        /// The resulting <see cref="StreamReader"/> will be used along with
-        /// <paramref name="jsonLoadSettings"/>, where if it is
-        /// <see langword="null"/> then the
-        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> will be used
-        /// when calling
-        /// <see cref="Create(TextReader, JsonLoadSettings)"/>.
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="encoding"></param>
-        /// <param name="jsonLoadSettings"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is
-        /// <see langword="null"/>.</exception>
-        public static JsonPeeler Create(Stream stream,
-            Encoding encoding = null, JsonLoadSettings jsonLoadSettings = null)
-        {
-            if (stream is null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            JsonPeeler jsonPeeler;
-
-            using (var reader = new StreamReader(stream,
-                encoding ?? JsoncSerializerHelper.DefaultEncoding))
-            {
-                jsonPeeler = Create(reader, jsonLoadSettings);
-            }
-
-            return jsonPeeler;
-        }
-
-        /// <summary>
-        /// Creates a <see cref="JsonPeeler"/> by first calling the
-        /// <see cref="JToken.Parse(string, JsonLoadSettings)"/> method with
-        /// <paramref name="jsonString"/> and
-        /// <paramref name="jsonLoadSettings"/>, where if
-        /// <paramref name="jsonLoadSettings"/> is <see langword="null"/> the
-        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> will be
-        /// used. Then the <see cref="JsonPeeler"/> is created by calling
-        /// <see cref="Create(JToken)"/>.
-        /// </summary>
-        /// <param name="jsonString"></param>
-        /// <param name="jsonLoadSettings"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"><paramref name="jsonString"/>
-        /// is empty or constists only of white-space characters.</exception>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="jsonString"/> is <see langword="null"/>.</exception>
-        public static JsonPeeler Create(string jsonString,
-            JsonLoadSettings jsonLoadSettings = null)
-        {
-            if (jsonString is null)
-            {
-                throw new ArgumentNullException(nameof(jsonString));
-            }
-
-            if (string.IsNullOrWhiteSpace(jsonString))
-            {
-                throw new ArgumentException("Cannot be empty or consist only "
-                    + "of white-space characters.", nameof(jsonString));
-            }
-
-            return Create(token: JToken.Parse(
-                json: jsonString,
-                settings: jsonLoadSettings
-                    ?? JsoncSerializerHelper.DefaultLoadSettings));
-        }
-
-        /// <summary>
-        /// Creates a <see cref="JsonPeeler"/> by first calling the
-        /// <see cref="JToken.ReadFrom(JsonReader, JsonLoadSettings)"/> with
-        /// <paramref name="textReader"/> and
-        /// <paramref name="jsonLoadSettings"/>, where if
-        /// <paramref name="jsonLoadSettings"/> is <see langword="null"/> the
-        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> will be
-        /// used. Then the <see cref="JsonPeeler"/> is created by calling
-        /// <see cref="Create(JToken)"/>.
-        /// </summary>
-        /// <param name="textReader"></param>
-        /// <param name="jsonLoadSettings"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static JsonPeeler Create(TextReader textReader,
-            JsonLoadSettings jsonLoadSettings = null)
-        {
-            if (textReader is null)
-            {
-                throw new ArgumentNullException(nameof(textReader));
-            }
-
-            return Create(token: JToken.ReadFrom(
-                reader: new JsonTextReader(textReader),
-                settings: jsonLoadSettings
-                    ?? JsoncSerializerHelper.DefaultLoadSettings));
-        }
 
         /// <summary>
         /// Attempts to locate <paramref name="propertyName"/> (using

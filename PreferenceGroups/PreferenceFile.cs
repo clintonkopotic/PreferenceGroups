@@ -343,14 +343,16 @@ namespace PreferenceGroups
         /// <see langword="false"/> is returned. Otherwise, if
         /// <see langword="false"/> and the file specified by <see cref="Path"/>
         /// is not found, then the <see cref="FileNotFoundException"/> is
-        /// thrown.</param>
+        /// thrown. The default is <see langword="true"/>.</param>
         /// <returns><see langword="true"/> if <paramref name="preference"/> was
         /// updated successfully from the file at <see cref="Path"/>; otherwise,
         /// <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="preference"/> is <see langword="null"/>.</exception>
         /// <exception cref="FileNotFoundException">The file specified by
-        /// <see cref="Path"/> cannot be found.</exception>
+        /// <see cref="Path"/> cannot be found and
+        /// <paramref name="writeFileIfNotFound"/> is
+        /// <see langword="false"/>.</exception>
         public bool Update(Preference preference,
             bool writeFileIfNotFound = true)
         {
@@ -388,14 +390,16 @@ namespace PreferenceGroups
         /// <see langword="false"/> is returned. Otherwise, if
         /// <see langword="null"/> and the file specified by <see cref="Path"/>
         /// is not found, then the <see cref="FileNotFoundException"/> is
-        /// thrown.</param>
+        /// thrown. The default is <see langword="true"/>.</param>
         /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
         /// were updated from the file in <paramref name="group"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="group"/> is
         /// <see langword="null"/>.</exception>
         /// <exception cref="FileNotFoundException">The file specified by
-        /// <see cref="Path"/> cannot be found.</exception>
+        /// <see cref="Path"/> cannot be found and
+        /// <paramref name="writeFileIfNotFound"/> is
+        /// <see langword="false"/>.</exception>
         public IReadOnlyCollection<string> Update(PreferenceGroup group,
             bool writeFileIfNotFound = true)
         {
@@ -709,6 +713,41 @@ namespace PreferenceGroups
             {
                 return ReadAsJToken(stringReader, jsonLoadSettings);
             }
+        }
+
+        /// <summary>
+        /// Reads the contents of <paramref name="string"/>, by calling the
+        /// <see cref="ReadStringAsJToken(string, JsonLoadSettings)"/> method,
+        /// with (where if it is <see langword="null"/> then
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> is used).
+        /// Then the <see cref="JsoncSerializerHelper.ReadAsJObject(JToken)"/>
+        /// method is called.
+        /// </summary>
+        /// <param name="string"></param>
+        /// <param name="jsonLoadSettings"></param>
+        /// <returns>A <see cref="JObject"/> upon successful reading of
+        /// <paramref name="string"/>, otherwise
+        /// <see langword="null"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="string"/> is
+        /// empty or consists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="string"/> is
+        /// <see langword="null"/>.</exception>
+        public static JValue ReadStringAsJValue(string @string,
+            JsonLoadSettings jsonLoadSettings = null)
+        {
+            if (@string is null)
+            {
+                throw new ArgumentNullException(nameof(@string));
+            }
+
+            if (string.IsNullOrWhiteSpace(@string))
+            {
+                throw new ArgumentException("Cannot be empty or consist only "
+                    + "of white-space characters.", nameof(@string));
+            }
+
+            return JsoncSerializerHelper.ReadAsJValue(
+                ReadStringAsJToken(@string, jsonLoadSettings));
         }
 
         /// <summary>

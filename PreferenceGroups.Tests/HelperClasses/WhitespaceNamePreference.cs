@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PreferenceGroups.Tests
+namespace PreferenceGroups.Tests.HelperClasses
 {
     internal class WhitespaceNamePreference(string name) : Preference(name)
     {

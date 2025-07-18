@@ -80,7 +80,7 @@ namespace PreferenceGroups
         /// Tracks the <see cref="CurrentTypeAndCount"/> for formatting
         /// purposes.
         /// </summary>
-        private Stack<(JTokenType, int)> Stack { get; }
+        protected Stack<(JTokenType, int)> Stack { get; }
             = new Stack<(JTokenType, int)>();
 
         /// <summary>
