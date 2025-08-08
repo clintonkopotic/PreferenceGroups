@@ -42,21 +42,25 @@ public sealed class StringPreferenceTests
         Assert.AreEqual(typeof(string), preference.GetValueType());
         Assert.AreEqual(value is null, preference.ValueIsNull);
         Assert.AreEqual(value, (string?)preference.GetValueAsObject());
+        Assert.AreEqual(value, preference.GetValueAs<string?>());
         Assert.AreEqual(description, preference.Description);
         Assert.AreEqual(defaultValue is null,
             preference.DefaultValueIsNull);
         Assert.AreEqual(defaultValue,
             (string?)preference.GetDefaultValueAsObject());
+        Assert.AreEqual(defaultValue, preference.GetDefaultValueAs<string?>());
         Assert.IsTrue(preference.AllowUndefinedValues);
 
         preference.SetValueFromObject(null);
 
         Assert.IsTrue(preference.ValueIsNull);
         Assert.IsNull((string?)preference.GetValueAsObject());
+        Assert.IsNull(preference.GetValueAs<string?>());
 
         preference.SetValueFromObject(preference.GetDefaultValueAsObject());
 
         Assert.AreEqual(defaultValue, (string?)preference.GetValueAsObject());
+        Assert.AreEqual(defaultValue, preference.GetValueAs<string?>());
 
         if (value is not null)
         {
@@ -64,11 +68,13 @@ public sealed class StringPreferenceTests
             preference.SetValueFromObject(valueIncremented);
             Assert.AreEqual(valueIncremented,
                 (string?)preference.GetValueAsObject());
+            Assert.AreEqual(valueIncremented, preference.GetValueAs<string?>());
 
             valueIncremented += 1;
             preference.SetValueFromObject(valueIncremented);
             Assert.AreEqual(valueIncremented,
                 (string?)preference.GetValueAsObject());
+            Assert.AreEqual(valueIncremented, preference.GetValueAs<string?>());
         }
 
         stringPreference = StringPreferenceBuilder.Build(name);

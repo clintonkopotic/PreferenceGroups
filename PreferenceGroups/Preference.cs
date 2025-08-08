@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 
@@ -119,6 +120,35 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Returns an <see cref="Array"/> of <typeparamref name="T"/>s of the
+        /// <c>AllowedValues</c> by casting.
+        /// </summary>
+        /// <returns><c>AllowedValues</c> as an <see cref="Array"/> of
+        /// <typeparamref name="T"/>s.</returns>
+        /// <exception cref="InvalidCastException">A member of
+        /// <c>AllowedValues</c> failed to be cast to
+        /// <typeparamref name="T"/>.</exception>
+        public virtual T[] GetAllowedValuesAs<T>()
+        {
+            var list = new List<T>();
+
+            foreach (var allowedValue in GetAllowedValuesAsObjects())
+            {
+                list.Add((T)allowedValue);
+            }
+
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="object"/>s of the
+        /// <c>AllowedValues</c>.
+        /// </summary>
+        /// <returns><c>AllowedValues</c> as an <see cref="Array"/> of
+        /// <see cref="object"/>s.</returns>
+        public abstract object[] GetAllowedValuesAsObjects();
+
+        /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
         /// <c>AllowedValues</c> by calling the
         /// <see cref="GetAllowedValuesAsStrings(string, IFormatProvider)"/>
@@ -183,6 +213,18 @@ namespace PreferenceGroups
         /// <see cref="string"/>s.</returns>
         public string[] GetAllowedValuesAsStrings(string format)
             => GetAllowedValuesAsStrings(format, null);
+
+        /// <summary>
+        /// Returns the <c>DefaultValue</c> as an <typeparamref name="T"/>. A
+        /// <see langword="null"/> means that the <c>DefaultValue</c> is not
+        /// used, and a <see langword="null"/> <c>Value</c> means that it is
+        /// set. On the other hand, if the <c>DefaultValue</c> is not
+        /// <see langword="null"/>, then a <see langword="null"/> <c>Value</c>
+        /// means that it has not been set.
+        /// </summary>
+        /// <returns>The <c>DefaultValue</c> as an
+        /// <typeparamref name="T"/>.</returns>
+        public virtual T GetDefaultValueAs<T>() => (T)GetDefaultValueAsObject();
 
         /// <summary>
         /// Returns the <c>DefaultValue</c> as an <see cref="object"/>. A
@@ -257,6 +299,17 @@ namespace PreferenceGroups
             => GetDefaultValueAsString(format, null);
 
         /// <summary>
+        /// Returns the <c>Value</c> as a <typeparamref name="T"/>. If
+        /// <c>DefaultValue</c> is <see langword="null"/>, then that means a
+        /// <c>DefaultValue</c> is not used, and a <see langword="null"/>
+        /// <c>Value</c> means that it is set. On the other hand, if the
+        /// <c>DefaultValue</c> is not <see langword="null"/>, then a
+        /// <see langword="null"/> <c>Value</c> means that it has not been set.
+        /// </summary>
+        /// <returns>The <c>Value</c> as a <typeparamref name="T"/>.</returns>
+        public virtual T GetValueAs<T>() => (T)GetValueAsObject();
+
+        /// <summary>
         /// Returns the <c>Value</c> as an <see cref="object"/>. If
         /// <c>DefaultValue</c> is <see langword="null"/>, then that means a
         /// <c>DefaultValue</c> is not used, and a <see langword="null"/>
@@ -273,8 +326,7 @@ namespace PreferenceGroups
         /// method with a <see langword="null"/> for both parameters.
         /// </summary>
         /// <returns><c>Value</c> as a <see cref="string"/>.</returns>
-        public string GetValueAsString()
-            => GetValueAsString(null, null);
+        public string GetValueAsString() => GetValueAsString(null, null);
 
         /// <summary>
         /// Returns a <see cref="string"/> of the <c>Value</c> formatted. The
@@ -327,6 +379,79 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="value">What to set <c>Value</c> to.</param>
         public abstract void SetValueFromObject(object value);
+
+        /// <summary>
+        /// Attempts to get the <c>AllowedValues</c> as an <see cref="Array"/>
+        /// of <typeparamref name="T"/>s.
+        /// </summary>
+        /// <param name="allowedValues">The <c>AllowedValues</c>, as an
+        /// <see cref="Array"/> of <typeparamref name="T"/>s.</param>
+        /// <returns><see langword="true"/> if <paramref name="allowedValues"/>
+        /// is the found <c>AllowedValues</c>; otherwise,
+        /// <see langword="false"/>.</returns>
+        public virtual bool TryGetAllowedValuesAs<T>(out T[] allowedValues)
+        {
+            allowedValues = null;
+
+            try
+            {
+                allowedValues = GetAllowedValuesAs<T>();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the <c>DefaultValue</c> as a
+        /// <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="defaultValue">The <c>DefaultValue</c>, as a
+        /// <typeparamref name="T"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="defaultValue"/>
+        /// is the found <c>DefaultValue</c>; otherwise,
+        /// <see langword="false"/>.</returns>
+        public virtual bool TryGetDefaultValueAs<T>(out T defaultValue)
+        {
+            defaultValue = default;
+
+            try
+            {
+                defaultValue = GetDefaultValueAs<T>();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the <c>Value</c> as a <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="value">The <c>Value</c>, as a
+        /// <typeparamref name="T"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="value"/> is the
+        /// found <c>Value</c>; otherwise, <see langword="false"/>.</returns>
+        public virtual bool TryGetValueAs<T>(out T value)
+        {
+            value = default;
+
+            try
+            {
+                value = GetValueAs<T>();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// Tests whether or not <paramref name="name"/> is a valid

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PreferenceGroups.Tests.HelperClasses
 {
     internal class WhitespaceNamePreference(string name) : Preference(name)
     {
         public override string Name => "\t";
+
+        public override object[]? GetAllowedValuesAsObjects() => null;
 
         public override string[]? GetAllowedValuesAsStrings(string format,
             IFormatProvider formatProvider)

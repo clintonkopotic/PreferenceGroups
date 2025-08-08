@@ -82,7 +82,7 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public PreferenceGroupBuilder AddInt32(string name, int value)
+        public PreferenceGroupBuilder AddInt32(string name, int? value)
         {
             var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
 

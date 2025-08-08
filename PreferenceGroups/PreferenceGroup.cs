@@ -216,10 +216,59 @@ namespace PreferenceGroups
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="Preference"/>'s <c>DefaultValue</c>, as an
+        /// <see cref="object"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="Preference.GetDefaultValueAsObject()"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>The <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="KeyNotFoundException"><paramref name="name"/> was
+        /// not found as a <see cref="Preference.Name"/> of any of the group
+        /// <see cref="Preference"/>s.</exception>
+        public object GetDefaultValue(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+
+            return this[processedName].GetDefaultValueAsObject();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Preference"/>'s <c>DefaultValue</c>, as a
+        /// <typeparamref name="T"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="Preference.GetDefaultValueAs{T}"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>The <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="KeyNotFoundException"><paramref name="name"/> was
+        /// not found as a <see cref="Preference.Name"/> of any of the group
+        /// <see cref="Preference"/>s.</exception>
+        public T GetDefaultValueAs<T>(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+
+            return this[processedName].GetDefaultValueAs<T>();
+        }
+
         ///<inheritdoc/>
         public IEnumerator<Preference> GetEnumerator()
             => ((IEnumerable<Preference>)_dictionary.Values).GetEnumerator();
 
+        ///<inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable)_dictionary.Values).GetEnumerator();
 
@@ -245,6 +294,30 @@ namespace PreferenceGroups
             var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
 
             return this[processedName].GetValueAsObject();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Preference"/>'s <c>Value</c>, as a
+        /// <typeparamref name="T"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="Preference.GetValueAs{T}"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>The <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="KeyNotFoundException"><paramref name="name"/> was
+        /// not found as a <see cref="Preference.Name"/> of any of the group
+        /// <see cref="Preference"/>s.</exception>
+        public T GetValueAs<T>(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+
+            return this[processedName].GetValueAs<T>();
         }
 
         /// <summary>
@@ -348,6 +421,62 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Attempts to get the <see cref="Preference"/>'s <c>DefaultValue</c>,
+        /// as an <see cref="object"/>, where its <see cref="Preference.Name"/>
+        /// is <paramref name="name"/> using the
+        /// <see cref="GetDefaultValue(string)"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="defaultValue">The <see cref="Preference"/>'s
+        /// <c>DefaultValue</c>, as an <see cref="object"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="defaultValue"/>
+        /// is the found <c>DefaultValue</c>; otherwise,
+        /// <see langword="false"/>.</returns>
+        public bool TryGetDefaultValue(string name, out object defaultValue)
+        {
+            defaultValue = null;
+
+            try
+            {
+                defaultValue = GetDefaultValue(name);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the <see cref="Preference"/>'s <c>DefaultValue</c>,
+        /// as a <typeparamref name="T"/>, where its
+        /// <see cref="Preference.Name"/> is <paramref name="name"/> using the
+        /// <see cref="GetValueAs{T}(string)"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="defaultValue">The <see cref="Preference"/>'s
+        /// <c>DefaultValue</c>, as a <typeparamref name="T"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="defaultValue"/>
+        /// is the found <c>DefaultValue</c>; otherwise,
+        /// <see langword="false"/>.</returns>
+        public bool TryGetDefaultValueAs<T>(string name, out T defaultValue)
+        {
+            defaultValue = default;
+
+            try
+            {
+                defaultValue = GetDefaultValueAs<T>(name);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Attempts to get the <see cref="Preference"/>'s <c>Value</c>, as an
         /// <see cref="object"/>, where its <see cref="Preference.Name"/> is
         /// <paramref name="name"/> using the <see cref="GetValue(string)"/>
@@ -373,7 +502,34 @@ namespace PreferenceGroups
                 return false;
             }
         }
-        
+
+        /// <summary>
+        /// Attempts to get the <see cref="Preference"/>'s <c>Value</c>, as a
+        /// <typeparamref name="T"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="GetValueAs{T}(string)"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value">The <see cref="Preference"/>'s <c>Value</c>, as
+        /// a <typeparamref name="T"/>.</param>
+        /// <returns><see langword="true"/> if <paramref name="value"/> is the
+        /// found <c>Value</c>; otherwise, <see langword="false"/>.</returns>
+        public bool TryGetValueAs<T>(string name, out T value)
+        {
+            value = default;
+
+            try
+            {
+                value = GetValueAs<T>(name);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Attempts to set the <c>Value</c> of the <see cref="Preference"/>,
         /// where the <see cref="Preference.Name"/> matches

@@ -235,6 +235,15 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Returns an <see cref="Array"/> of <see cref="object"/>s of the
+        /// <see cref="AllowedValues"/>.
+        /// </summary>
+        /// <returns><see cref="AllowedValues"/> as an <see cref="Array"/> of
+        /// <see cref="object"/>s.</returns>
+        public override object[] GetAllowedValuesAsObjects()
+            => AllowedValues.ToArray();
+
+        /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted
         /// <see cref="AllowedValues"/>. The parameters are only used if
         /// <typeparamref name="T"/> implements <see cref="IFormattable"/>,

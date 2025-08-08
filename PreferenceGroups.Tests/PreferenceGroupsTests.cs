@@ -29,15 +29,16 @@ public sealed class PreferenceGroupsTests
         var emptyStringPreferenceName = "EmptyString";
         var emptyInt32PreferenceName = "EmptyInt32";
         var int32PreferenceWithDescriptionName = "Int32WithDescription";
-        var int32PreferenceWithDescriptionValue = 123;
+        int? int32PreferenceWithDescriptionValue = 123;
         var int32PreferenceDescription = "Test int.";
         var int32PreferenceName = "Int32";
-        var int32PreferenceValue = 456;
+        int? int32PreferenceValue = 456;
         var stringPreferenceWithDescriptionName = "StringWithDescription";
-        var stringPreferenceWithDescriptionValue = "String with description";
+        string? stringPreferenceWithDescriptionValue
+            = "String with description";
         var stringPreferenceDescription = "Test string.";
         var stringPreferenceName = "String";
-        var stringPreferenceValue = "String";
+        string? stringPreferenceValue = "String";
 
         group = PreferenceGroupBuilder.Create()
             .WithDescription(groupDescription)
@@ -69,6 +70,20 @@ public sealed class PreferenceGroupsTests
                 stringPreferenceName
             },
             actual: group.Names.ToArray());
+
+        Assert.AreEqual(expected: null,
+            actual: group.GetValueAs<string?>(emptyStringPreferenceName));
+        Assert.AreEqual(expected: null,
+            actual: group.GetValueAs<int?>(emptyInt32PreferenceName));
+        Assert.AreEqual(expected: int32PreferenceWithDescriptionValue,
+            actual: group.GetValueAs<int?>(int32PreferenceWithDescriptionName));
+        Assert.AreEqual(expected: int32PreferenceValue,
+            actual: group.GetValueAs<int?>(int32PreferenceName));
+        Assert.AreEqual(expected: stringPreferenceWithDescriptionValue,
+            actual: group.GetValueAs<string?>(
+                stringPreferenceWithDescriptionName));
+        Assert.AreEqual(expected: stringPreferenceValue,
+            actual: group.GetValueAs<string?>(stringPreferenceName));
     }
 
     [TestMethod]

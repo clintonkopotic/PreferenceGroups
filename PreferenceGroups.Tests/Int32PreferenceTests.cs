@@ -42,6 +42,7 @@ public sealed class Int32PreferenceTests
         Assert.AreEqual(typeof(int?), preference.GetValueType());
         Assert.AreEqual(value is null, preference.ValueIsNull);
         Assert.AreEqual(value, (int?)preference.GetValueAsObject());
+        Assert.AreEqual(value, preference.GetValueAs<int?>());
         Assert.AreEqual(description, preference.Description);
         Assert.AreEqual(defaultValue is null,
             preference.DefaultValueIsNull);
@@ -53,10 +54,12 @@ public sealed class Int32PreferenceTests
 
         Assert.IsTrue(preference.ValueIsNull);
         Assert.IsNull((int?)preference.GetValueAsObject());
+        Assert.IsNull(preference.GetValueAs<int?>());
 
         preference.SetValueFromObject(preference.GetDefaultValueAsObject());
 
         Assert.AreEqual(defaultValue, (int?)preference.GetValueAsObject());
+        Assert.AreEqual(defaultValue, preference.GetValueAs<int?>());
 
         if (value is not null)
         {
@@ -64,11 +67,13 @@ public sealed class Int32PreferenceTests
             preference.SetValueFromObject(valueIncremented);
             Assert.AreEqual(valueIncremented,
                 (int?)preference.GetValueAsObject());
+            Assert.AreEqual(valueIncremented, preference.GetValueAs<int?>());
 
             valueIncremented += 1;
             preference.SetValueFromObject(valueIncremented);
             Assert.AreEqual(valueIncremented,
                 (int?)preference.GetValueAsObject());
+            Assert.AreEqual(valueIncremented, preference.GetValueAs<int?>());
         }
 
         int32Preference = Int32PreferenceBuilder.Build(name);

@@ -1,9 +1,13 @@
 ﻿namespace PreferenceGroups.Tests.HelperClasses;
 using System;
+using System.Collections.Generic;
 
 internal class EmptyNamePreference(string name) : Preference(name)
 {
     public override string Name => string.Empty;
+
+    public override object[]? GetAllowedValuesAsObjects()
+        => null;
 
     public override string[]? GetAllowedValuesAsStrings(string format,
         IFormatProvider formatProvider)
