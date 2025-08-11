@@ -2,6 +2,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using PreferenceGroups.Tests.HelperClasses;
 
 [TestClass]
 public sealed class PreferenceFileTests
@@ -72,5 +73,67 @@ public sealed class PreferenceFileTests
         var stringJToken = jObject[stringName];
         Assert.IsNotNull(stringJToken);
         Assert.AreEqual(JTokenType.Null, stringJToken.Type);
+    }
+
+    [TestMethod]
+    public void WithAttributesToStringTest()
+    {
+        int? int32Value = 10;
+        string? stringValue = "Testing…1…2…3";
+        PreferenceGroupWithAttributes test = new()
+        {
+            Int32 = int32Value,
+            String = stringValue,
+        };
+
+        PreferenceGroup group = PreferenceGroupBuilder.BuildFrom(test);
+
+        var jsoncString = PreferenceFile.WriteToString(group);
+        var expected = """
+            // A group of preferences.
+            {
+                // An integer.
+                // Default value: 4.
+                "Int32": 10,
+
+                // A string.
+                // Default value: "".
+                "String": "Testing…1…2…3"
+            }
+            """;
+
+        Assert.AreEqual(expected, jsoncString);
+
+        var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
+
+        Assert.IsNotNull(jObject);
+        Assert.AreEqual(2, jObject.Count);
+        Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
+            .Int32)));
+        var numberJToken = jObject[nameof(PreferenceGroupWithAttributes
+            .Int32)];
+        Assert.IsNotNull(numberJToken);
+        Assert.AreEqual(JTokenType.Integer, numberJToken.Type);
+        Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
+            .String)));
+        var stringJToken = jObject[nameof(PreferenceGroupWithAttributes
+            .String)];
+        Assert.IsNotNull(stringJToken);
+        Assert.AreEqual(JTokenType.String, stringJToken.Type);
+
+        var changedJsoncString = """
+            // A group of preferences.
+            {
+                // An integer.
+                // Default value: 4.
+                "Int32": 11,
+
+                // A string.
+                // Default value: "".
+                "String": "Testing…1…2…3…4"
+            }
+            """;
+
+        PreferenceFile.UpdateFromString(group, changedJsoncString);
     }
 }

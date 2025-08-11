@@ -206,6 +206,20 @@ namespace PreferenceGroups
             => Create().WithDescription(description).Build();
 
         /// <summary>
+        /// Builds and returns a <see cref="PreferenceGroup"/> by using the
+        /// <paramref name="object"/>. The <paramref name="object"/> must be a
+        /// <see langword="class"/> and all <see langword="public"/> properties
+        /// that have the <see cref="PreferenceAttribute"/> will be used as
+        /// members of the group. In addition, any changes to the values of the
+        /// resulting <see cref="PreferenceGroup"/> members, will update the
+        /// associated members of <paramref name="object"/>.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <returns></returns>
+        public static PreferenceGroup BuildFrom(object @object)
+            => new PreferenceGroup(@object);
+
+        /// <summary>
         /// Instantiates a new <see cref="PreferenceGroupBuilder"/>.
         /// </summary>
         /// <returns></returns>

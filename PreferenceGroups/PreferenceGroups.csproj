@@ -6,7 +6,7 @@
 		<Authors>Clinton Kopotic</Authors>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>PreferenceGroups</Title>
-		<Version>0.0.2-alpha</Version>
+		<Version>0.0.3-alpha</Version>
 		<Description>.NET Package Library for working with preferences for the user.</Description>
 		<Copyright>Copyright (c) Clinton Kopotic</Copyright>
 		<PackageProjectUrl>https://github.com/clintonkopotic/PreferenceGroups</PackageProjectUrl>

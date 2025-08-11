@@ -200,6 +200,39 @@ public sealed class PreferenceGroupsTests
     }
 
     [TestMethod]
+    public void AttributeTests()
+    {
+        int? int32Value = 5;
+        string? stringValue = "Testing";
+        PreferenceGroupWithAttributes test = new()
+        {
+            Int32 = int32Value,
+            String = stringValue,
+        };
+
+        PreferenceGroup preferenceGroup = PreferenceGroupBuilder.BuildFrom(
+            test);
+        Assert.AreEqual(PreferenceGroupWithAttributes.GroupDescription,
+            preferenceGroup.Description);
+        Assert.AreEqual(int32Value, preferenceGroup.GetValueAs<int?>(
+            nameof(PreferenceGroupWithAttributes.Int32)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.Int32DefaultValue,
+            actual: preferenceGroup.GetDefaultValueAs<int?>(
+                nameof(PreferenceGroupWithAttributes.Int32)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.Int32Description,
+            actual: preferenceGroup[nameof(PreferenceGroupWithAttributes.Int32)]
+                .Description);
+        Assert.AreEqual(stringValue, preferenceGroup.GetValueAs<string?>(
+            nameof(PreferenceGroupWithAttributes.String)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.StringDefaultValue,
+            actual: preferenceGroup.GetDefaultValueAs<string?>(
+                nameof(PreferenceGroupWithAttributes.String)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.StringDescription,
+            actual: preferenceGroup[nameof(PreferenceGroupWithAttributes
+                .String)].Description);
+    }
+
+    [TestMethod]
     public void ProcessNamesAndThrowIfNotEqualTests()
     {
         // name cannot be null.

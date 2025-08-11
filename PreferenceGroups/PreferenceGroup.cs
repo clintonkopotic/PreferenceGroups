@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace PreferenceGroups
 {
@@ -9,6 +10,15 @@ namespace PreferenceGroups
     /// </summary>
     public class PreferenceGroup : ICollection<Preference>
     {
+        // TODO: Update _associatedObject to handle Preference.Names that do not match the names of the public properties of _associatedObject.
+
+        /// <summary>
+        /// The backing store for an associated <see langword="object"/> such
+        /// that when a value of a <see cref="Preference"/> of the
+        /// <see cref="PreferenceGroup"/> that shares
+        /// </summary>
+        private readonly object _associatedObject = null;
+
         /// <summary>
         /// The backing store for the collection, with using
         /// <see cref="Preference.Name"/> as the key in the dictionary.
@@ -47,6 +57,22 @@ namespace PreferenceGroups
                 var processedName = ProcessNamesAndThrowIfNotEqual(name, value);
 
                 _dictionary[processedName] = value;
+
+                if (_associatedObject is null)
+                {
+                    return;
+                }
+
+                var objectType = _associatedObject.GetType();
+                var objectProperty = objectType.GetProperty(name);
+
+                if (objectProperty is null)
+                {
+                    return;
+                }
+
+                objectProperty.SetValue(_associatedObject,
+                    value.GetValueAsObject());
             }
         }
 
@@ -66,6 +92,83 @@ namespace PreferenceGroups
         bool ICollection<Preference>.IsReadOnly
             => ((ICollection<KeyValuePair<string, Preference>>)_dictionary)
                 .IsReadOnly;
+
+        internal PreferenceGroup(object @object)
+        {
+            if (@object is null)
+            {
+                throw new ArgumentNullException(nameof(@object));
+            }
+
+            _associatedObject = @object;
+            var objectType = _associatedObject.GetType();
+
+            if (!objectType.IsClass)
+            {
+                throw new ArgumentException(paramName: nameof(@object),
+                    message: "The type must be a class.");
+            }
+
+            Description = null;
+            var groupAttribute = objectType
+                .GetCustomAttribute<PreferenceGroupAttribute>();
+
+            if (!(groupAttribute is null))
+            {
+                Description = groupAttribute.Description?.Trim();
+            }
+
+            foreach (var property in objectType.GetProperties())
+            {
+                string preferenceName = Preference.ProcessNameOrThrowIfInvalid(
+                    property.Name);
+                object preferenceDefaultValue = null;
+                string preferenceDescription = null;
+                var preferenceAttribute = property
+                    .GetCustomAttribute<PreferenceAttribute>();
+
+                if (!(preferenceAttribute is null))
+                {
+                    if (!(preferenceAttribute.Name is null))
+                    {
+                        preferenceName = Preference.ProcessNameOrThrowIfInvalid(
+                            preferenceAttribute.Name);
+                    }
+
+                    preferenceDefaultValue = preferenceAttribute.DefaultValue;
+                    preferenceDescription = preferenceAttribute.Description;
+                }
+
+                var propertyType = property.PropertyType;
+
+                if (propertyType == typeof(int?))
+                {
+                    var value = (int?)property.GetValue(_associatedObject);
+                    int? defaultValue = preferenceDefaultValue is null ? null
+                        : (int?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int32PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
+                else if (propertyType == typeof(string))
+                {
+                    var value = (string)property.GetValue(_associatedObject);
+                    string defaultValue = preferenceDefaultValue is null ? null
+                        : (string)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = StringPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
+            }
+        }
 
         /// <summary>
         /// Instantiates a <see cref="PreferenceGroup"/> with
@@ -355,7 +458,7 @@ namespace PreferenceGroups
                 if (p == preference)
                 {
                     remove = true;
-                    
+
                     break;
                 }
             }
