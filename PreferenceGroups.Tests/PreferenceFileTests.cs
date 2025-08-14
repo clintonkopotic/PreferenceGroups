@@ -98,7 +98,7 @@ public sealed class PreferenceFileTests
 
                 // A string.
                 // Default value: "".
-                "String": "Testing…1…2…3"
+                "String123": "Testing…1…2…3"
             }
             """;
 
@@ -114,10 +114,9 @@ public sealed class PreferenceFileTests
             .Int32)];
         Assert.IsNotNull(numberJToken);
         Assert.AreEqual(JTokenType.Integer, numberJToken.Type);
-        Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
-            .String)));
-        var stringJToken = jObject[nameof(PreferenceGroupWithAttributes
-            .String)];
+        Assert.IsTrue(jObject.ContainsKey(
+            PreferenceGroupWithAttributes.StringName));
+        var stringJToken = jObject[PreferenceGroupWithAttributes.StringName];
         Assert.IsNotNull(stringJToken);
         Assert.AreEqual(JTokenType.String, stringJToken.Type);
 
@@ -130,10 +129,13 @@ public sealed class PreferenceFileTests
 
                 // A string.
                 // Default value: "".
-                "String": "Testing…1…2…3…4"
+                "String123": "Testing…1…2…3…4"
             }
             """;
 
         PreferenceFile.UpdateFromString(group, changedJsoncString);
+
+        Assert.AreEqual(11, test.Int32);
+        Assert.AreEqual("Testing…1…2…3…4", test.String);
     }
 }

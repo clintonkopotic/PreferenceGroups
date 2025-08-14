@@ -427,6 +427,55 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Reads from the file at <see cref="Path"/> and updates
+        /// <paramref name="groups"/>.
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// file specified by <see cref="Path"/> is not found, then the
+        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="null"/> and the file specified by <see cref="Path"/>
+        /// is not found, then the <see cref="FileNotFoundException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
+        /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the index of the array and the
+        /// <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="groups"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="groups"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found and
+        /// <paramref name="writeFileIfNotFound"/> is
+        /// <see langword="false"/>.</exception>
+        public IReadOnlyDictionary<int, IReadOnlyCollection<string>> Update(
+            PreferenceGroup[] groups, bool writeFileIfNotFound = true)
+        {
+            if (groups is null)
+            {
+                throw new ArgumentNullException(nameof(groups));
+            }
+
+            try
+            {
+                return PreferenceGroupJsonDeserializer.UpdateFrom(groups,
+                    ReadAsJArray());
+            }
+            catch (FileNotFoundException)
+            {
+                if (writeFileIfNotFound)
+                {
+                    Write(groups);
+
+                    return null;
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Writes <paramref name="preference"/> to the file at
         /// <see cref="Path"/>. If the file already exists, then it will be
         /// overwritten. It accomplishes this by creating a
@@ -841,6 +890,53 @@ namespace PreferenceGroups
             var jObject = ReadStringAsJObject(@string, jsonLoadSettings);
 
             return PreferenceGroupJsonDeserializer.UpdateFrom(group, jObject);
+        }
+
+        /// <summary>
+        /// Updates <paramref name="groups"/> from <paramref name="string"/> by
+        /// first calling the
+        /// <see cref="ReadStringAsJObject(string, JsonLoadSettings)"/> method
+        /// with it and <paramref name="jsonLoadSettings"/> (where if it is
+        /// <see langword="null"/> then
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> is used),
+        /// and then calling the
+        /// <see cref="PreferenceGroupJsonDeserializer.UpdateFrom(
+        /// PreferenceGroup[], JArray)"/> method.
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <param name="string"></param>
+        /// <param name="jsonLoadSettings"></param>
+        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the <see cref="Preference.Name"/>s of
+        /// <paramref name="groups"/> that were updated from
+        /// <paramref name="string"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="string"/>
+        /// is empty or constists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="string"/> is <see langword="null"/>.</exception>
+        public static IReadOnlyDictionary<int, IReadOnlyCollection<string>>
+            UpdateFromString(PreferenceGroup[] groups, string @string,
+            JsonLoadSettings jsonLoadSettings = null)
+        {
+            if (groups is null)
+            {
+                throw new ArgumentNullException(nameof(groups));
+            }
+
+            if (@string is null)
+            {
+                throw new ArgumentNullException(nameof(@string));
+            }
+
+            if (string.IsNullOrWhiteSpace(@string))
+            {
+                throw new ArgumentException("Cannot be empty or consist only "
+                    + "of white-space characters.", nameof(@string));
+            }
+
+            var jArray = ReadStringAsJArray(@string, jsonLoadSettings);
+
+            return PreferenceGroupJsonDeserializer.UpdateFrom(groups, jArray);
         }
 
         /// <summary>

@@ -9,6 +9,8 @@ internal class PreferenceGroupWithAttributes
 
     public const string Int32Description = "An integer.";
 
+    public const string StringName = "String123";
+
     public const string StringDefaultValue = "";
 
     public const string StringDescription = "A string.";
@@ -17,7 +19,7 @@ internal class PreferenceGroupWithAttributes
         DefaultValue = Int32DefaultValue)]
     public int? Int32 { get; set; } = null;
 
-    [Preference(Description = StringDescription,
+    [Preference(StringName, Description = StringDescription,
         DefaultValue = StringDefaultValue)]
     public string? String { get; set; } = null;
 }

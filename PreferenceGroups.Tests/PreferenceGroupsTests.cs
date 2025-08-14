@@ -212,6 +212,7 @@ public sealed class PreferenceGroupsTests
 
         PreferenceGroup preferenceGroup = PreferenceGroupBuilder.BuildFrom(
             test);
+
         Assert.AreEqual(PreferenceGroupWithAttributes.GroupDescription,
             preferenceGroup.Description);
         Assert.AreEqual(int32Value, preferenceGroup.GetValueAs<int?>(
@@ -223,13 +224,40 @@ public sealed class PreferenceGroupsTests
             actual: preferenceGroup[nameof(PreferenceGroupWithAttributes.Int32)]
                 .Description);
         Assert.AreEqual(stringValue, preferenceGroup.GetValueAs<string?>(
-            nameof(PreferenceGroupWithAttributes.String)));
+            PreferenceGroupWithAttributes.StringName));
         Assert.AreEqual(PreferenceGroupWithAttributes.StringDefaultValue,
             actual: preferenceGroup.GetDefaultValueAs<string?>(
-                nameof(PreferenceGroupWithAttributes.String)));
+                PreferenceGroupWithAttributes.StringName));
         Assert.AreEqual(PreferenceGroupWithAttributes.StringDescription,
-            actual: preferenceGroup[nameof(PreferenceGroupWithAttributes
-                .String)].Description);
+            actual: preferenceGroup[PreferenceGroupWithAttributes.StringName]
+                .Description);
+
+        int32Value = 6;
+        stringValue = "Testing…1…2…3";
+
+        test.Int32 = int32Value;
+        test.String = stringValue;
+
+        preferenceGroup.UpdateValuesFrom(test);
+
+        Assert.AreEqual(PreferenceGroupWithAttributes.GroupDescription,
+            preferenceGroup.Description);
+        Assert.AreEqual(int32Value, preferenceGroup.GetValueAs<int?>(
+            nameof(PreferenceGroupWithAttributes.Int32)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.Int32DefaultValue,
+            actual: preferenceGroup.GetDefaultValueAs<int?>(
+                nameof(PreferenceGroupWithAttributes.Int32)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.Int32Description,
+            actual: preferenceGroup[nameof(PreferenceGroupWithAttributes.Int32)]
+                .Description);
+        Assert.AreEqual(stringValue, preferenceGroup.GetValueAs<string?>(
+            PreferenceGroupWithAttributes.StringName));
+        Assert.AreEqual(PreferenceGroupWithAttributes.StringDefaultValue,
+            actual: preferenceGroup.GetDefaultValueAs<string?>(
+                PreferenceGroupWithAttributes.StringName));
+        Assert.AreEqual(PreferenceGroupWithAttributes.StringDescription,
+            actual: preferenceGroup[PreferenceGroupWithAttributes.StringName]
+                .Description);
     }
 
     [TestMethod]

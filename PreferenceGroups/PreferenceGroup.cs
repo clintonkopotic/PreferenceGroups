@@ -10,14 +10,26 @@ namespace PreferenceGroups
     /// </summary>
     public class PreferenceGroup : ICollection<Preference>
     {
-        // TODO: Update _associatedObject to handle Preference.Names that do not match the names of the public properties of _associatedObject.
-
         /// <summary>
         /// The backing store for an associated <see langword="object"/> such
         /// that when a value of a <see cref="Preference"/> of the
         /// <see cref="PreferenceGroup"/> that shares
         /// </summary>
         private readonly object _associatedObject = null;
+
+        /// <summary>
+        /// The <see cref="Type"/> of <see cref="_associatedObject"/>.
+        /// </summary>
+        private readonly Type _associatedObjectType = null;
+
+        /// <summary>
+        /// A <see cref="Dictionary{TKey, TValue}"/>, where the
+        /// <see cref="Dictionary{TKey, TValue}.Keys"/> are the
+        /// <see cref="Preference.Name"/>s and the
+        /// <see cref="Dictionary{TKey, TValue}.Values"/> are the
+        /// <see cref="_associatedObject"/> property names.
+        /// </summary>
+        private readonly Dictionary<string, string> _associatedNames = null;
 
         /// <summary>
         /// The backing store for the collection, with using
@@ -54,23 +66,36 @@ namespace PreferenceGroups
             }
             set
             {
+                // Update the dictionary.
                 var processedName = ProcessNamesAndThrowIfNotEqual(name, value);
-
                 _dictionary[processedName] = value;
 
+                // If there is not an associated object to update, return.
                 if (_associatedObject is null)
                 {
                     return;
                 }
 
-                var objectType = _associatedObject.GetType();
-                var objectProperty = objectType.GetProperty(name);
+                // Lookup what the property name of the associated object is
+                // from the preference's name.
+                if (!_associatedNames.TryGetValue(processedName,
+                    out var propertyName))
+                {
+                    return;
+                }
 
+                // Get the property of the associated object that matches the
+                // preference that is being updated.
+                var objectProperty = _associatedObjectType.GetProperty(
+                    propertyName);
+
+                // If there is not a property found, then return.
                 if (objectProperty is null)
                 {
                     return;
                 }
 
+                // Set the value of the property with the preference's value.
                 objectProperty.SetValue(_associatedObject,
                     value.GetValueAsObject());
             }
@@ -93,7 +118,22 @@ namespace PreferenceGroups
             => ((ICollection<KeyValuePair<string, Preference>>)_dictionary)
                 .IsReadOnly;
 
-        internal PreferenceGroup(object @object)
+        /// <summary>
+        /// Initializes a <see cref="PreferenceGroup"/> from
+        /// <paramref name="object"/>, which must be a <see langword="class"/>
+        /// and the <see langword="public"/> properties that have an attached
+        /// <see cref="PreferenceAttribute"/>. It is optional for
+        /// <paramref name="object"/> to have an attached
+        /// <see cref="PreferenceGroupAttribute"/>, in which case the
+        /// <see cref="PreferenceGroupAttribute.Description"/> will be used to
+        /// assign <see cref="Description"/>.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <exception cref="ArgumentException"><paramref name="object"/> is not
+        /// a <see langword="class"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="object"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroup(object @object)
         {
             if (@object is null)
             {
@@ -101,16 +141,16 @@ namespace PreferenceGroups
             }
 
             _associatedObject = @object;
-            var objectType = _associatedObject.GetType();
+            _associatedObjectType = _associatedObject.GetType();
 
-            if (!objectType.IsClass)
+            if (!_associatedObjectType.IsClass)
             {
                 throw new ArgumentException(paramName: nameof(@object),
                     message: "The type must be a class.");
             }
 
             Description = null;
-            var groupAttribute = objectType
+            var groupAttribute = _associatedObjectType
                 .GetCustomAttribute<PreferenceGroupAttribute>();
 
             if (!(groupAttribute is null))
@@ -118,10 +158,13 @@ namespace PreferenceGroups
                 Description = groupAttribute.Description?.Trim();
             }
 
-            foreach (var property in objectType.GetProperties())
+            _associatedNames = new Dictionary<string, string>();
+
+            foreach (var property in _associatedObjectType.GetProperties())
             {
-                string preferenceName = Preference.ProcessNameOrThrowIfInvalid(
+                var propertyName = Preference.ProcessNameOrThrowIfInvalid(
                     property.Name);
+                var preferenceName = propertyName;
                 object preferenceDefaultValue = null;
                 string preferenceDescription = null;
                 var preferenceAttribute = property
@@ -137,6 +180,7 @@ namespace PreferenceGroups
 
                     preferenceDefaultValue = preferenceAttribute.DefaultValue;
                     preferenceDescription = preferenceAttribute.Description;
+                    _associatedNames[preferenceName] = propertyName;
                 }
 
                 var propertyType = property.PropertyType;
@@ -757,6 +801,96 @@ namespace PreferenceGroups
             var processedName = Preference.ProcessNameOrThrowIfInvalid(
                 preference.Name);
             _dictionary[processedName] = preference;
+        }
+
+        /// <summary>
+        /// Updates <see langword="this"/> with the values of
+        /// <paramref name="object"/>, that is a <see langword="class"/>, from
+        /// its <see langword="public"/> properties that have the
+        /// <see cref="PreferenceAttribute"/> attached to them.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <exception cref="ArgumentException"><paramref name="object"/> is not
+        /// a <see langword="class"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="object"/> is
+        /// <see langword="null"/>.</exception>
+        public void UpdateValuesFrom(object @object)
+        {
+            if (@object is null)
+            {
+                throw new ArgumentNullException(nameof(@object));
+            }
+
+            if (!@object.GetType().IsClass)
+            {
+                throw new ArgumentException(paramName: nameof(@object),
+                    message: "The type must be a class.");
+            }
+
+            UpdateValuesFrom(new PreferenceGroup(@object));
+        }
+
+        /// <summary>
+        /// Updates <see langword="this"/> with the values that have the same
+        /// <see cref="Preference.Name"/> from <paramref name="otherGroup"/>.
+        /// </summary>
+        /// <param name="otherGroup"></param>
+        public void UpdateValuesFrom(PreferenceGroup otherGroup)
+        {
+            if (otherGroup is null)
+            {
+                return;
+            }
+
+            foreach (var otherPreference in otherGroup)
+            {
+                if (ContainsName(otherPreference.Name))
+                {
+                    var preference = this[otherPreference.Name];
+                    preference.SetValueFromObject(
+                        otherPreference.GetValueAsObject());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the values of <see langword="this"/> to
+        /// <paramref name="object"/>, that is a <see langword="class"/>, with
+        /// its <see langword="public"/> properties that have the
+        /// <see cref="PreferenceAttribute"/> attached to them.
+        /// </summary>
+        /// <param name="object"></param>
+        public void UpdateValuesTo(object @object)
+        {
+            if (@object is null || !@object.GetType().IsClass)
+            {
+                return;
+            }
+
+            UpdateValuesTo(new PreferenceGroup(@object));
+        }
+
+        /// <summary>
+        /// Updates the values that have the same <see cref="Preference.Name"/>
+        /// in <see langword="this"/> to <paramref name="otherGroup"/>.
+        /// </summary>
+        /// <param name="otherGroup"></param>
+        public void UpdateValuesTo(PreferenceGroup otherGroup)
+        {
+            if (otherGroup is null)
+            {
+                return;
+            }
+
+            foreach (var otherPreference in otherGroup)
+            {
+                if (ContainsName(otherPreference.Name))
+                {
+                    var preference = this[otherPreference.Name];
+                    otherPreference.SetValueFromObject(
+                        preference.GetValueAsObject());
+                }
+            }
         }
 
         /// <summary>
