@@ -84,6 +84,20 @@ public sealed class PreferenceGroupsTests
                 stringPreferenceWithDescriptionName));
         Assert.AreEqual(expected: stringPreferenceValue,
             actual: group.GetValueAs<string?>(stringPreferenceName));
+
+        group.SetValuesToNull();
+
+        foreach (var preference in group)
+        {
+            Assert.IsTrue(preference.ValueIsNull);
+        }
+
+        group.SetValuesToDefault();
+
+        foreach (var preference in group)
+        {
+            Assert.IsTrue(preference.ValueIsNull);
+        }
     }
 
     [TestMethod]

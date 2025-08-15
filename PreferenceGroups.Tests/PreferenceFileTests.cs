@@ -88,6 +88,13 @@ public sealed class PreferenceFileTests
 
         PreferenceGroup group = PreferenceGroupBuilder.BuildFrom(test);
 
+        Assert.AreEqual(PreferenceGroupWithAttributes.Int32DefaultValue,
+            group.GetDefaultValueAs<int?>(
+                nameof(PreferenceGroupWithAttributes.Int32)));
+        Assert.AreEqual(PreferenceGroupWithAttributes.StringDefaultValue,
+            group.GetDefaultValueAs<string?>(
+                PreferenceGroupWithAttributes.StringName));
+
         var jsoncString = PreferenceFile.WriteToString(group);
         var expected = """
             // A group of preferences.

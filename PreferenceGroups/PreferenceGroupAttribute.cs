@@ -7,9 +7,9 @@ namespace PreferenceGroups
     /// <see langword="public"/> properties that have the
     /// <see cref="PreferenceAttribute"/> will each be a
     /// <see cref="Preference"/> in a <see cref="PreferenceGroup"/> when the
-    /// <see cref="PreferenceGroupBuilder.BuildFrom(object)"/> method is called
-    /// with an instantied object of the <see langword="class"/> that this
-    /// attribute is attached to.
+    /// <see cref="PreferenceGroupBuilder.BuildFrom(object, bool)"/> method is
+    /// called with an instantied object of the <see langword="class"/> that
+    /// this attribute is attached to.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class PreferenceGroupAttribute : Attribute

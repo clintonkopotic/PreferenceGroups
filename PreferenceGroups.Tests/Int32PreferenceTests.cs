@@ -56,7 +56,18 @@ public sealed class Int32PreferenceTests
         Assert.IsNull((int?)preference.GetValueAsObject());
         Assert.IsNull(preference.GetValueAs<int?>());
 
+        preference.SetValueToNull();
+
+        Assert.IsTrue(preference.ValueIsNull);
+        Assert.IsNull((int?)preference.GetValueAsObject());
+        Assert.IsNull(preference.GetValueAs<int?>());
+
         preference.SetValueFromObject(preference.GetDefaultValueAsObject());
+
+        Assert.AreEqual(defaultValue, (int?)preference.GetValueAsObject());
+        Assert.AreEqual(defaultValue, preference.GetValueAs<int?>());
+
+        preference.SetValueToDefault();
 
         Assert.AreEqual(defaultValue, (int?)preference.GetValueAsObject());
         Assert.AreEqual(defaultValue, preference.GetValueAs<int?>());
@@ -97,6 +108,10 @@ public sealed class Int32PreferenceTests
         Assert.IsNull(int32Preference.DefaultValue);
         Assert.IsNull(int32Preference.AllowedValues);
         Assert.IsTrue(int32Preference.AllowUndefinedValues);
+
+        int32Preference.SetValueToDefault();
+
+        Assert.IsNull(int32Preference.Value);
     }
 
     [DataTestMethod]

@@ -57,7 +57,18 @@ public sealed class StringPreferenceTests
         Assert.IsNull((string?)preference.GetValueAsObject());
         Assert.IsNull(preference.GetValueAs<string?>());
 
+        preference.SetValueToNull();
+
+        Assert.IsTrue(preference.ValueIsNull);
+        Assert.IsNull((string?)preference.GetValueAsObject());
+        Assert.IsNull(preference.GetValueAs<string?>());
+
         preference.SetValueFromObject(preference.GetDefaultValueAsObject());
+
+        Assert.AreEqual(defaultValue, (string?)preference.GetValueAsObject());
+        Assert.AreEqual(defaultValue, preference.GetValueAs<string?>());
+
+        preference.SetValueToDefault();
 
         Assert.AreEqual(defaultValue, (string?)preference.GetValueAsObject());
         Assert.AreEqual(defaultValue, preference.GetValueAs<string?>());
@@ -98,6 +109,10 @@ public sealed class StringPreferenceTests
         Assert.IsNull(stringPreference.DefaultValue);
         Assert.IsNull(stringPreference.AllowedValues);
         Assert.IsTrue(stringPreference.AllowUndefinedValues);
+
+        stringPreference.SetValueToDefault();
+
+        Assert.IsNull(stringPreference.Value);
     }
 
     [DataTestMethod]

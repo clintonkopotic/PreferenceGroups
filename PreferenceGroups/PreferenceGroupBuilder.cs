@@ -212,12 +212,23 @@ namespace PreferenceGroups
         /// that have the <see cref="PreferenceAttribute"/> will be used as
         /// members of the group. In addition, any changes to the values of the
         /// resulting <see cref="PreferenceGroup"/> members, will update the
-        /// associated members of <paramref name="object"/>.
+        /// associated members of <paramref name="object"/>. The parameter
+        /// <paramref name="useValuesAsDefault"/> allows for using the current
+        /// values of <paramref name="object"/> as the <c>DefaultValue</c>
+        /// for each <see cref="Preference"/>, unless the
+        /// <see cref="PreferenceAttribute.DefaultValue"/> is not
+        /// <see langword="null"/>.
         /// </summary>
         /// <param name="object"></param>
+        /// <param name="useValuesAsDefault">If <see langword="true"/>, the
+        /// current values of <paramref name="object"/> will be the
+        /// <c>DefaultValue</c> of each <see cref="Preference"/>. This only
+        /// occurs if the <see cref="PreferenceAttribute.DefaultValue"/> is
+        /// <see langword="null"/>.</param>
         /// <returns></returns>
-        public static PreferenceGroup BuildFrom(object @object)
-            => new PreferenceGroup(@object);
+        public static PreferenceGroup BuildFrom(object @object,
+            bool useValuesAsDefault = true)
+            => new PreferenceGroup(@object, useValuesAsDefault);
 
         /// <summary>
         /// Instantiates a new <see cref="PreferenceGroupBuilder"/>.

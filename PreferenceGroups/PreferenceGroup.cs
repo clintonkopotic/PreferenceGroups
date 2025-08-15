@@ -126,14 +126,24 @@ namespace PreferenceGroups
         /// <paramref name="object"/> to have an attached
         /// <see cref="PreferenceGroupAttribute"/>, in which case the
         /// <see cref="PreferenceGroupAttribute.Description"/> will be used to
-        /// assign <see cref="Description"/>.
+        /// assign <see cref="Description"/>. The parameter
+        /// <paramref name="useValuesAsDefault"/> allows for using the current
+        /// values of <paramref name="object"/> as the <c>DefaultValue</c>
+        /// for each <see cref="Preference"/>, unless the
+        /// <see cref="PreferenceAttribute.DefaultValue"/> is not
+        /// <see langword="null"/>.
         /// </summary>
         /// <param name="object"></param>
+        /// <param name="useValuesAsDefault">If <see langword="true"/>, the
+        /// current values of <paramref name="object"/> will be the
+        /// <c>DefaultValue</c> of each <see cref="Preference"/>. This only
+        /// occurs if the <see cref="PreferenceAttribute.DefaultValue"/> is
+        /// <see langword="null"/>.</param>
         /// <exception cref="ArgumentException"><paramref name="object"/> is not
         /// a <see langword="class"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="object"/> is
         /// <see langword="null"/>.</exception>
-        public PreferenceGroup(object @object)
+        public PreferenceGroup(object @object, bool useValuesAsDefault = true)
         {
             if (@object is null)
             {
@@ -188,7 +198,8 @@ namespace PreferenceGroups
                 if (propertyType == typeof(int?))
                 {
                     var value = (int?)property.GetValue(_associatedObject);
-                    int? defaultValue = preferenceDefaultValue is null ? null
+                    int? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
                         : (int?)preferenceDefaultValue;
 
                     _dictionary[preferenceName] = Int32PreferenceBuilder
@@ -201,7 +212,8 @@ namespace PreferenceGroups
                 else if (propertyType == typeof(string))
                 {
                     var value = (string)property.GetValue(_associatedObject);
-                    string defaultValue = preferenceDefaultValue is null ? null
+                    string defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
                         : (string)preferenceDefaultValue;
 
                     _dictionary[preferenceName] = StringPreferenceBuilder
@@ -568,6 +580,30 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Sets the <c>Value</c> of each <see cref="Preference"/> to its
+        /// <c>DefaultValue</c>.
+        /// </summary>
+        public void SetValuesToDefault()
+        {
+            foreach (var preference in this)
+            {
+                preference.SetValueToDefault();
+            }
+        }
+
+        /// <summary>
+        /// Sets the <c>Value</c> of each <see cref="Preference"/> to
+        /// <see langword="null"/>.
+        /// </summary>
+        public void SetValuesToNull()
+        {
+            foreach (var preference in this)
+            {
+                preference.SetValueToNull();
+            }
+        }
+
+        /// <summary>
         /// Attempts to get the <see cref="Preference"/>'s <c>DefaultValue</c>,
         /// as an <see cref="object"/>, where its <see cref="Preference.Name"/>
         /// is <paramref name="name"/> using the
@@ -827,7 +863,7 @@ namespace PreferenceGroups
                     message: "The type must be a class.");
             }
 
-            UpdateValuesFrom(new PreferenceGroup(@object));
+            UpdateValuesFrom(new PreferenceGroup(@object, false));
         }
 
         /// <summary>
@@ -867,7 +903,7 @@ namespace PreferenceGroups
                 return;
             }
 
-            UpdateValuesTo(new PreferenceGroup(@object));
+            UpdateValuesTo(new PreferenceGroup(@object, false));
         }
 
         /// <summary>

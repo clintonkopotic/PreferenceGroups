@@ -381,6 +381,17 @@ namespace PreferenceGroups
         public abstract void SetValueFromObject(object value);
 
         /// <summary>
+        /// Sets <c>Value</c> to <c>DefaultValue</c>.
+        /// </summary>
+        public void SetValueToDefault() => SetValueFromObject(
+            GetDefaultValueAsObject());
+
+        /// <summary>
+        /// Sets <c>Value</c> to <see langword="null"/>.
+        /// </summary>
+        public void SetValueToNull() => SetValueFromObject(null);
+
+        /// <summary>
         /// Attempts to get the <c>AllowedValues</c> as an <see cref="Array"/>
         /// of <typeparamref name="T"/>s.
         /// </summary>
