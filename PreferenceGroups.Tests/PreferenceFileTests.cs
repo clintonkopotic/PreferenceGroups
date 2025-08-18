@@ -1,6 +1,8 @@
 ﻿namespace PreferenceGroups.Tests;
 using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PreferenceGroups.Tests.HelperClasses;
 
@@ -144,5 +146,50 @@ public sealed class PreferenceFileTests
 
         Assert.AreEqual(11, test.Int32);
         Assert.AreEqual("Testing…1…2…3…4", test.String);
+    }
+
+    [TestMethod]
+    public void EmptyStringTests()
+    {
+        _ = Assert.ThrowsException<ArgumentNullException>(() =>
+        {
+            PreferenceFile.ReadStringAsJToken(null);
+        });
+
+        _ = Assert.ThrowsException<ArgumentException>(() =>
+        {
+            PreferenceFile.ReadStringAsJToken(string.Empty);
+        });
+
+        _ = Assert.ThrowsException<ArgumentException>(() =>
+        {
+            PreferenceFile.ReadStringAsJToken(" ");
+        });
+
+        JsonReaderException jsonReaderException;
+
+        jsonReaderException = Assert.ThrowsException<JsonReaderException>(() =>
+        {
+            PreferenceFile.ReadAsJToken(new StringReader(string.Empty));
+        });
+
+        Assert.AreEqual(0, jsonReaderException.LineNumber);
+        Assert.AreEqual(0, jsonReaderException.LinePosition);
+
+        jsonReaderException = Assert.ThrowsException<JsonReaderException>(() =>
+        {
+            PreferenceFile.ReadAsJToken(new StringReader(" "));
+        });
+
+        Assert.AreEqual(1, jsonReaderException.LineNumber);
+        Assert.AreEqual(1, jsonReaderException.LinePosition);
+
+        jsonReaderException = Assert.ThrowsException<JsonReaderException>(() =>
+        {
+            PreferenceFile.ReadAsJToken(new StringReader("    "));
+        });
+
+        Assert.AreEqual(1, jsonReaderException.LineNumber);
+        Assert.AreEqual(4, jsonReaderException.LinePosition);
     }
 }

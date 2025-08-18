@@ -122,7 +122,7 @@ namespace PreferenceGroups
 
             if (jValue is null || jValue.Type == JTokenType.Null)
             {
-                int32Preference.SetValueFromObject(null);
+                int32Preference.SetValueToNull();
 
                 return;
             }
@@ -131,7 +131,7 @@ namespace PreferenceGroups
 
             if (@int is null)
             {
-                int32Preference.SetValueFromObject(null);
+                int32Preference.SetValueToNull();
             }
             else
             {
@@ -167,7 +167,7 @@ namespace PreferenceGroups
 
             if (jValue is null || jValue.Type == JTokenType.Null)
             {
-                stringPreference.SetValueFromObject(null);
+                stringPreference.SetValueToNull();
 
                 return;
             }
@@ -176,7 +176,7 @@ namespace PreferenceGroups
 
             if (@string is null)
             {
-                stringPreference.SetValueFromObject(null);
+                stringPreference.SetValueToNull();
             }
             else
             {
@@ -269,7 +269,7 @@ namespace PreferenceGroups
 
             if (jToken is null || jToken.Type == JTokenType.Null)
             {
-                preference.SetValueFromObject(null);
+                preference.SetValueToNull();
 
                 return true;
             }
@@ -319,7 +319,7 @@ namespace PreferenceGroups
 
             if (jValue is null || jValue.Type == JTokenType.Null)
             {
-                preference.SetValueFromObject(null);
+                preference.SetValueToNull();
 
                 return;
             }

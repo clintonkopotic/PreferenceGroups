@@ -81,9 +81,11 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="groups"></param>
         /// <param name="jArray"></param>
-        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
-        /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
-        /// were updated from <paramref name="jArray"/>.</returns>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
+        /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the index of the array and the
+        /// <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="groups"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="groups"/> is
         /// <see langword="null"/>.</exception>
         public static IReadOnlyDictionary<int, IReadOnlyCollection<string>>

@@ -265,6 +265,8 @@ namespace PreferenceGroups
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public JArray ReadAsJArray()
             => JsoncSerializerHelper.ReadAsJArray(ReadAsJToken());
 
@@ -278,6 +280,8 @@ namespace PreferenceGroups
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public JObject ReadAsJObject()
             => JsoncSerializerHelper.ReadAsJObject(ReadAsJToken());
 
@@ -304,6 +308,8 @@ namespace PreferenceGroups
         /// <see cref="Path"/>.</returns>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public JToken ReadAsJToken()
         {
             using (var fileStream = new FileStream(Path, FileMode.Open,
@@ -327,6 +333,8 @@ namespace PreferenceGroups
         /// <see cref="Path"/>, otherwise <see langword="null"/>.</returns>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public JValue ReadAsJValue()
             => JsoncSerializerHelper.ReadAsJValue(ReadAsJToken());
 
@@ -337,13 +345,30 @@ namespace PreferenceGroups
         /// JToken)"/> method.
         /// </summary>
         /// <param name="preference"></param>
-        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// <param name="writeIfFileNotFound">If <see langword="true"/> and the
         /// file specified by <see cref="Path"/> is not found, then the
         /// <see cref="Write(Preference)"/> method is called and
         /// <see langword="false"/> is returned. Otherwise, if
         /// <see langword="false"/> and the file specified by <see cref="Path"/>
         /// is not found, then the <see cref="FileNotFoundException"/> is
         /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeOnReadException">If <see langword="true"/> and a
+        /// <see cref="JsonReaderException"/> is thrown when the
+        /// <see cref="ReadAsJToken()"/> method is called, then the
+        /// <see cref="Write(Preference)"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="false"/> and there is an error reading the file as
+        /// JSON text, then the <see cref="JsonReaderException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeFileIfMissingItem">If <see langword="true"/> and
+        /// the <see cref="Preference.Name"/> of <paramref name="preference"/>
+        /// is missing from the file, then the file will be overwritten by
+        /// calling the <see cref="Write(Preference)"/> method and
+        /// <see langword="false"/> is returned. If <see langword="false"/> then
+        /// <paramref name="preference"/> then the
+        /// <see cref="PreferenceJsonDeserializer.UpdateFrom(Preference,
+        /// JToken)"/> method is called.
+        /// </param>
         /// <returns><see langword="true"/> if <paramref name="preference"/> was
         /// updated successfully from the file at <see cref="Path"/>; otherwise,
         /// <see langword="false"/>.</returns>
@@ -351,10 +376,14 @@ namespace PreferenceGroups
         /// <paramref name="preference"/> is <see langword="null"/>.</exception>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found and
-        /// <paramref name="writeFileIfNotFound"/> is
+        /// <paramref name="writeIfFileNotFound"/> is
+        /// <see langword="false"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text and <paramref name="writeOnReadException"/> is
         /// <see langword="false"/>.</exception>
         public bool Update(Preference preference,
-            bool writeFileIfNotFound = true)
+            bool writeIfFileNotFound = true, bool writeOnReadException = true,
+            bool writeFileIfMissingItem = true)
         {
             if (preference is null)
             {
@@ -363,15 +392,59 @@ namespace PreferenceGroups
 
             try
             {
+                var jToken = ReadAsJToken();
+
+                if (writeFileIfMissingItem)
+                {
+                    if (jToken is null || jToken.Type == JTokenType.Null)
+                    {
+                        Write(preference);
+
+                        return false;
+                    }
+                    else if (jToken.Type == JTokenType.Object)
+                    {
+                        var jObject = (JObject)jToken;
+
+                        if (jObject is null || jObject.Type == JTokenType.Null)
+                        {
+                            Write(preference);
+
+                            return false;
+                        }
+
+                        var processedName = Preference
+                            .ProcessNameOrThrowIfInvalid(preference.Name);
+
+                        if (!jObject.ContainsKey(processedName))
+                        {
+                            Write(preference);
+
+                            return false;
+                        }
+                    }
+                }
+
                 return PreferenceJsonDeserializer.UpdateFrom(preference,
-                    ReadAsJToken());
+                    jToken);
             }
             catch (FileNotFoundException)
             {
-                if (writeFileIfNotFound)
+                if (writeIfFileNotFound)
                 {
                     Write(preference);
 
+                    return false;
+                }
+
+                throw;
+            }
+            catch (JsonReaderException)
+            {
+                if (writeOnReadException)
+                {
+                    Write(preference);
+                    
                     return false;
                 }
 
@@ -384,13 +457,26 @@ namespace PreferenceGroups
         /// <paramref name="group"/>.
         /// </summary>
         /// <param name="group"></param>
-        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// <param name="writeIfFileNotFound">If <see langword="true"/> and the
         /// file specified by <see cref="Path"/> is not found, then the
         /// <see cref="Write(PreferenceGroup)"/> method is called and
         /// <see langword="false"/> is returned. Otherwise, if
         /// <see langword="null"/> and the file specified by <see cref="Path"/>
         /// is not found, then the <see cref="FileNotFoundException"/> is
         /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeOnReadException">If <see langword="true"/> and a
+        /// <see cref="JsonReaderException"/> is thrown when the
+        /// <see cref="ReadAsJToken()"/> method is called, then the
+        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see langword="null"/> is returned. Otherwise, if
+        /// <see langword="false"/> and there is an error reading the file as
+        /// JSON text, then the <see cref="JsonReaderException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeFileIfMissingNames">If <see langword="true"/> and
+        /// a <see cref="Preference.Name"/> of a <see cref="Preference"/> in
+        /// <paramref name="group"/> is missing from the file, then the file
+        /// will be overwritten by calling the
+        /// <see cref="Write(PreferenceGroup)"/>.</param>
         /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
         /// were updated from the file in <paramref name="group"/>.</returns>
@@ -398,10 +484,13 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found and
-        /// <paramref name="writeFileIfNotFound"/> is
+        /// <paramref name="writeIfFileNotFound"/> is
         /// <see langword="false"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public IReadOnlyCollection<string> Update(PreferenceGroup group,
-            bool writeFileIfNotFound = true)
+            bool writeIfFileNotFound = true, bool writeOnReadException = true,
+            bool writeFileIfMissingNames = true)
         {
             if (group is null)
             {
@@ -410,12 +499,40 @@ namespace PreferenceGroups
 
             try
             {
-                return PreferenceGroupJsonDeserializer.UpdateFrom(group,
-                    ReadAsJObject());
+                var jObject = ReadAsJObject();
+                var namesOfUpdatedPrefences = PreferenceGroupJsonDeserializer
+                    .UpdateFrom(group, jObject);
+
+                if (writeFileIfMissingNames)
+                {
+                    foreach (var preferenceName in group.Names)
+                    {
+                        if (Preference.IsNameValid(preferenceName)
+                            && !jObject.ContainsKey(preferenceName))
+                        {
+                            Write(group);
+
+                            break;
+                        }
+                    }
+                }
+
+                return namesOfUpdatedPrefences;
             }
             catch (FileNotFoundException)
             {
-                if (writeFileIfNotFound)
+                if (writeIfFileNotFound)
+                {
+                    Write(group);
+
+                    return null;
+                }
+
+                throw;
+            }
+            catch (JsonReaderException)
+            {
+                if (writeOnReadException)
                 {
                     Write(group);
 
@@ -431,13 +548,22 @@ namespace PreferenceGroups
         /// <paramref name="groups"/>.
         /// </summary>
         /// <param name="groups"></param>
-        /// <param name="writeFileIfNotFound">If <see langword="true"/> and the
+        /// <param name="writeIfFileNotFound">If <see langword="true"/> and the
         /// file specified by <see cref="Path"/> is not found, then the
-        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see cref="Write(PreferenceGroup[])"/> method is called and
         /// <see langword="false"/> is returned. Otherwise, if
         /// <see langword="null"/> and the file specified by <see cref="Path"/>
         /// is not found, then the <see cref="FileNotFoundException"/> is
         /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeOnReadException">If <see langword="true"/> and a
+        /// <see cref="JsonReaderException"/> is thrown when the
+        /// <see cref="ReadAsJToken()"/> method is called, then the
+        /// <see cref="Write(PreferenceGroup[])"/> method is called and
+        /// <see langword="null"/> is returned. Otherwise, if
+        /// <see langword="false"/> and there is an error reading the file as
+        /// JSON text, then the <see cref="JsonReaderException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeFileIfMissingItems"></param>
         /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
         /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the index of the array and the
@@ -447,10 +573,14 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         /// <exception cref="FileNotFoundException">The file specified by
         /// <see cref="Path"/> cannot be found and
-        /// <paramref name="writeFileIfNotFound"/> is
+        /// <paramref name="writeIfFileNotFound"/> is
         /// <see langword="false"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
         public IReadOnlyDictionary<int, IReadOnlyCollection<string>> Update(
-            PreferenceGroup[] groups, bool writeFileIfNotFound = true)
+            PreferenceGroup[] groups, bool writeIfFileNotFound = true,
+            bool writeOnReadException = true,
+            bool writeFileIfMissingItems = true)
         {
             if (groups is null)
             {
@@ -459,12 +589,31 @@ namespace PreferenceGroups
 
             try
             {
-                return PreferenceGroupJsonDeserializer.UpdateFrom(groups,
-                    ReadAsJArray());
+                var jArray = ReadAsJArray();
+                var updates = PreferenceGroupJsonDeserializer.UpdateFrom(groups,
+                    jArray);
+
+                if (writeFileIfMissingItems && groups.Length > jArray.Count)
+                {
+                    Write(groups);
+                }
+
+                return updates;
             }
             catch (FileNotFoundException)
             {
-                if (writeFileIfNotFound)
+                if (writeIfFileNotFound)
+                {
+                    Write(groups);
+
+                    return null;
+                }
+
+                throw;
+            }
+            catch (JsonReaderException)
+            {
+                if (writeOnReadException)
                 {
                     Write(groups);
 
@@ -641,6 +790,8 @@ namespace PreferenceGroups
         /// <paramref name="textReader"/>.</returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="textReader"/> is <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="textReader"/> as JSON text.</exception>
         public static JToken ReadAsJToken(TextReader textReader,
             JsonLoadSettings jsonLoadSettings = null)
         {
@@ -673,6 +824,8 @@ namespace PreferenceGroups
         /// empty or consists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="string"/> is
         /// <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static JArray ReadStringAsJArray(string @string,
             JsonLoadSettings jsonLoadSettings = null)
         {
@@ -708,6 +861,8 @@ namespace PreferenceGroups
         /// empty or consists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="string"/> is
         /// <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static JObject ReadStringAsJObject(string @string,
             JsonLoadSettings jsonLoadSettings = null)
         {
@@ -744,6 +899,8 @@ namespace PreferenceGroups
         /// empty or consists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="string"/> is
         /// <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static JToken ReadStringAsJToken(string @string,
             JsonLoadSettings jsonLoadSettings = null)
         {
@@ -781,6 +938,8 @@ namespace PreferenceGroups
         /// empty or consists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="string"/> is
         /// <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static JValue ReadStringAsJValue(string @string,
             JsonLoadSettings jsonLoadSettings = null)
         {
@@ -821,6 +980,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="preference"/> or  <paramref name="string"/> is
         /// <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static bool UpdateFromString(Preference preference,
             string @string, JsonLoadSettings jsonLoadSettings = null)
         {
@@ -867,6 +1028,8 @@ namespace PreferenceGroups
         /// is empty or constists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="string"/> is <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static IReadOnlyCollection<string> UpdateFromString(
             PreferenceGroup group, string @string,
             JsonLoadSettings jsonLoadSettings = null)
@@ -906,14 +1069,17 @@ namespace PreferenceGroups
         /// <param name="groups"></param>
         /// <param name="string"></param>
         /// <param name="jsonLoadSettings"></param>
-        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
-        /// <see cref="string"/> with the <see cref="Preference.Name"/>s of
-        /// <paramref name="groups"/> that were updated from
-        /// <paramref name="string"/>.</returns>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
+        /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the index of the array and the
+        /// <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="groups"/>.</returns>
         /// <exception cref="ArgumentException"><paramref name="string"/>
         /// is empty or constists only of white-space characters.</exception>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="string"/> is <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
         public static IReadOnlyDictionary<int, IReadOnlyCollection<string>>
             UpdateFromString(PreferenceGroup[] groups, string @string,
             JsonLoadSettings jsonLoadSettings = null)
