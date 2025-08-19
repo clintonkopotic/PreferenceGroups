@@ -18,17 +18,21 @@ public sealed class ScenarioTests
                 .WithDefaultValue(13))
             .AddString(name: "String", b => b
                 .WithDescription("A string prefence."))
+            .AddBoolean(name: "Boolean", b => b
+                .WithAllowedValuesAndSort(true, false))
             .Build();
-
 
         var jsoncString = PreferenceFile.WriteToString(group);
         var expected = """
             {
                 // Default value: 13.
                 "Number": null,
-
+            
                 // A string prefence.
-                "String": null
+                "String": null,
+            
+                // Allowed values: false | true.
+                "Boolean": null
             }
             """;
 
@@ -38,7 +42,7 @@ public sealed class ScenarioTests
             jsoncString);
 
         Assert.IsNotNull(updatedNames);
-        Assert.AreEqual(2, updatedNames.Count);
+        Assert.AreEqual(3, updatedNames.Count);
         CollectionAssert.AreEqual(group.Names.ToArray(),
             updatedNames.ToArray());
     }

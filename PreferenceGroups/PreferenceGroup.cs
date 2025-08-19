@@ -195,7 +195,21 @@ namespace PreferenceGroups
 
                 var propertyType = property.PropertyType;
 
-                if (propertyType == typeof(int?))
+                if (propertyType == typeof(bool?))
+                {
+                    var value = (bool?)property.GetValue(_associatedObject);
+                    bool? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (bool?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = BooleanPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
+                else if (propertyType == typeof(int?))
                 {
                     var value = (int?)property.GetValue(_associatedObject);
                     int? defaultValue = preferenceDefaultValue is null

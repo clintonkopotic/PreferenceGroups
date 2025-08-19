@@ -42,12 +42,15 @@ public sealed class PreferenceFileTests
     {
         var numberName = "Number";
         var stringName = "String";
+        var booleanName = "Boolean";
         PreferenceGroup group = PreferenceGroupBuilder
             .Create()
             .AddInt32(name: numberName, b => b
                 .WithDefaultValue(13))
             .AddString(name: stringName, b => b
                 .WithDescription("A string prefence."))
+            .AddBoolean(name: booleanName, b => b
+                .WithAllowedValuesAndSort(true, false))
             .Build();
 
         var jsoncString = PreferenceFile.WriteToString(group);
@@ -57,7 +60,10 @@ public sealed class PreferenceFileTests
                 "Number": null,
 
                 // A string prefence.
-                "String": null
+                "String": null,
+            
+                // Allowed values: false | true.
+                "Boolean": null
             }
             """;
 
@@ -66,7 +72,7 @@ public sealed class PreferenceFileTests
         var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
 
         Assert.IsNotNull(jObject);
-        Assert.AreEqual(2, jObject.Count);
+        Assert.AreEqual(3, jObject.Count);
         Assert.IsTrue(jObject.ContainsKey(numberName));
         var numberJToken = jObject[numberName];
         Assert.IsNotNull(numberJToken);
@@ -75,6 +81,9 @@ public sealed class PreferenceFileTests
         var stringJToken = jObject[stringName];
         Assert.IsNotNull(stringJToken);
         Assert.AreEqual(JTokenType.Null, stringJToken.Type);
+        var booleanJToken = jObject[booleanName];
+        Assert.IsNotNull(booleanJToken);
+        Assert.AreEqual(JTokenType.Null, booleanJToken.Type);
     }
 
     [TestMethod]
@@ -96,6 +105,9 @@ public sealed class PreferenceFileTests
         Assert.AreEqual(PreferenceGroupWithAttributes.StringDefaultValue,
             group.GetDefaultValueAs<string?>(
                 PreferenceGroupWithAttributes.StringName));
+        Assert.AreEqual(PreferenceGroupWithAttributes.BooleanDefaultValue,
+            group.GetDefaultValueAs<bool?>(
+                nameof(PreferenceGroupWithAttributes.Boolean)));
 
         var jsoncString = PreferenceFile.WriteToString(group);
         var expected = """
@@ -104,10 +116,13 @@ public sealed class PreferenceFileTests
                 // An integer.
                 // Default value: 4.
                 "Int32": 10,
-
+            
                 // A string.
                 // Default value: "".
-                "String123": "Testing…1…2…3"
+                "String123": "Testing…1…2…3",
+            
+                // Default value: false.
+                "Boolean": false
             }
             """;
 
@@ -116,7 +131,7 @@ public sealed class PreferenceFileTests
         var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
 
         Assert.IsNotNull(jObject);
-        Assert.AreEqual(2, jObject.Count);
+        Assert.AreEqual(3, jObject.Count);
         Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
             .Int32)));
         var numberJToken = jObject[nameof(PreferenceGroupWithAttributes
@@ -128,6 +143,12 @@ public sealed class PreferenceFileTests
         var stringJToken = jObject[PreferenceGroupWithAttributes.StringName];
         Assert.IsNotNull(stringJToken);
         Assert.AreEqual(JTokenType.String, stringJToken.Type);
+        Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
+            .Boolean)));
+        var booleanJToken = jObject[nameof(PreferenceGroupWithAttributes
+            .Boolean)];
+        Assert.IsNotNull(booleanJToken);
+        Assert.AreEqual(JTokenType.Boolean, booleanJToken.Type);
 
         var changedJsoncString = """
             // A group of preferences.
@@ -138,7 +159,8 @@ public sealed class PreferenceFileTests
 
                 // A string.
                 // Default value: "".
-                "String123": "Testing…1…2…3…4"
+                "String123": "Testing…1…2…3…4",
+                "Boolean": true
             }
             """;
 
@@ -146,6 +168,7 @@ public sealed class PreferenceFileTests
 
         Assert.AreEqual(11, test.Int32);
         Assert.AreEqual("Testing…1…2…3…4", test.String);
+        Assert.IsTrue(test.Boolean);
     }
 
     [TestMethod]

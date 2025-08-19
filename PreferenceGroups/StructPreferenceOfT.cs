@@ -236,6 +236,11 @@ namespace PreferenceGroups
         /// <see cref="object"/>s.</returns>
         public override object[] GetAllowedValuesAsObjects()
         {
+            if (AllowedValues is null)
+            {
+                return null;
+            }
+
             var list = new List<object>();
 
             foreach (var allowedValue in AllowedValues)

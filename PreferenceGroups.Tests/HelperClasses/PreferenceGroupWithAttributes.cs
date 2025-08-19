@@ -5,6 +5,8 @@ internal class PreferenceGroupWithAttributes
 {
     public const string GroupDescription = "A group of preferences.";
 
+    public const bool BooleanDefaultValue = false;
+
     public const int Int32DefaultValue = 4;
 
     public const string Int32Description = "An integer.";
@@ -22,4 +24,7 @@ internal class PreferenceGroupWithAttributes
     [Preference(StringName, Description = StringDescription,
         DefaultValue = StringDefaultValue)]
     public string? String { get; set; } = null;
+
+    [Preference]
+    public bool? Boolean { get; set; } = BooleanDefaultValue;
 }

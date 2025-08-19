@@ -43,6 +43,71 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will add the resulting <see cref="BooleanPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="BooleanPreferenceBuilder"/> build steps.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="BooleanPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBoolean(string name,
+            Action<BooleanPreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var builder = BooleanPreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return Add(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BooleanPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/>.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBoolean(string name, bool? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+
+            return AddBoolean(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BooleanPreference"/> with the provided
+        /// <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBoolean(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+
+            return AddBoolean(processedName, action: null);
+        }
+
+        /// <summary>
         /// Will add the resulting <see cref="Int32Preference"/> from the
         /// provided <paramref name="action"/> of the
         /// <see cref="Int32PreferenceBuilder"/> build steps.

@@ -4,16 +4,16 @@ using System.Collections.Generic;
 namespace PreferenceGroups
 {
     /// <summary>
-    /// An <see cref="int"/> <see cref="Preference"/>.
+    /// An <see cref="bool"/> <see cref="Preference"/>.
     /// </summary>
-    public class Int32Preference : StructPreference<int>
+    public class BooleanPreference : StructPreference<bool>
     {
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
         /// </summary>
-        /// <param name="name">The name of the <see cref="Int32Preference"/>
+        /// <param name="name">The name of the <see cref="BooleanPreference"/>
         /// and must be not <see langword="null"/>, not empty and not consist
         /// only of white-space characters.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
@@ -21,7 +21,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name) : base(name)
+        public BooleanPreference(string name) : base(name)
         { }
 
         /// <summary>
@@ -63,10 +63,9 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name, string description,
-            bool allowUndefinedValues,
-            IEnumerable<int?> allowedValues,
-            StructValueValidityProcessor<int> validityProcessor)
+        public BooleanPreference(string name, string description,
+            bool allowUndefinedValues, IEnumerable<bool?> allowedValues,
+            StructValueValidityProcessor<bool> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
         { }
@@ -111,25 +110,25 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name, string description,
-            bool allowUndefinedValues, IEnumerable<int?> allowedValues,
+        public BooleanPreference(string name, string description,
+            bool allowUndefinedValues, IEnumerable<bool?> allowedValues,
             bool sortAllowedValues,
-            StructValueValidityProcessor<int> validityProcessor)
+            StructValueValidityProcessor<bool> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
-
+        
         /// <summary>
         /// Uses <see cref="Convert.ToInt32(object)"/> to convert
         /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
-        /// <see cref="int"/>. If <paramref name="value"/> is
+        /// <see cref="bool"/>. If <paramref name="value"/> is
         /// <see langword="null"/>, then <see langword="null"/> is returned.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="SetValueException">An exception was thrown while
         /// converting.</exception>
-        public override int? ConvertObjectToValue(object value)
+        public override bool? ConvertObjectToValue(object value)
         {
             if (value is null)
             {
@@ -138,12 +137,12 @@ namespace PreferenceGroups
 
             try
             {
-                if (value is int intValue)
+                if (value is bool boolValue)
                 {
-                    return intValue;
+                    return boolValue;
                 }
 
-                return Convert.ToInt32(value);
+                return Convert.ToBoolean(value);
             }
             catch (Exception ex)
             {

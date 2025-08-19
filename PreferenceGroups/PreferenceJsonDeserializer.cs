@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups
@@ -9,6 +10,68 @@ namespace PreferenceGroups
     /// </summary>
     public static class PreferenceJsonDeserializer
     {
+        /// <summary>
+        /// Deserializes <paramref name="jValue"/> into a
+        /// <see cref="Nullable{T}"/> <see cref="bool"/>, where if the
+        /// <see cref="JValue.Type"/> is:
+        /// <list type="bullet">
+        /// <item><see cref="JTokenType.Null"/>, then <see langword="null"/> is
+        /// returned.</item>
+        /// <item><see cref="JTokenType.Boolean"/>, then it is just cast into a
+        /// <see cref="Nullable{T}"/> <see cref="bool"/> and returned.</item>
+        /// <item><see cref="JTokenType.Integer"/>, then it is cast into a
+        /// <see cref="Nullable{T}"/> <see cref="int"/> and only returns
+        /// <see langword="true"/> if it is not equal to zero and
+        /// <see langword="false"/> otherwise.</item>
+        /// <item><see cref="JTokenType.String"/>, then it is cast into a
+        /// <see cref="string"/> and the result of the
+        /// <see cref="Convert.ToBoolean(string, IFormatProvider)"/> method is
+        /// returned.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="jValue"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="jValue"/> has an unexpected
+        /// <see cref="JValue.Type"/>.</exception>
+        public static bool? DeserializeAsBoolean(JValue jValue)
+        {
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                return null;
+            }
+            else if (jValue.Type == JTokenType.Boolean)
+            {
+                return (bool?)jValue;
+            }
+            else if (jValue.Type == JTokenType.Integer)
+            {
+                var int32Value = (int?)jValue;
+
+                if (int32Value is null)
+                {
+                    return null;
+                }
+
+                return int32Value.Value != 0;
+            }
+            else if (jValue.Type == JTokenType.String)
+            {
+                var @string = (string)jValue;
+
+                if (@string is null)
+                {
+                    return null;
+                }
+
+                return Convert.ToBoolean(@string, CultureInfo.InvariantCulture);
+            }
+
+            throw new InvalidOperationException("An unexpected "
+                + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as a "
+                + $"{nameof(Boolean)}?.");
+        }
+
         /// <summary>
         /// Deserializes <paramref name="jValue"/> into a
         /// <see cref="Nullable{T}"/> <see cref="int"/>, where if the
@@ -95,13 +158,56 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Attempts to upate <paramref name="booleanPreference"/> from
+        /// <paramref name="jValue"/> by going through the following sequence:
+        /// <list type="bullet">
+        /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
+        /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
+        /// <item>The <see cref="DeserializeAsBoolean(JValue)"/> is called and
+        /// its result is used to set
+        /// <see cref="StructPreference{T}.Value"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="booleanPreference"></param>
+        /// <param name="jValue"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="booleanPreference"/> is
+        /// <see langword="null"/>.</exception>
+        public static void UpdateFrom(BooleanPreference booleanPreference,
+            JValue jValue)
+        {
+            if (booleanPreference is null)
+            {
+                throw new ArgumentNullException(nameof(booleanPreference));
+            }
+
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                booleanPreference.SetValueToNull();
+
+                return;
+            }
+
+            var @bool = DeserializeAsBoolean(jValue);
+
+            if (@bool is null)
+            {
+                booleanPreference.SetValueToNull();
+            }
+            else
+            {
+                booleanPreference.Value = @bool;
+            }
+        }
+
+        /// <summary>
         /// Attempts to upate <paramref name="int32Preference"/> from
         /// <paramref name="jValue"/> by going through the following sequence:
         /// <list type="bullet">
         /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
         /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
-        /// <see cref="Preference.SetValueFromObject(object)"/> is called with
-        /// <see langword="null"/>.</item>
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
         /// <item>The <see cref="DeserializeAsInt32(JValue)"/> is called and its
         /// result is used to set
         /// <see cref="StructPreference{T}.Value"/>.</item>
@@ -145,8 +251,7 @@ namespace PreferenceGroups
         /// <list type="bullet">
         /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
         /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
-        /// <see cref="Preference.SetValueFromObject(object)"/> is called with
-        /// <see langword="null"/>.</item>
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
         /// <item>The <see cref="DeserializeAsString(JValue)"/> is called and
         /// its result is used to set
         /// <see cref="StringPreference.Value"/>.</item>
@@ -240,8 +345,7 @@ namespace PreferenceGroups
         /// <list type="bullet">
         /// <item>If <paramref name="jToken"/> is <see langword="null"/> or its
         /// <see cref="JToken.Type"/> is <see cref="JTokenType.Null"/>, then
-        /// <see cref="Preference.SetValueFromObject(object)"/> is called with
-        /// <see langword="null"/>.</item>
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
         /// <item>If the <see cref="JToken.Type"/> of <paramref name="jToken"/>
         /// is <see cref="JTokenType.Object"/>, then <paramref name="jToken"/>
         /// is cast to a <see cref="JObject"/> and the
@@ -290,8 +394,12 @@ namespace PreferenceGroups
         /// <list type="bullet">
         /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
         /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
-        /// <see cref="Preference.SetValueFromObject(object)"/> is called with
-        /// <see langword="null"/>.</item>
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
+        /// <item>If <see cref="Preference.GetValueType()"/> returns
+        /// <see cref="Nullable{T}"/> of <see cref="bool"/>, then
+        /// <paramref name="preference"/> is cast to
+        /// <see cref="BooleanPreference"/>, and the
+        /// <see cref="UpdateFrom(BooleanPreference, JValue)"/> is called.</item>
         /// <item>If <see cref="Preference.GetValueType()"/> returns
         /// <see cref="Nullable{T}"/> of <see cref="int"/>, then
         /// <paramref name="preference"/> is cast to
@@ -326,7 +434,12 @@ namespace PreferenceGroups
 
             var valueType = preference.GetValueType();
 
-            if (valueType == typeof(int?))
+            if (valueType == typeof(bool?))
+            {
+                var booleanPreference = (BooleanPreference)preference;
+                UpdateFrom(booleanPreference, jValue);
+            }
+            else if (valueType == typeof(int?))
             {
                 var int32Preference = (Int32Preference)preference;
                 UpdateFrom(int32Preference, jValue);

@@ -241,7 +241,7 @@ namespace PreferenceGroups
         /// <returns><see cref="AllowedValues"/> as an <see cref="Array"/> of
         /// <see cref="object"/>s.</returns>
         public override object[] GetAllowedValuesAsObjects()
-            => AllowedValues.ToArray();
+            => AllowedValues?.ToArray();
 
         /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of formatted

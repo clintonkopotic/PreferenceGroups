@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,18 +18,12 @@ namespace PreferenceGroups
         /// <summary>
         /// Returns the <c>AllowedValues</c> as valid JSON in a
         /// <see cref="string"/> <see cref="Array"/>, using the
-        /// <see cref="Preference.GetAllowedValuesAsStrings(IFormatProvider)"/>
-        /// method (with <see cref="CultureInfo.InvariantCulture"/> as the
-        /// <c>formatProvider</c>). If <c>AllowedValues</c> is
-        /// <see langword="null"/>, then <see langword="null"/> is returned. On
-        /// the other hand, for each allowed value, if it is
-        /// <see langword="null"/> then it is replaced with
-        /// <see cref="JsonConvert.Null"/>; otherwise, if the
-        /// <see cref="ShouldValueBeInJsonString(Preference)"/> method returns
-        /// <see langword="true"/> then it is replaced with the result of the
-        /// <see cref="JsoncSerializerHelper.SerialzieStringValue(string)"/>
-        /// method, where if it returns <see langword="false"/> then it is not
-        /// replaced.
+        /// <see cref="Preference.GetAllowedValuesAsObjects()"/> method. If
+        /// <c>AllowedValues</c> is <see langword="null"/>, then
+        /// <see langword="null"/> is returned. On the other hand, for each
+        /// allowed value, if it is <see langword="null"/> then the result of
+        /// <see cref="JsonConvert.Null"/> is used; otherwise, the result of
+        /// <see cref="GetObjectAsString(object)"/> method is used.
         /// </summary>
         /// <param name="preference"></param>
         /// <returns></returns>
@@ -43,55 +36,30 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            var allowedValues = preference.GetAllowedValuesAsStrings(
-                CultureInfo.InvariantCulture);
+            var allowedValues = preference.GetAllowedValuesAsObjects();
 
             if (allowedValues is null)
             {
                 return null;
             }
 
-            if (allowedValues.Length > 0)
+            var jsonAllowedValues = new string[allowedValues.Length];
+
+            for (var i = 0; i < allowedValues.Length; i++)
             {
-                var shouldValueBeInJsonString = ShouldValueBeInJsonString(
-                    preference);
-                var jsonAllowedValues = new string[allowedValues.Length];
-
-                for (var i = 0; i < allowedValues.Length; i++)
-                {
-                    var allowedValue = allowedValues[i];
-
-                    if (allowedValue is null)
-                    {
-                        allowedValue = JsonConvert.Null;
-                    }
-                    else if (shouldValueBeInJsonString)
-                    {
-                        allowedValue = JsoncSerializerHelper
-                            .SerialzieStringValue(allowedValue);
-                    }
-
-                    jsonAllowedValues[i] = allowedValue;
-                }
-
-                allowedValues = jsonAllowedValues;
+                jsonAllowedValues[i] = allowedValues[i] is null
+                    ? JsonConvert.Null : GetObjectAsString(allowedValues[i]);
             }
 
-            return allowedValues;
+            return jsonAllowedValues;
         }
 
         /// <summary>
         /// Returns the <c>DefaultValue</c> as valid JSON in a
         /// <see cref="string"/> by calling the
-        /// <see cref="Preference.GetDefaultValueAsString(IFormatProvider)"/>
-        /// method (with <see cref="CultureInfo.InvariantCulture"/> as the
-        /// <c>formatProvider</c>). If it is <see langword="null"/>, then
-        /// <see langword="null"/> is returned; otherwise, if the
-        /// <see cref="ShouldValueBeInJsonString(Preference)"/> method returns
-        /// <see langword="true"/> then the result of the
-        /// <see cref="JsoncSerializerHelper.SerialzieStringValue(string)"/>
-        /// method is returned, where if it returns <see langword="false"/>
-        /// then it is not altered. 
+        /// <see cref="Preference.GetDefaultValueAsObject()"/> method and
+        /// passing the result into the <see cref="GetObjectAsString(object)"/>
+        /// and the result returned.
         /// </summary>
         /// <param name="preference"></param>
         /// <returns></returns>
@@ -104,31 +72,30 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            var defaultValue = preference.GetDefaultValueAsString(
-                CultureInfo.InvariantCulture);
-
-            if (!(defaultValue is null)
-                && ShouldValueBeInJsonString(preference))
-            {
-                defaultValue = JsoncSerializerHelper.SerialzieStringValue(
-                    defaultValue);
-            }
-
-            return defaultValue;
+            return GetObjectAsString(preference.GetDefaultValueAsObject());
         }
 
         /// <summary>
-        /// Returns the <c>tValue</c> as valid JSON in a
-        /// <see cref="string"/> by calling the
-        /// <see cref="Preference.GetValueAsString(IFormatProvider)"/>
-        /// method (with <see cref="CultureInfo.InvariantCulture"/> as the
-        /// <c>formatProvider</c>). If it is <see langword="null"/>, then
-        /// <see cref="JsonConvert.Null"/> is returned; otherwise, if the
-        /// <see cref="ShouldValueBeInJsonString(Preference)"/> method returns
-        /// <see langword="true"/> then the result of the
-        /// <see cref="JsoncSerializerHelper.SerialzieStringValue(string)"/>
-        /// method is returned, where if it returns <see langword="false"/>
-        /// then it is not altered. 
+        /// A wrapper method for the <see cref="JsonConvert.ToString(object)"/>
+        /// method.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <returns></returns>
+        public static string GetObjectAsString(object @object)
+        {
+            if (@object is null)
+            {
+                return JsonConvert.Null;
+            }
+
+            return JsonConvert.ToString(@object);
+        }
+
+        /// <summary>
+        /// Returns the <c>Value</c> as valid JSON in a <see cref="string"/> by
+        /// calling the <see cref="Preference.GetValueAsObject()"/> method and
+        /// passing the result into the <see cref="GetObjectAsString(object)"/>
+        /// and the result returned.
         /// </summary>
         /// <param name="preference"></param>
         /// <returns></returns>
@@ -141,19 +108,7 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            var value = preference.GetValueAsString(
-                CultureInfo.InvariantCulture);
-
-            if (value is null)
-            {
-                value = JsonConvert.Null;
-            }
-            else if (ShouldValueBeInJsonString(preference))
-            {
-                value = JsoncSerializerHelper.SerialzieStringValue(value);
-            }
-
-            return value;
+            return GetObjectAsString(preference.GetValueAsObject());
         }
 
         /// <summary>
@@ -210,6 +165,8 @@ namespace PreferenceGroups
         /// <see cref="Preference.GetValueType()"/> method of
         /// <paramref name="preference"/> returned
         /// <see langword="null"/>.</exception>
+        [Obsolete("Use the GetObjectAsString(object) method for JSON "
+            + "encoding.")]
         public static bool ShouldValueBeInJsonString(Preference preference)
         {
             if (preference is null)
@@ -232,6 +189,8 @@ namespace PreferenceGroups
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="type"/> is <see langword="null"/>.</exception>
+        [Obsolete("Use the GetObjectAsString(object) method for JSON "
+            + "encoding.")]
         public static bool ShouldValueBeInJsonString(Type type)
         {
             if (type is null)
@@ -355,6 +314,11 @@ namespace PreferenceGroups
             if (preference is null)
             {
                 throw new ArgumentNullException(nameof(preference));
+            }
+            
+            if (preference.DefaultValueIsNull)
+            {
+                return;
             }
 
             var defaultValue = GetDefaultValueAsString(preference);
