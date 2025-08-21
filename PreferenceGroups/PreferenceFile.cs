@@ -312,13 +312,29 @@ namespace PreferenceGroups
         /// the file as JSON text.</exception>
         public JToken ReadAsJToken()
         {
-            using (var fileStream = new FileStream(Path, FileMode.Open,
-                FileAccess.Read, FileShare.None))
+            using (var fileStream = OpenFileForReading(Path))
             {
                 using (var streamReader = new StreamReader(fileStream,
                     Encoding))
                 {
                     return ReadAsJToken(streamReader, LoadSettings);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reads the contents of the file at <see cref="Path"/> and returns it
+        /// as a <see cref="string"/>.
+        /// </summary>
+        /// <returns></returns>
+        public string ReadAsString()
+        {
+            using (var fileStream = OpenFileForWriting(Path))
+            {
+                using (var streamReader = new StreamReader(fileStream,
+                    Encoding))
+                {
+                    return streamReader.ReadToEnd();
                 }
             }
         }
@@ -367,8 +383,10 @@ namespace PreferenceGroups
         /// <see langword="false"/> is returned. If <see langword="false"/> then
         /// <paramref name="preference"/> then the
         /// <see cref="PreferenceJsonDeserializer.UpdateFrom(Preference,
-        /// JToken)"/> method is called.
-        /// </param>
+        /// JToken)"/> method is called.</param>
+        /// <param name="writeAfterUpdate">After successfully updating, the file
+        /// will be written over to ensure it has all of the correct
+        /// comments and formatting.</param>
         /// <returns><see langword="true"/> if <paramref name="preference"/> was
         /// updated successfully from the file at <see cref="Path"/>; otherwise,
         /// <see langword="false"/>.</returns>
@@ -383,7 +401,7 @@ namespace PreferenceGroups
         /// <see langword="false"/>.</exception>
         public bool Update(Preference preference,
             bool writeIfFileNotFound = true, bool writeOnReadException = true,
-            bool writeFileIfMissingItem = true)
+            bool writeFileIfMissingItem = true, bool writeAfterUpdate = true)
         {
             if (preference is null)
             {
@@ -425,8 +443,15 @@ namespace PreferenceGroups
                     }
                 }
 
-                return PreferenceJsonDeserializer.UpdateFrom(preference,
+                var updated = PreferenceJsonDeserializer.UpdateFrom(preference,
                     jToken);
+
+                if (writeAfterUpdate)
+                {
+                    Write(preference);
+                }
+
+                return updated;
             }
             catch (FileNotFoundException)
             {
@@ -444,7 +469,7 @@ namespace PreferenceGroups
                 if (writeOnReadException)
                 {
                     Write(preference);
-                    
+
                     return false;
                 }
 
@@ -477,6 +502,9 @@ namespace PreferenceGroups
         /// <paramref name="group"/> is missing from the file, then the file
         /// will be overwritten by calling the
         /// <see cref="Write(PreferenceGroup)"/>.</param>
+        /// <param name="writeAfterUpdate">After successfully updating, the file
+        /// will be written over to ensure it has all of the correct
+        /// comments and formatting.</param>
         /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
         /// were updated from the file in <paramref name="group"/>.</returns>
@@ -490,7 +518,7 @@ namespace PreferenceGroups
         /// the file as JSON text.</exception>
         public IReadOnlyCollection<string> Update(PreferenceGroup group,
             bool writeIfFileNotFound = true, bool writeOnReadException = true,
-            bool writeFileIfMissingNames = true)
+            bool writeFileIfMissingNames = true, bool writeAfterUpdate = true)
         {
             if (group is null)
             {
@@ -512,9 +540,14 @@ namespace PreferenceGroups
                         {
                             Write(group);
 
-                            break;
+                            return namesOfUpdatedPrefences;
                         }
                     }
+                }
+
+                if (writeAfterUpdate)
+                {
+                    Write(group);
                 }
 
                 return namesOfUpdatedPrefences;
@@ -564,6 +597,9 @@ namespace PreferenceGroups
         /// JSON text, then the <see cref="JsonReaderException"/> is
         /// thrown. The default is <see langword="true"/>.</param>
         /// <param name="writeFileIfMissingItems"></param>
+        /// <param name="writeAfterUpdate">After successfully updating, the file
+        /// will be written over to ensure it has all of the correct
+        /// comments and formatting.</param>
         /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
         /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
         /// <see cref="string"/> with the index of the array and the
@@ -580,7 +616,7 @@ namespace PreferenceGroups
         public IReadOnlyDictionary<int, IReadOnlyCollection<string>> Update(
             PreferenceGroup[] groups, bool writeIfFileNotFound = true,
             bool writeOnReadException = true,
-            bool writeFileIfMissingItems = true)
+            bool writeFileIfMissingItems = true, bool writeAfterUpdate = true)
         {
             if (groups is null)
             {
@@ -593,7 +629,8 @@ namespace PreferenceGroups
                 var updates = PreferenceGroupJsonDeserializer.UpdateFrom(groups,
                     jArray);
 
-                if (writeFileIfMissingItems && groups.Length > jArray.Count)
+                if ((writeFileIfMissingItems && groups.Length > jArray.Count)
+                    || writeAfterUpdate)
                 {
                     Write(groups);
                 }
@@ -657,8 +694,7 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            using (var fileStream = new FileStream(Path, FileMode.Create,
-                FileAccess.Write, FileShare.None))
+            using (var fileStream = OpenFileForWriting(Path))
             {
                 using (var streamWriter = new StreamWriter(fileStream,
                     Encoding))
@@ -707,8 +743,7 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(group));
             }
 
-            using (var fileStream = new FileStream(Path, FileMode.Create,
-                FileAccess.Write, FileShare.None))
+            using (var fileStream = OpenFileForWriting(Path))
             {
                 using (var streamWriter = new StreamWriter(fileStream,
                     Encoding))
@@ -757,8 +792,7 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(groups));
             }
 
-            using (var fileStream = new FileStream(Path, FileMode.Create,
-                FileAccess.Write, FileShare.None))
+            using (var fileStream = OpenFileForWriting(Path))
             {
                 using (var streamWriter = new StreamWriter(fileStream,
                     Encoding))
@@ -772,6 +806,14 @@ namespace PreferenceGroups
                 }
             }
         }
+
+        private FileStream OpenFileForReading(string path)
+            => new FileStream(path, FileMode.Open, FileAccess.Read,
+                FileShare.None);
+
+        private FileStream OpenFileForWriting(string path)
+            => new FileStream(path, FileMode.Create, FileAccess.Write,
+                FileShare.None);
 
         /// <summary>
         /// Reads the contents of <paramref name="textReader"/> as a

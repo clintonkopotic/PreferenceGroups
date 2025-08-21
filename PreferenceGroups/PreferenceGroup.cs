@@ -11,6 +11,13 @@ namespace PreferenceGroups
     public class PreferenceGroup : ICollection<Preference>
     {
         /// <summary>
+        /// Stores whether <see langword="this"/> <see cref="PreferenceGroup"/>
+        /// was instantiated allowing non-<see cref="Nullable{T}"/>
+        /// <see langword="struct"/>s.
+        /// </summary>
+        private readonly bool _allowedNonNullableStructs = false;
+
+        /// <summary>
         /// The backing store for an associated <see langword="object"/> such
         /// that when a value of a <see cref="Preference"/> of the
         /// <see cref="PreferenceGroup"/> that shares
@@ -119,6 +126,22 @@ namespace PreferenceGroups
                 .IsReadOnly;
 
         /// <summary>
+        /// Do not use. Use the <see cref="From(object, bool, bool)"/> instead.
+        /// </summary>
+        /// <remarks>This was removed as having the first parameter as an
+        /// <see cref="object"/> and the second parameter as optional is
+        /// ambiguous with other constructors with a single parameter.</remarks>
+        /// <param name="object"></param>
+        /// <param name="useValuesAsDefault"></param>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete(message: "Use the static From(object, bool) method instead.",
+            error: true)]
+        public PreferenceGroup(object @object, bool useValuesAsDefault = false)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
         /// Initializes a <see cref="PreferenceGroup"/> from
         /// <paramref name="object"/>, which must be a <see langword="class"/>
         /// and the <see langword="public"/> properties that have an attached
@@ -139,17 +162,23 @@ namespace PreferenceGroups
         /// <c>DefaultValue</c> of each <see cref="Preference"/>. This only
         /// occurs if the <see cref="PreferenceAttribute.DefaultValue"/> is
         /// <see langword="null"/>.</param>
+        /// <param name="allowNonNullableStructs">Whether or not to allow a
+        /// property of <paramref name="object"/> that is not a
+        /// <see cref="Nullable{T}"/> <see langword="struct"/>, i.e. if
+        /// <see langword="false"/> such properties will be ignored.</param>
         /// <exception cref="ArgumentException"><paramref name="object"/> is not
         /// a <see langword="class"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="object"/> is
         /// <see langword="null"/>.</exception>
-        public PreferenceGroup(object @object, bool useValuesAsDefault = true)
+        private PreferenceGroup(object @object, bool useValuesAsDefault,
+            bool allowNonNullableStructs)
         {
             if (@object is null)
             {
                 throw new ArgumentNullException(nameof(@object));
             }
 
+            _allowedNonNullableStructs = allowNonNullableStructs;
             _associatedObject = @object;
             _associatedObjectType = _associatedObject.GetType();
 
@@ -209,12 +238,44 @@ namespace PreferenceGroups
                         .WithDescription(preferenceDescription)
                         .Build();
                 }
+                else if (propertyType == typeof(bool)
+                    && _allowedNonNullableStructs)
+                {
+                    var value = (bool)property.GetValue(_associatedObject);
+#pragma warning disable IDE0075 // Simplify conditional expression
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (bool)preferenceDefaultValue;
+#pragma warning restore IDE0075 // Simplify conditional expression
+
+                    _dictionary[preferenceName] = BooleanPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
                 else if (propertyType == typeof(int?))
                 {
                     var value = (int?)property.GetValue(_associatedObject);
                     int? defaultValue = preferenceDefaultValue is null
                         ? (useValuesAsDefault ? value : null)
                         : (int?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int32PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
+                else if (propertyType == typeof(int)
+                    && _allowedNonNullableStructs)
+                {
+                    var value = (int)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (int)preferenceDefaultValue;
 
                     _dictionary[preferenceName] = Int32PreferenceBuilder
                         .Create(preferenceName)
@@ -877,7 +938,7 @@ namespace PreferenceGroups
                     message: "The type must be a class.");
             }
 
-            UpdateValuesFrom(new PreferenceGroup(@object, false));
+            UpdateValuesFrom(new PreferenceGroup(@object, false, true));
         }
 
         /// <summary>
@@ -917,7 +978,8 @@ namespace PreferenceGroups
                 return;
             }
 
-            UpdateValuesTo(new PreferenceGroup(@object, false));
+            UpdateValuesTo(new PreferenceGroup(@object, false,
+                _allowedNonNullableStructs));
         }
 
         /// <summary>
@@ -942,6 +1004,40 @@ namespace PreferenceGroups
                 }
             }
         }
+
+        /// <summary>
+        /// Initializes a <see cref="PreferenceGroup"/> from
+        /// <paramref name="object"/>, which must be a <see langword="class"/>
+        /// and the <see langword="public"/> properties that have an attached
+        /// <see cref="PreferenceAttribute"/>. It is optional for
+        /// <paramref name="object"/> to have an attached
+        /// <see cref="PreferenceGroupAttribute"/>, in which case the
+        /// <see cref="PreferenceGroupAttribute.Description"/> will be used to
+        /// assign <see cref="Description"/>. The parameter
+        /// <paramref name="useValuesAsDefault"/> allows for using the current
+        /// values of <paramref name="object"/> as the <c>DefaultValue</c>
+        /// for each <see cref="Preference"/>, unless the
+        /// <see cref="PreferenceAttribute.DefaultValue"/> is not
+        /// <see langword="null"/>.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <param name="useValuesAsDefault">If <see langword="true"/>, the
+        /// current values of <paramref name="object"/> will be the
+        /// <c>DefaultValue</c> of each <see cref="Preference"/>. This only
+        /// occurs if the <see cref="PreferenceAttribute.DefaultValue"/> is
+        /// <see langword="null"/>.</param>
+        /// <param name="allowNonNullableStructs">Whether or not to allow a
+        /// property of <paramref name="object"/> that is not a
+        /// <see cref="Nullable{T}"/> <see langword="struct"/>, i.e. if
+        /// <see langword="false"/> such properties will be ignored.</param>
+        /// <exception cref="ArgumentException"><paramref name="object"/> is not
+        /// a <see langword="class"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="object"/> is
+        /// <see langword="null"/>.</exception>
+        public static PreferenceGroup From(object @object,
+            bool useValuesAsDefault = true, bool allowNonNullableStructs = true)
+            => new PreferenceGroup(@object, useValuesAsDefault,
+                allowNonNullableStructs);
 
         /// <summary>
         /// Processes both the <paramref name="name"/> and the

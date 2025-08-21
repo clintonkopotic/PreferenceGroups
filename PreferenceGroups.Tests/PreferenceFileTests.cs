@@ -10,6 +10,61 @@ using PreferenceGroups.Tests.HelperClasses;
 public sealed class PreferenceFileTests
 {
     [TestMethod]
+    public void SimpleFileTest()
+    {
+        // Create temporary directory to store the file in.
+        var tempDirectoryInfo = Directory.CreateTempSubdirectory(
+            prefix: "PreferenceGroups-");
+
+        // Build the PreferenceGroup.
+        PreferenceGroupWithAttributes @object = new();
+        var group = PreferenceGroupBuilder.BuildFrom(@object);
+
+        // Prepare for the Preferences.jsonc file.
+        var preferencesFilePath = Path.Combine(tempDirectoryInfo.FullName,
+            "Preferences.jsonc");
+        PreferenceFile file = new(preferencesFilePath);
+
+        Assert.IsFalse(File.Exists(preferencesFilePath));
+
+        // Create the Preferences.jsonc file for first time.
+        var updates = file.Update(group);
+
+        // No updates occured.
+        Assert.IsNull(updates);
+
+        // Verify the file contents.
+        var expected = """
+            // A group of preferences.
+            {
+                // An integer.
+                // Default value: 4.
+                "Int32": null,
+            
+                // A string.
+                // Default value: "".
+                "String123": null,
+            
+                // Default value: false.
+                "Boolean": false
+            }
+            """;
+        Assert.AreEqual(expected, file.ReadAsString());
+
+        // Overwrite the file with an empty file.
+        File.Create(preferencesFilePath).Dispose();
+        
+        // Attempt to update again, but this should 
+        updates = file.Update(group);
+
+        // No updates occured.
+        Assert.IsNull(updates);
+
+        // Cleanup.
+        tempDirectoryInfo.Delete(recursive: true);
+    }
+
+    [TestMethod]
     public void EmptyPreferenceGroupToStringTest()
     {
         var jsoncString = PreferenceFile.WriteToString(

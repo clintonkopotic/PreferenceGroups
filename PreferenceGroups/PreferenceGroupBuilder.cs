@@ -290,10 +290,19 @@ namespace PreferenceGroups
         /// <c>DefaultValue</c> of each <see cref="Preference"/>. This only
         /// occurs if the <see cref="PreferenceAttribute.DefaultValue"/> is
         /// <see langword="null"/>.</param>
+        /// <param name="allowNonNullableStructs">Whether or not to allow a
+        /// property of <paramref name="object"/> that is not a
+        /// <see cref="Nullable{T}"/> <see langword="struct"/>, i.e. if
+        /// <see langword="false"/> such properties will be ignored.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="object"/> is not
+        /// a <see langword="class"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="object"/> is
+        /// <see langword="null"/>.</exception>
         public static PreferenceGroup BuildFrom(object @object,
-            bool useValuesAsDefault = true)
-            => new PreferenceGroup(@object, useValuesAsDefault);
+            bool useValuesAsDefault = true, bool allowNonNullableStructs = true)
+            => PreferenceGroup.From(@object, useValuesAsDefault,
+                allowNonNullableStructs);
 
         /// <summary>
         /// Instantiates a new <see cref="PreferenceGroupBuilder"/>.

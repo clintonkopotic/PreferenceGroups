@@ -7,8 +7,8 @@ namespace PreferenceGroups
     /// property to identify that it is intended to be a
     /// <see cref="Preference"/>. In addition, it is expected that the enclosing
     /// <see langword="class"/> is to be a <see cref="PreferenceGroup"/> when
-    /// the <see cref="PreferenceGroupBuilder.BuildFrom(object, bool)"/> method
-    /// is called.
+    /// the <see cref="PreferenceGroupBuilder.BuildFrom(object, bool, bool)"/>
+    /// method is called.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class PreferenceAttribute : Attribute
@@ -24,8 +24,8 @@ namespace PreferenceGroups
         /// <summary>
         /// The <c>DefaultValue</c> of the <see cref="Preference"/>. Defaults to
         /// <see langword="null"/>. When the
-        /// <see cref="PreferenceGroupBuilder.BuildFrom(object, bool)"/> method
-        /// is used, the <c>useValuesAsDefault</c> parameter set to
+        /// <see cref="PreferenceGroupBuilder.BuildFrom(object, bool, bool)"/>
+        /// method is used, the <c>useValuesAsDefault</c> parameter set to
         /// <see langword="true"/> will set the <c>DefaultValue</c> of the
         /// <see cref="Preference"/> to the current value of property unless
         /// this is set to a non-<see langword="null"/> value. If the

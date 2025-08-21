@@ -26,5 +26,5 @@ internal class PreferenceGroupWithAttributes
     public string? String { get; set; } = null;
 
     [Preference]
-    public bool? Boolean { get; set; } = BooleanDefaultValue;
+    public bool Boolean { get; set; } = BooleanDefaultValue;
 }

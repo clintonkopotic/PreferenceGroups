@@ -272,6 +272,21 @@ public sealed class PreferenceGroupsTests
         Assert.AreEqual(PreferenceGroupWithAttributes.StringDescription,
             actual: preferenceGroup[PreferenceGroupWithAttributes.StringName]
                 .Description);
+
+        var argumentNullException = Assert
+            .ThrowsException<ArgumentNullException>(() =>
+            {
+                _ = PreferenceGroupBuilder.BuildFrom(null);
+            });
+
+        Assert.AreEqual("object", argumentNullException.ParamName);
+
+        var argumentException = Assert.ThrowsException<ArgumentException>(() =>
+        {
+            _ = PreferenceGroupBuilder.BuildFrom(1);
+        });
+
+        Assert.AreEqual("object", argumentException.ParamName);
     }
 
     [TestMethod]
