@@ -329,7 +329,7 @@ namespace PreferenceGroups
         /// <returns></returns>
         public string ReadAsString()
         {
-            using (var fileStream = OpenFileForWriting(Path))
+            using (var fileStream = OpenFileForReading(Path))
             {
                 using (var streamReader = new StreamReader(fileStream,
                     Encoding))
