@@ -11,7 +11,8 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
         /// </summary>
         /// <param name="name">The name of the <see cref="BooleanPreference"/>
         /// and must be not <see langword="null"/>, not empty and not consist
@@ -27,8 +28,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
-        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method. It also initializes the
+        /// <see cref="Preference.Description"/>,
         /// <see cref="Preference.AllowUndefinedValues"/>,
         /// <see cref="StructPreference{T}.AllowedValues"/> and
         /// <see cref="StructPreference{T}.ValidityProcessor"/> properties.
@@ -73,8 +75,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
-        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method. It also initializes the
+        /// <see cref="Preference.Description"/>,
         /// <see cref="Preference.AllowUndefinedValues"/>,
         /// <see cref="StructPreference{T}.AllowedValues"/> and
         /// <see cref="StructPreference{T}.ValidityProcessor"/> properties.
@@ -117,7 +120,7 @@ namespace PreferenceGroups
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
-        
+
         /// <summary>
         /// Uses <see cref="Convert.ToInt32(object)"/> to convert
         /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of

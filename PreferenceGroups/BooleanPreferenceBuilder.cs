@@ -333,12 +333,13 @@ namespace PreferenceGroups
         public BooleanPreferenceBuilder WithValueAndAsDefault(
             bool? valueAndAsDefault)
             => WithValue(valueAndAsDefault)
-            .WithDefaultValue(valueAndAsDefault);
+                .WithDefaultValue(valueAndAsDefault);
 
         /// <summary>
         /// Builds a <see cref="BooleanPreference"/> with
         /// <paramref name="name"/> (after it is processed with
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/>).
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
+        /// string)"/>).
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -348,13 +349,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
         public static BooleanPreference Build(string name)
-            => Create(Preference.ProcessNameOrThrowIfInvalid(name)).Build();
+            => Create(Preference.ProcessNameOrThrowIfInvalid(name,
+                    nameof(name)))
+                .Build();
 
         /// <summary>
         /// Builds a <see cref="BooleanPreference"/> with
         /// <paramref name="name"/> (after it is processed with
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/>) and
-        /// with <paramref name="value"/>.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
+        /// string)"/>) and with <paramref name="value"/>.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
@@ -365,14 +368,16 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
         public static BooleanPreference Build(string name, bool? value)
-            => Create(Preference.ProcessNameOrThrowIfInvalid(name))
+            => Create(Preference.ProcessNameOrThrowIfInvalid(name,
+                    nameof(name)))
                 .WithValue(value)
                 .Build();
 
         /// <summary>
         /// Creates a <see cref="BooleanPreferenceBuilder"/> with
         /// <paramref name="name"/> (after it is processed with
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/>).
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
+        /// string)"/>).
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -384,7 +389,8 @@ namespace PreferenceGroups
         public static BooleanPreferenceBuilder Create(string name)
             => new BooleanPreferenceBuilder()
             {
-                _name = Preference.ProcessNameOrThrowIfInvalid(name),
+                _name = Preference.ProcessNameOrThrowIfInvalid(name,
+                    nameof(name)),
             };
     }
 }

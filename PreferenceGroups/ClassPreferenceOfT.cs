@@ -100,7 +100,8 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
         /// </summary>
         /// <param name="name">The name of the <see cref="Preference"/> and
         /// must be not <see langword="null"/>, not empty and not consist only
@@ -116,8 +117,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
-        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method. It also initializes the
+        /// <see cref="Preference.Description"/>,
         /// <see cref="Preference.AllowUndefinedValues"/>,
         /// <see cref="AllowedValues"/> and <see cref="ValidityProcessor"/>
         /// properties.
@@ -161,8 +163,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
         /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
-        /// It also initializes the <see cref="Preference.Description"/>,
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method. It also initializes the
+        /// <see cref="Preference.Description"/>,
         /// <see cref="Preference.AllowUndefinedValues"/>,
         /// <see cref="AllowedValues"/> and <see cref="ValidityProcessor"/>
         /// properties.
@@ -554,7 +557,7 @@ namespace PreferenceGroups
 
             try
             {
-                processedName = ProcessNameOrThrowIfInvalid(name);
+                processedName = ProcessNameOrThrowIfInvalid(name, nameof(name));
             }
             catch (Exception ex)
             {

@@ -66,15 +66,17 @@ namespace PreferenceGroups
         {
             get
             {
-                var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                    name);
+                var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                    nameof(name));
 
                 return _dictionary[processedName];
             }
             set
             {
                 // Update the dictionary.
-                var processedName = ProcessNamesAndThrowIfNotEqual(name, value);
+                var processedName = ProcessNamesAndThrowIfNotEqual(
+                    name: name, preference: value, nameParamName: nameof(name),
+                    preferenceParamName: nameof(value));
                 _dictionary[processedName] = value;
 
                 // If there is not an associated object to update, return.
@@ -117,13 +119,10 @@ namespace PreferenceGroups
         public int Count => _dictionary.Count;
 
         /// <summary>
-        /// The description, if any, of the group.
+        /// A description of the <see cref="PreferenceGroup"/> that is intended
+        /// to be shown to the user and in the file as a comment.
         /// </summary>
         public string Description { get; }
-
-        bool ICollection<Preference>.IsReadOnly
-            => ((ICollection<KeyValuePair<string, Preference>>)_dictionary)
-                .IsReadOnly;
 
         /// <summary>
         /// Do not use. Use the <see cref="From(object, bool, bool)"/> instead.
@@ -202,7 +201,7 @@ namespace PreferenceGroups
             foreach (var property in _associatedObjectType.GetProperties())
             {
                 var propertyName = Preference.ProcessNameOrThrowIfInvalid(
-                    property.Name);
+                    property.Name, nameof(property));
                 var preferenceName = propertyName;
                 object preferenceDefaultValue = null;
                 string preferenceDescription = null;
@@ -214,7 +213,8 @@ namespace PreferenceGroups
                     if (!(preferenceAttribute.Name is null))
                     {
                         preferenceName = Preference.ProcessNameOrThrowIfInvalid(
-                            preferenceAttribute.Name);
+                            preferenceAttribute.Name,
+                            nameof(preferenceAttribute));
                     }
 
                     preferenceDefaultValue = preferenceAttribute.DefaultValue;
@@ -336,9 +336,7 @@ namespace PreferenceGroups
 
             foreach (var preference in preferences)
             {
-                var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                    preference.Name);
-                _dictionary.Add(processedName, preference);
+                Add(preference);
             }
         }
 
@@ -390,14 +388,22 @@ namespace PreferenceGroups
             }
 
             var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                preference.Name);
+                preference.Name, nameof(preference));
             _dictionary.Add(processedName, preference);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Removes all <see cref="Preference"/>s from the group.
+        /// </summary>
         public void Clear() => _dictionary.Clear();
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Determines whether the group contains the specific
+        /// <paramref name="preference"/>.
+        /// </summary>
+        /// <param name="preference"></param>
+        /// <returns><see langword="true"/> if <paramref name="preference"/> is
+        /// found in the group; otherwise, <see langword="false"/>.</returns>
         public bool Contains(Preference preference)
             => !(preference is null)
             && Preference.IsNameValid(preference.Name)
@@ -418,36 +424,10 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public bool ContainsName(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return _dictionary.ContainsKey(processedName);
-        }
-
-        /// <inheritdoc/>
-        public void CopyTo(Preference[] array, int arrayIndex)
-        {
-            if (array is null)
-            {
-                throw new ArgumentNullException(nameof(array));
-            }
-
-            if (arrayIndex < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex),
-                    arrayIndex, "Must not be negative.");
-            }
-
-            if (arrayIndex + Count >= array.Length)
-            {
-                throw new ArgumentException(paramName: nameof(array),
-                    message: "Not enough space to copy into.");
-            }
-
-            foreach (var preference in _dictionary.Values)
-            {
-                array[arrayIndex] = preference;
-                arrayIndex++;
-            }
         }
 
         /// <summary>
@@ -469,7 +449,8 @@ namespace PreferenceGroups
         /// <see cref="Preference"/>s.</exception>
         public object GetDefaultValue(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return this[processedName].GetDefaultValueAsObject();
         }
@@ -493,7 +474,8 @@ namespace PreferenceGroups
         /// <see cref="Preference"/>s.</exception>
         public T GetDefaultValueAs<T>(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return this[processedName].GetDefaultValueAs<T>();
         }
@@ -501,10 +483,6 @@ namespace PreferenceGroups
         ///<inheritdoc/>
         public IEnumerator<Preference> GetEnumerator()
             => ((IEnumerable<Preference>)_dictionary.Values).GetEnumerator();
-
-        ///<inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable)_dictionary.Values).GetEnumerator();
 
         /// <summary>
         /// Gets the <see cref="Preference"/>'s <c>Value</c>, as an
@@ -525,7 +503,8 @@ namespace PreferenceGroups
         /// <see cref="Preference"/>s.</exception>
         public object GetValue(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return this[processedName].GetValueAsObject();
         }
@@ -549,32 +528,21 @@ namespace PreferenceGroups
         /// <see cref="Preference"/>s.</exception>
         public T GetValueAs<T>(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return this[processedName].GetValueAs<T>();
         }
 
         /// <summary>
-        /// Removes the <see cref="Preference"/> in the group where the
-        /// <see cref="Preference.Name"/> equals <paramref name="name"/>.
+        /// Removes the first occurance of the specified
+        /// <paramref name="preference"/> from the group.
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns><see langword="true"/> if the <see cref="Preference"/> is
-        /// successfully found and removed; otherwise, <see langword="false"/>,
-        /// even if <paramref name="name"/> was not found.</returns>
-        /// <exception cref="ArgumentException"><paramref name="name"/> is an
-        /// empty <see langword="string"/> or conists only of white-space
-        /// characters.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
-        /// <see langword="null"/>.</exception>
-        public bool RemoveByName(string name)
-        {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
-
-            return _dictionary.Remove(processedName);
-        }
-
-        /// <inheritdoc/>
+        /// <returns><see langword="true"/> if <paramref name="preference"/> was
+        /// successfully removed from the group; otherwise,
+        /// <see langword="false"/>. This method also returns
+        /// <see langword="false"/> if <paramref name="preference"/> is not
+        /// found in the group.</returns>
         public bool Remove(Preference preference)
         {
             if (preference is null)
@@ -603,6 +571,27 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Removes the <see cref="Preference"/> in the group where the
+        /// <see cref="Preference.Name"/> equals <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns><see langword="true"/> if the <see cref="Preference"/> is
+        /// successfully found and removed; otherwise, <see langword="false"/>,
+        /// even if <paramref name="name"/> was not found.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public bool RemoveByName(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return _dictionary.Remove(processedName);
+        }
+
+        /// <summary>
         /// Sets the <c>Value</c> of the <see cref="Preference"/>, where the
         /// <see cref="Preference.Name"/> matches <paramref name="name"/> with
         /// <paramref name="value"/> by using
@@ -619,7 +608,8 @@ namespace PreferenceGroups
 
             try
             {
-                processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+                processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                    nameof(name));
             }
             catch (Exception ex)
             {
@@ -910,7 +900,7 @@ namespace PreferenceGroups
             }
 
             var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                preference.Name);
+                preference.Name, nameof(preference));
             _dictionary[processedName] = preference;
         }
 
@@ -1005,6 +995,42 @@ namespace PreferenceGroups
             }
         }
 
+        ///<inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable)_dictionary.Values).GetEnumerator();
+
+        ///<inheritdoc/>
+        bool ICollection<Preference>.IsReadOnly
+            => ((ICollection<KeyValuePair<string, Preference>>)_dictionary)
+                .IsReadOnly;
+
+        /// <inheritdoc/>
+        void ICollection<Preference>.CopyTo(Preference[] array, int arrayIndex)
+        {
+            if (array is null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (arrayIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex),
+                    arrayIndex, "Must not be negative.");
+            }
+
+            if (arrayIndex + Count >= array.Length)
+            {
+                throw new ArgumentException(paramName: nameof(array),
+                    message: "Not enough space to copy into.");
+            }
+
+            foreach (var preference in _dictionary.Values)
+            {
+                array[arrayIndex] = preference;
+                arrayIndex++;
+            }
+        }
+
         /// <summary>
         /// Initializes a <see cref="PreferenceGroup"/> from
         /// <paramref name="object"/>, which must be a <see langword="class"/>
@@ -1043,10 +1069,19 @@ namespace PreferenceGroups
         /// Processes both the <paramref name="name"/> and the
         /// <see cref="Preference.Name"/> of <paramref name="preference"/> by
         /// using the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="preference"></param>
+        /// <param name="nameParamName">The name of the <paramref name="name"/>
+        /// parameter. If it is <see langword="null"/>, then the
+        /// <see langword="nameof"/> <paramref name="name"/> will be
+        /// used.</param>
+        /// <param name="preferenceParamName">The name of the
+        /// <paramref name="preference"/> parameter. If it is
+        /// <see langword="null"/>, then the <see langword="nameof"/>
+        /// <paramref name="preference"/> will be used.</param>
         /// <returns>The processed name.</returns>
         /// <exception cref="ArgumentException"><paramref name="name"/> does
         /// not equal the <see cref="Preference.Name"/> of
@@ -1059,23 +1094,28 @@ namespace PreferenceGroups
         /// <see langword="null"/> or the <see cref="Preference.Name"/> of
         /// <paramref name="preference"/> is <see langword="null"/>.</exception>
         public static string ProcessNamesAndThrowIfNotEqual(string name,
-            Preference preference)
+            Preference preference, string nameParamName = null,
+            string preferenceParamName = null)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameParamName ?? nameof(name));
 
             if (preference is null)
             {
-                throw new ArgumentNullException(nameof(preference));
+                throw new ArgumentNullException(
+                    preferenceParamName ?? nameof(preference));
             }
 
-            var processedPreferenceName
-                = Preference.ProcessNameOrThrowIfInvalid(preference.Name);
+            var processedPreferenceName = Preference
+                .ProcessNameOrThrowIfInvalid(preference.Name,
+                    preferenceParamName ?? nameof(preference));
 
             if (processedName != processedPreferenceName)
             {
-                throw new ArgumentException(paramName: nameof(name),
+                throw new ArgumentException(
+                    paramName: nameParamName ?? nameof(name),
                     message: "Must have the same name as "
-                        + $"{nameof(preference)}.");
+                        + $"{preferenceParamName ?? nameof(preference)}.");
             }
 
             return processedPreferenceName;

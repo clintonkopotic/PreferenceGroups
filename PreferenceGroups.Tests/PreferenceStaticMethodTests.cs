@@ -55,7 +55,8 @@ public sealed class PreferenceStaticMethodTests
     {
         if (expected is not null)
         {
-            Assert.AreEqual(expected, Preference.ProcessNameOrThrowIfInvalid(name));
+            Assert.AreEqual(expected,
+                Preference.ProcessNameOrThrowIfInvalid(name, nameof(name)));
         }
         else
         {
@@ -63,14 +64,16 @@ public sealed class PreferenceStaticMethodTests
             {
                 Assert.ThrowsException<ArgumentNullException>(() =>
                 {
-                    _ = Preference.ProcessNameOrThrowIfInvalid(name);
+                    _ = Preference.ProcessNameOrThrowIfInvalid(name,
+                        nameof(name));
                 });
             }
             else
             {
                 Assert.ThrowsException<ArgumentException>(() =>
                 {
-                    _ = Preference.ProcessNameOrThrowIfInvalid(name);
+                    _ = Preference.ProcessNameOrThrowIfInvalid(name,
+                        nameof(name));
                 });
             }
         }

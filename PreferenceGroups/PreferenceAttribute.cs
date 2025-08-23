@@ -55,7 +55,8 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes the attribute with <paramref name="name"/> where it is
         /// valid according to the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
         /// </summary>
         /// <param name="name">The <see cref="Preference.Name"/> of the
         /// <see cref="Preference"/> and overrides the value and behavior of
@@ -67,7 +68,7 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceAttribute(string name)
         {
-            Name = Preference.ProcessNameOrThrowIfInvalid(name);
+            Name = Preference.ProcessNameOrThrowIfInvalid(name, nameof(name));
         }
     }
 }

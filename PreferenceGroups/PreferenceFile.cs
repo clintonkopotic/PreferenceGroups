@@ -662,6 +662,190 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Reads from the file at <see cref="Path"/> and updates
+        /// <paramref name="store"/>.
+        /// </summary>
+        /// <param name="store"></param>
+        /// <param name="writeIfFileNotFound">If <see langword="true"/> and the
+        /// file specified by <see cref="Path"/> is not found, then the
+        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="null"/> and the file specified by <see cref="Path"/>
+        /// is not found, then the <see cref="FileNotFoundException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeOnReadException">If <see langword="true"/> and a
+        /// <see cref="JsonReaderException"/> is thrown when the
+        /// <see cref="ReadAsJToken()"/> method is called, then the
+        /// <see cref="Write(PreferenceGroup)"/> method is called and
+        /// <see langword="null"/> is returned. Otherwise, if
+        /// <see langword="false"/> and there is an error reading the file as
+        /// JSON text, then the <see cref="JsonReaderException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeFileIfMissingNames">If <see langword="true"/> and
+        /// a <see cref="Preference.Name"/> of a <see cref="Preference"/> in
+        /// <paramref name="store"/> is missing from the file, then the file
+        /// will be overwritten by calling the
+        /// <see cref="Write(PreferenceGroup)"/>.</param>
+        /// <param name="writeAfterUpdate">After successfully updating, the file
+        /// will be written over to ensure it has all of the correct
+        /// comments and formatting.</param>
+        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="store"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="store"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found and
+        /// <paramref name="writeIfFileNotFound"/> is
+        /// <see langword="false"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
+        public IReadOnlyCollection<string> Update(PreferenceStore store,
+            bool writeIfFileNotFound = true, bool writeOnReadException = true,
+            bool writeFileIfMissingNames = true, bool writeAfterUpdate = true)
+        {
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            try
+            {
+                var jObject = ReadAsJObject();
+                var namesOfUpdatedPrefences = PreferenceStoreJsonDeserializer
+                    .UpdateFrom(store, jObject);
+
+                if (writeFileIfMissingNames)
+                {
+                    foreach (var preferenceName in store.Names)
+                    {
+                        if (Preference.IsNameValid(preferenceName)
+                            && !jObject.ContainsKey(preferenceName))
+                        {
+                            Write(store);
+
+                            return namesOfUpdatedPrefences;
+                        }
+                    }
+                }
+
+                if (writeAfterUpdate)
+                {
+                    Write(store);
+                }
+
+                return namesOfUpdatedPrefences;
+            }
+            catch (FileNotFoundException)
+            {
+                if (writeIfFileNotFound)
+                {
+                    Write(store);
+
+                    return null;
+                }
+
+                throw;
+            }
+            catch (JsonReaderException)
+            {
+                if (writeOnReadException)
+                {
+                    Write(store);
+
+                    return null;
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Reads from the file at <see cref="Path"/> and updates
+        /// <paramref name="stores"/>.
+        /// </summary>
+        /// <param name="stores"></param>
+        /// <param name="writeIfFileNotFound">If <see langword="true"/> and the
+        /// file specified by <see cref="Path"/> is not found, then the
+        /// <see cref="Write(PreferenceGroup[])"/> method is called and
+        /// <see langword="false"/> is returned. Otherwise, if
+        /// <see langword="null"/> and the file specified by <see cref="Path"/>
+        /// is not found, then the <see cref="FileNotFoundException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeOnReadException">If <see langword="true"/> and a
+        /// <see cref="JsonReaderException"/> is thrown when the
+        /// <see cref="ReadAsJToken()"/> method is called, then the
+        /// <see cref="Write(PreferenceGroup[])"/> method is called and
+        /// <see langword="null"/> is returned. Otherwise, if
+        /// <see langword="false"/> and there is an error reading the file as
+        /// JSON text, then the <see cref="JsonReaderException"/> is
+        /// thrown. The default is <see langword="true"/>.</param>
+        /// <param name="writeFileIfMissingItems"></param>
+        /// <param name="writeAfterUpdate">After successfully updating, the file
+        /// will be written over to ensure it has all of the correct
+        /// comments and formatting.</param>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
+        /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the index of the array and the
+        /// <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="stores"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stores"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="FileNotFoundException">The file specified by
+        /// <see cref="Path"/> cannot be found and
+        /// <paramref name="writeIfFileNotFound"/> is
+        /// <see langword="false"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// the file as JSON text.</exception>
+        public IReadOnlyDictionary<int, IReadOnlyCollection<string>> Update(
+            PreferenceStore[] stores, bool writeIfFileNotFound = true,
+            bool writeOnReadException = true,
+            bool writeFileIfMissingItems = true, bool writeAfterUpdate = true)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            try
+            {
+                var jArray = ReadAsJArray();
+                var updates = PreferenceStoreJsonDeserializer.UpdateFrom(stores,
+                    jArray);
+
+                if ((writeFileIfMissingItems && stores.Length > jArray.Count)
+                    || writeAfterUpdate)
+                {
+                    Write(stores);
+                }
+
+                return updates;
+            }
+            catch (FileNotFoundException)
+            {
+                if (writeIfFileNotFound)
+                {
+                    Write(stores);
+
+                    return null;
+                }
+
+                throw;
+            }
+            catch (JsonReaderException)
+            {
+                if (writeOnReadException)
+                {
+                    Write(stores);
+
+                    return null;
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Writes <paramref name="preference"/> to the file at
         /// <see cref="Path"/>. If the file already exists, then it will be
         /// overwritten. It accomplishes this by creating a
@@ -801,6 +985,104 @@ namespace PreferenceGroups
                         streamWriter, TabString))
                     {
                         context.Serialize(groups);
+                        context.Flush();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes <paramref name="store"/> to the file at
+        /// <see cref="Path"/>. If the file already exists, then it will be
+        /// overwritten. It accomplishes this by creating a
+        /// <see cref="FileStream"/> with the
+        /// <see cref="FileStream(string, FileMode, FileAccess, FileShare)"/>
+        /// constructor and the following parameters:
+        /// <list type="bullet">
+        /// <item><see cref="Path"/></item>
+        /// <item><see cref="FileMode.Create"/></item>
+        /// <item><see cref="FileAccess.Write"/></item>
+        /// <item><see cref="FileShare.None"/></item>
+        /// </list>
+        /// Then a <see cref="StreamWriter"/> is created with the
+        /// <see cref="StreamWriter(Stream, Encoding)"/> constructor with the
+        /// created <see cref="FileStream"/> and <see cref="Encoding"/>. Then a
+        /// <see cref="JsoncSerializationContext"/> is created with the
+        /// <see cref="JsoncSerializationContext(TextWriter, string)"/>
+        /// constructor with the created <see cref="StreamWriter"/> and
+        /// <see cref="TabString"/>. And finally the
+        /// <see cref="JsoncSerializationContext.Serialize(PreferenceGroup)"/>
+        /// and <see cref="JsoncSerializationContext.Flush()"/> methods are
+        /// called.
+        /// </summary>
+        /// <param name="store"></param>
+        /// <exception cref="ArgumentNullException"><paramref name="store"/> is
+        /// <see langword="null"/>.</exception>
+        public void Write(PreferenceStore store)
+        {
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            using (var fileStream = OpenFileForWriting(Path))
+            {
+                using (var streamWriter = new StreamWriter(fileStream,
+                    Encoding))
+                {
+                    using (var context = new JsoncSerializationContext(
+                        streamWriter, TabString))
+                    {
+                        context.Serialize(store);
+                        context.Flush();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes <paramref name="stores"/> to the file at
+        /// <see cref="Path"/>. If the file already exists, then it will be
+        /// overwritten. It accomplishes this by creating a
+        /// <see cref="FileStream"/> with the
+        /// <see cref="FileStream(string, FileMode, FileAccess, FileShare)"/>
+        /// constructor and the following parameters:
+        /// <list type="bullet">
+        /// <item><see cref="Path"/></item>
+        /// <item><see cref="FileMode.Create"/></item>
+        /// <item><see cref="FileAccess.Write"/></item>
+        /// <item><see cref="FileShare.None"/></item>
+        /// </list>
+        /// Then a <see cref="StreamWriter"/> is created with the
+        /// <see cref="StreamWriter(Stream, Encoding)"/> constructor with the
+        /// created <see cref="FileStream"/> and <see cref="Encoding"/>. Then a
+        /// <see cref="JsoncSerializationContext"/> is created with the
+        /// <see cref="JsoncSerializationContext(TextWriter, string)"/>
+        /// constructor with the created <see cref="StreamWriter"/> and
+        /// <see cref="TabString"/>. And finally the
+        /// <see cref="JsoncSerializationContext.Serialize(PreferenceGroup[])"/>
+        /// and <see cref="JsoncSerializationContext.Flush()"/> methods are
+        /// called.
+        /// </summary>
+        /// <param name="stores"></param>
+        /// <exception cref="ArgumentNullException"><paramref name="stores"/> is
+        /// <see langword="null"/>.</exception>
+        public void Write(PreferenceStore[] stores)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            using (var fileStream = OpenFileForWriting(Path))
+            {
+                using (var streamWriter = new StreamWriter(fileStream,
+                    Encoding))
+                {
+                    using (var context = new JsoncSerializationContext(
+                        streamWriter, TabString))
+                    {
+                        context.Serialize(stores);
                         context.Flush();
                     }
                 }
@@ -1148,6 +1430,105 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Updates <paramref name="group"/> from <paramref name="string"/> by
+        /// first calling the
+        /// <see cref="ReadStringAsJObject(string, JsonLoadSettings)"/> method
+        /// with it and <paramref name="jsonLoadSettings"/> (where if it is
+        /// <see langword="null"/> then
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> is used),
+        /// and then calling the
+        /// <see cref="PreferenceGroupJsonDeserializer.UpdateFrom(
+        /// PreferenceGroup, JObject)"/> method.
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="string"></param>
+        /// <param name="jsonLoadSettings"></param>
+        /// <returns>A <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the <see cref="Preference.Name"/>s of
+        /// <paramref name="group"/> that were updated from
+        /// <paramref name="string"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="string"/>
+        /// is empty or constists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="string"/> is <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
+        public static IReadOnlyCollection<string> UpdateFromString(
+            PreferenceStore group, string @string,
+            JsonLoadSettings jsonLoadSettings = null)
+        {
+            if (group is null)
+            {
+                throw new ArgumentNullException(nameof(group));
+            }
+
+            if (@string is null)
+            {
+                throw new ArgumentNullException(nameof(@string));
+            }
+
+            if (string.IsNullOrWhiteSpace(@string))
+            {
+                throw new ArgumentException("Cannot be empty or consist only "
+                    + "of white-space characters.", nameof(@string));
+            }
+
+            var jObject = ReadStringAsJObject(@string, jsonLoadSettings);
+
+            return PreferenceStoreJsonDeserializer.UpdateFrom(group, jObject);
+        }
+
+        /// <summary>
+        /// Updates <paramref name="stores"/> from <paramref name="string"/> by
+        /// first calling the
+        /// <see cref="ReadStringAsJObject(string, JsonLoadSettings)"/> method
+        /// with it and <paramref name="jsonLoadSettings"/> (where if it is
+        /// <see langword="null"/> then
+        /// <see cref="JsoncSerializerHelper.DefaultLoadSettings"/> is used),
+        /// and then calling the
+        /// <see cref="PreferenceGroupJsonDeserializer.UpdateFrom(
+        /// PreferenceGroup[], JArray)"/> method.
+        /// </summary>
+        /// <param name="stores"></param>
+        /// <param name="string"></param>
+        /// <param name="jsonLoadSettings"></param>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> of
+        /// <see cref="int"/> and <see cref="IReadOnlyCollection{T}"/> of
+        /// <see cref="string"/> with the index of the array and the
+        /// <see cref="Preference.Name"/>s that
+        /// were updated from the file in <paramref name="stores"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="string"/>
+        /// is empty or constists only of white-space characters.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="string"/> is <see langword="null"/>.</exception>
+        /// <exception cref="JsonReaderException">An error occured while reading
+        /// <paramref name="string"/> as JSON text.</exception>
+        public static IReadOnlyDictionary<int, IReadOnlyCollection<string>>
+            UpdateFromString(PreferenceStore[] stores, string @string,
+            JsonLoadSettings jsonLoadSettings = null)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            if (@string is null)
+            {
+                throw new ArgumentNullException(nameof(@string));
+            }
+
+            if (string.IsNullOrWhiteSpace(@string))
+            {
+                throw new ArgumentException("Cannot be empty or consist only "
+                    + "of white-space characters.", nameof(@string));
+            }
+
+            var jArray = ReadStringAsJArray(@string, jsonLoadSettings);
+
+            return PreferenceStoreJsonDeserializer.UpdateFrom(stores, jArray);
+        }
+
+        /// <summary>
         /// Returns a <see cref="string"/> with <paramref name="preference"/>
         /// serialized to JSONC by getting the formatting tab string by calling
         /// the <see cref="JsoncSerializerHelper.GetTabString(char, int)"/>
@@ -1266,6 +1647,194 @@ namespace PreferenceGroups
             return WriteToString(
                 JsoncSerializerHelper.GetTabString(indentChar, indentDepth),
                 groups);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="store"/>
+        /// serialized to JSONC by getting the formatting tab string by calling
+        /// the <see cref="JsoncSerializerHelper.GetTabString(char, int)"/>
+        /// method with <paramref name="indentChar"/> and
+        /// <paramref name="indentDepth"/>. Then the result of calling the
+        /// <see cref="WriteToString(string, PreferenceStore)"/> is returned.
+        /// </summary>
+        /// <param name="indentChar">The indent character for the tab string
+        /// that will be repeated <paramref name="indentDepth"/> number of
+        /// times.</param>
+        /// <param name="indentDepth">The number of times to repeat
+        /// <paramref name="indentChar"/> for the tab string. Must not be a
+        /// negative number and if it is zero then <see cref="string.Empty"/> is
+        /// returned.</param>
+        /// <param name="store"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="store"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="indentDepth"/> is negative.</exception>
+        public static string WriteToString(char indentChar, int indentDepth,
+            PreferenceStore store)
+        {
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            if (indentDepth < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(indentDepth),
+                    indentDepth, "Cannot be negative.");
+            }
+
+            return WriteToString(
+                JsoncSerializerHelper.GetTabString(indentChar, indentDepth),
+                store);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="stores"/>
+        /// serialized to JSONC by getting the formatting tab string by calling
+        /// the <see cref="JsoncSerializerHelper.GetTabString(char, int)"/>
+        /// method with <paramref name="indentChar"/> and
+        /// <paramref name="indentDepth"/>. Then the result of calling the
+        /// <see cref="WriteToString(string, PreferenceStore[])"/> is returned.
+        /// </summary>
+        /// <param name="indentChar">The indent character for the tab string
+        /// that will be repeated <paramref name="indentDepth"/> number of
+        /// times.</param>
+        /// <param name="indentDepth">The number of times to repeat
+        /// <paramref name="indentChar"/> for the tab string. Must not be a
+        /// negative number and if it is zero then <see cref="string.Empty"/> is
+        /// returned.</param>
+        /// <param name="stores"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stores"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="indentDepth"/> is negative.</exception>
+        public static string WriteToString(char indentChar, int indentDepth,
+            PreferenceStore[] stores)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            if (indentDepth < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(indentDepth),
+                    indentDepth, "Cannot be negative.");
+            }
+
+            return WriteToString(
+                JsoncSerializerHelper.GetTabString(indentChar, indentDepth),
+                stores);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="preference"/>
+        /// serialized to JSONC by returning the result of calling the
+        /// <see cref="WriteToString(string, Preference)"/> with
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
+        /// <paramref name="preference"/>.
+        /// </summary>
+        /// <param name="preference"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
+        public static string WriteToString(Preference preference)
+        {
+            if (preference is null)
+            {
+                throw new ArgumentNullException(nameof(preference));
+            }
+
+            return WriteToString(JsoncSerializerHelper.DefaultTabString,
+                preference);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="group"/>
+        /// serialized to JSONC by returning the result of calling the
+        /// <see cref="WriteToString(string, PreferenceGroup)"/> with
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
+        /// <paramref name="group"/>.
+        /// </summary>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="group"/> is
+        /// <see langword="null"/>.</exception>
+        public static string WriteToString(PreferenceGroup group)
+        {
+            if (group is null)
+            {
+                throw new ArgumentNullException(nameof(group));
+            }
+
+            return WriteToString(JsoncSerializerHelper.DefaultTabString, group);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="groups"/>
+        /// serialized to JSONC by returning the result of calling the
+        /// <see cref="WriteToString(string, PreferenceGroup[])"/> with
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
+        /// <paramref name="groups"/>.
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="groups"/> is
+        /// <see langword="null"/>.</exception>
+        public static string WriteToString(PreferenceGroup[] groups)
+        {
+            if (groups is null)
+            {
+                throw new ArgumentNullException(nameof(groups));
+            }
+
+            return WriteToString(JsoncSerializerHelper.DefaultTabString,
+                groups);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="store"/>
+        /// serialized to JSONC by returning the result of calling the
+        /// <see cref="WriteToString(string, PreferenceStore)"/> with
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
+        /// <paramref name="store"/>.
+        /// </summary>
+        /// <param name="store"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="store"/> is
+        /// <see langword="null"/>.</exception>
+        public static string WriteToString(PreferenceStore store)
+        {
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            return WriteToString(JsoncSerializerHelper.DefaultTabString, store);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="string"/> with <paramref name="stores"/>
+        /// serialized to JSONC by returning the result of calling the
+        /// <see cref="WriteToString(string, PreferenceStore[])"/> with
+        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
+        /// <paramref name="stores"/>.
+        /// </summary>
+        /// <param name="stores"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stores"/> is
+        /// <see langword="null"/>.</exception>
+        public static string WriteToString(PreferenceStore[] stores)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            return WriteToString(JsoncSerializerHelper.DefaultTabString,
+                stores);
         }
 
         /// <summary>
@@ -1402,68 +1971,91 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="preference"/>
-        /// serialized to JSONC by returning the result of calling the
-        /// <see cref="WriteToString(string, Preference)"/> with
-        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
-        /// <paramref name="preference"/>.
+        /// Returns a <see cref="string"/> with <paramref name="store"/>
+        /// serialized to JSONC by creating a <see cref="StringWriter"/>. Then a
+        /// <see cref="JsoncSerializationContext"/> is created with the
+        /// <see cref="JsoncSerializationContext(TextWriter, string)"/>
+        /// constructor with the created <see cref="StringWriter"/> and
+        /// <paramref name="tabString"/>. And then the
+        /// <see cref="JsoncSerializationContext.Serialize(PreferenceStore)"/>
+        /// and <see cref="JsoncSerializationContext.Flush()"/> methods are
+        /// called. Lastly, the result of <see cref="StringWriter.ToString()"/>
+        /// with the created <see cref="StringWriter"/> is returned.
         /// </summary>
-        /// <param name="preference"></param>
+        /// <param name="tabString">Used for each indentation level of
+        /// formatting.</param>
+        /// <param name="store"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        public static string WriteToString(Preference preference)
+        /// <exception cref="ArgumentNullException"><paramref name="tabString"/>
+        /// or <paramref name="store"/> is <see langword="null"/>.</exception>
+        public static string WriteToString(string tabString,
+            PreferenceStore store)
         {
-            if (preference is null)
+            if (tabString is null)
             {
-                throw new ArgumentNullException(nameof(preference));
+                throw new ArgumentNullException(nameof(tabString));
             }
 
-            return WriteToString(JsoncSerializerHelper.DefaultTabString,
-                preference);
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            using (var stringWriter = new StringWriter())
+            {
+                using (var context = new JsoncSerializationContext(stringWriter,
+                    tabString))
+                {
+                    context.Serialize(store);
+                    context.Flush();
+                }
+
+                return stringWriter.ToString();
+            }
         }
 
         /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="group"/>
-        /// serialized to JSONC by returning the result of calling the
-        /// <see cref="WriteToString(string, PreferenceGroup)"/> with
-        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
-        /// <paramref name="group"/>.
+        /// Returns a <see cref="string"/> with <paramref name="stores"/>
+        /// serialized to JSONC by creating a <see cref="StringWriter"/>. Then a
+        /// <see cref="JsoncSerializationContext"/> is created with the
+        /// <see cref="JsoncSerializationContext(TextWriter, string)"/>
+        /// constructor with the created <see cref="StringWriter"/> and
+        /// <paramref name="tabString"/>. And then the
+        /// <see cref="JsoncSerializationContext.Serialize(PreferenceStore[])"/>
+        /// and <see cref="JsoncSerializationContext.Flush()"/> methods are
+        /// called. Lastly, the result of <see cref="StringWriter.ToString()"/>
+        /// with the created <see cref="StringWriter"/> is returned.
         /// </summary>
-        /// <param name="group"></param>
+        /// <param name="tabString">Used for each indentation level of
+        /// formatting.</param>
+        /// <param name="stores"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="group"/> is
-        /// <see langword="null"/>.</exception>
-        public static string WriteToString(PreferenceGroup group)
+        /// <exception cref="ArgumentNullException"><paramref name="tabString"/>
+        /// or <paramref name="stores"/> is <see langword="null"/>.</exception>
+        public static string WriteToString(string tabString,
+            PreferenceStore[] stores)
         {
-            if (group is null)
+            if (tabString is null)
             {
-                throw new ArgumentNullException(nameof(group));
+                throw new ArgumentNullException(nameof(tabString));
             }
 
-            return WriteToString(JsoncSerializerHelper.DefaultTabString, group);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="string"/> with <paramref name="groups"/>
-        /// serialized to JSONC by returning the result of calling the
-        /// <see cref="WriteToString(string, PreferenceGroup)"/> with
-        /// <see cref="JsoncSerializerHelper.DefaultTabString"/> and
-        /// <paramref name="groups"/>.
-        /// </summary>
-        /// <param name="groups"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="groups"/> is
-        /// <see langword="null"/>.</exception>
-        public static string WriteToString(PreferenceGroup[] groups)
-        {
-            if (groups is null)
+            if (stores is null)
             {
-                throw new ArgumentNullException(nameof(groups));
+                throw new ArgumentNullException(nameof(stores));
             }
 
-            return WriteToString(JsoncSerializerHelper.DefaultTabString,
-                groups);
+            using (var stringWriter = new StringWriter())
+            {
+                using (var context = new JsoncSerializationContext(stringWriter,
+                    tabString))
+                {
+                    context.Serialize(stores);
+                    context.Flush();
+                }
+
+                return stringWriter.ToString();
+            }
         }
     }
 }

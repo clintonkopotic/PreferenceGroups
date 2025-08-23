@@ -298,8 +298,8 @@ namespace PreferenceGroups
         /// <see cref="Preference.SetValueFromObject(object)"/> is called with
         /// <see langword="null"/>.</item>
         /// <item>The <see cref="Preference.Name"/> is called with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method,
-        /// and its result is used to check with the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method, and its result is used to check with the
         /// <see cref="JObject.ContainsKey(string)"/> method if
         /// <paramref name="jObject"/> has a property with that <c>name</c>. If
         /// it does, then that property is cast to a <see cref="JValue"/> and
@@ -327,7 +327,7 @@ namespace PreferenceGroups
             }
 
             var processedName = Preference.ProcessNameOrThrowIfInvalid(
-                preference.Name);
+                preference.Name, nameof(preference));
 
             if (!jObject.ContainsKey(processedName))
             {

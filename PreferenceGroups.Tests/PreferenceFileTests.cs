@@ -227,6 +227,158 @@ public sealed class PreferenceFileTests
     }
 
     [TestMethod]
+    public void SimplePreferenceStoreToStringTest()
+    {
+        var storeDescription = "Test store.";
+        var emptyStringPreferenceName = "EmptyString";
+        var groupName = "group123";
+        var emptyInt32PreferenceName = "EmptyInt32";
+        var int32PreferenceWithDescriptionName = "Int32WithDescription";
+        int? int32PreferenceWithDescriptionValue = 123;
+        var int32PreferenceDescription = "Test int.";
+        var int32PreferenceName = "Int32";
+        int? int32PreferenceValue = 456;
+        var stringPreferenceWithDescriptionName = "StringWithDescription";
+        string? stringPreferenceWithDescriptionValue
+            = "String with description";
+        var stringPreferenceDescription = "Test string.";
+        var stringPreferenceName = "String";
+        string? stringPreferenceValue = "String";
+
+        var store = PreferenceStoreBuilder.Create()
+            .WithDescription(storeDescription)
+            .AddString(emptyStringPreferenceName)
+            .AddGroup(groupName, b => b
+                .AddInt32(int32PreferenceWithDescriptionName, b => b
+                    .WithValue(int32PreferenceWithDescriptionValue)
+                    .WithDescription(int32PreferenceDescription))
+                .AddInt32(emptyInt32PreferenceName)
+                .AddString(stringPreferenceWithDescriptionName, b => b
+                    .WithValue(stringPreferenceWithDescriptionValue)
+                    .WithDescription(stringPreferenceDescription))
+                .AddInt32(int32PreferenceName, int32PreferenceValue)
+                .AddString(stringPreferenceName, stringPreferenceValue))
+            .Build();
+
+        var jsoncString = PreferenceFile.WriteToString(store);
+        var expected = """
+            // Test store.
+            {
+                "EmptyString": null,
+                "group123": {
+                    // Test int.
+                    "Int32WithDescription": 123,
+                    "EmptyInt32": null,
+
+                    // Test string.
+                    "StringWithDescription": "String with description",
+                    "Int32": 456,
+                    "String": "String"
+                }
+            }
+            """;
+
+        Assert.AreEqual(expected, jsoncString);
+
+        var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
+
+        Assert.IsNotNull(jObject);
+        Assert.AreEqual(2, jObject.Count);
+        Assert.IsTrue(jObject.ContainsKey(emptyStringPreferenceName));
+    }
+
+    [TestMethod]
+    public void SimpleStoreFileTest()
+    {
+        // Create temporary directory to store the file in.
+        var tempDirectoryInfo = Directory.CreateTempSubdirectory(
+            prefix: "PreferenceGroups-");
+
+        // Build the PreferenceGroup.
+        var storeDescription = "Test store.";
+        var emptyStringPreferenceName = "EmptyString";
+        var groupName = "group123";
+        var emptyInt32PreferenceName = "EmptyInt32";
+        var int32PreferenceWithDescriptionName = "Int32WithDescription";
+        int? int32PreferenceWithDescriptionValue = 123;
+        var int32PreferenceDescription = "Test int.";
+        var int32PreferenceName = "Int32";
+        int? int32PreferenceValue = 456;
+        var stringPreferenceWithDescriptionName = "StringWithDescription";
+        string? stringPreferenceWithDescriptionValue
+            = "String with description";
+        var stringPreferenceDescription = "Test string.";
+        var stringPreferenceName = "String";
+        string? stringPreferenceValue = "String";
+
+        var store = PreferenceStoreBuilder.Create()
+            .WithDescription(storeDescription)
+            .AddString(emptyStringPreferenceName)
+            .AddGroup(groupName, b => b
+                .AddInt32(int32PreferenceWithDescriptionName, b => b
+                    .WithValue(int32PreferenceWithDescriptionValue)
+                    .WithDescription(int32PreferenceDescription))
+                .AddInt32(emptyInt32PreferenceName)
+                .AddString(stringPreferenceWithDescriptionName, b => b
+                    .WithValue(stringPreferenceWithDescriptionValue)
+                    .WithDescription(stringPreferenceDescription))
+                .AddInt32(int32PreferenceName, int32PreferenceValue)
+                .AddString(stringPreferenceName, stringPreferenceValue))
+            .Build();
+
+        // Prepare for the Preferences.jsonc file.
+        var preferencesFilePath = Path.Combine(tempDirectoryInfo.FullName,
+            "Preferences.jsonc");
+        PreferenceFile file = new(preferencesFilePath);
+
+        Assert.IsFalse(File.Exists(preferencesFilePath));
+
+        // Create the Preferences.jsonc file for first time.
+        var updates = file.Update(store);
+
+        // No updates occured.
+        Assert.IsNull(updates);
+
+        var jsoncString = PreferenceFile.WriteToString(store);
+        var expected = """
+            // Test store.
+            {
+                "EmptyString": null,
+                "group123": {
+                    // Test int.
+                    "Int32WithDescription": 123,
+                    "EmptyInt32": null,
+            
+                    // Test string.
+                    "StringWithDescription": "String with description",
+                    "Int32": 456,
+                    "String": "String"
+                }
+            }
+            """;
+
+        Assert.AreEqual(expected, file.ReadAsString());
+
+        // Overwrite the file with an empty file.
+        File.Create(preferencesFilePath).Dispose();
+
+        // Attempt to update again, but this should 
+        updates = file.Update(store);
+
+        // No updates occured.
+        Assert.IsNull(updates);
+
+        var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
+
+        Assert.IsNotNull(jObject);
+        Assert.AreEqual(2, jObject.Count);
+        Assert.IsTrue(jObject.ContainsKey(emptyStringPreferenceName));
+
+        // Cleanup.
+        tempDirectoryInfo.Delete(recursive: true);
+    }
+
+    [TestMethod]
     public void EmptyStringTests()
     {
         _ = Assert.ThrowsException<ArgumentNullException>(() =>

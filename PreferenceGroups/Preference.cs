@@ -72,7 +72,7 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Name"/> with <paramref name="name"/> after
         /// it is processed with the
-        /// <see cref="ProcessNameOrThrowIfInvalid(string)"/> method.
+        /// <see cref="ProcessNameOrThrowIfInvalid(string, string)"/> method.
         /// </summary>
         /// <param name="name">The name of the <see cref="Preference"/> and
         /// must be not <see langword="null"/>, not empty and not consist only
@@ -90,8 +90,8 @@ namespace PreferenceGroups
         /// <summary>
         /// Initializes <see cref="Name"/> with <paramref name="name"/> after
         /// it is processed with the
-        /// <see cref="ProcessNameOrThrowIfInvalid(string)"/> method. It also
-        /// initializes the <see cref="Description"/> and
+        /// <see cref="ProcessNameOrThrowIfInvalid(string, string)"/> method. It
+        /// also initializes the <see cref="Description"/> and
         /// <see cref="AllowUndefinedValues"/> properties.
         /// </summary>
         /// <param name="name">The name of the <see cref="Preference"/> and
@@ -499,6 +499,10 @@ namespace PreferenceGroups
         /// if it is not valid.
         /// </summary>
         /// <param name="name">What to process.</param>
+        /// <param name="paramName">The name of the <paramref name="name"/>
+        /// parameter. If it is <see langword="null"/>, then the
+        /// <see langword="nameof"/> <paramref name="name"/> will be
+        /// used.</param>
         /// <returns>The processed <paramref name="name"/> if it is
         /// valid.</returns>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
@@ -506,22 +510,25 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static string ProcessNameOrThrowIfInvalid(string name)
+        public static string ProcessNameOrThrowIfInvalid(string name,
+            string paramName = null)
         {
             if (name is null)
             {
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentNullException(paramName ?? nameof(name));
             }
 
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException(paramName: nameof(name),
+                throw new ArgumentException(
+                    paramName: paramName ?? nameof(name),
                     message: "Cannot be empty.");
             }
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException(paramName: nameof(name),
+                throw new ArgumentException(
+                    paramName: paramName ?? nameof(name),
                     message: "Cannot consist only of white-space characters.");
             }
 

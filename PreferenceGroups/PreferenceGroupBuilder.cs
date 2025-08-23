@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PreferenceGroups
 {
@@ -15,7 +16,59 @@ namespace PreferenceGroups
         { }
 
         /// <summary>
-        /// Will add <paramref name="preference"/> when the group is built.
+        /// Will add <paramref name="preferences"/> to the group.
+        /// </summary>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The
+        /// <see cref="Preference.Name"/> of one of the
+        /// <paramref name="preferences"/> is an empty <see langword="string"/>
+        /// or conists only of white-space characters or a
+        /// <see cref="Preference"/> in the group has the same
+        /// <see cref="Preference.Name"/> as one of the
+        /// <paramref name="preferences"/>.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="preferences"/> is <see langword="null"/> or the
+        /// <see cref="Preference.Name"/> of one of the
+        /// <paramref name="preferences"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder Add(IEnumerable<Preference> preferences)
+        {
+            if (preferences is null)
+            {
+                throw new ArgumentNullException(nameof(preferences));
+            }
+
+            foreach (var preference in preferences)
+            {
+                Add(preference);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will add <paramref name="preferences"/> to the group.
+        /// </summary>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The
+        /// <see cref="Preference.Name"/> of one of the
+        /// <paramref name="preferences"/> is an empty <see langword="string"/>
+        /// or conists only of white-space characters or a
+        /// <see cref="Preference"/> in the group has the same
+        /// <see cref="Preference.Name"/> as one of the
+        /// <paramref name="preferences"/>.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="preferences"/> is <see langword="null"/> or the
+        /// <see cref="Preference.Name"/> of one of the
+        /// <paramref name="preferences"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder Add(params Preference[] preferences)
+            => Add((IEnumerable<Preference>)preferences);
+
+        /// <summary>
+        /// Will add <paramref name="preference"/> to the group.
         /// </summary>
         /// <param name="preference"></param>
         /// <returns></returns>
@@ -36,8 +89,9 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(preference));
             }
 
-            _ = Preference.ProcessNameOrThrowIfInvalid(preference.Name);
-            _group.Add(preference);
+            _ = Preference.ProcessNameOrThrowIfInvalid(preference.Name,
+                nameof(preference));
+            _group.UpdateOrAdd(preference);
 
             return this;
         }
@@ -45,7 +99,7 @@ namespace PreferenceGroups
         /// <summary>
         /// Will add the resulting <see cref="BooleanPreference"/> from the
         /// provided <paramref name="action"/> of the
-        /// <see cref="BooleanPreferenceBuilder"/> build steps.
+        /// <see cref="BooleanPreferenceBuilder"/> build steps to the group.
         /// </summary>
         /// <param name="name">What the name of the
         /// <see cref="BooleanPreference"/> is to be.</param>
@@ -59,7 +113,8 @@ namespace PreferenceGroups
         public PreferenceGroupBuilder AddBoolean(string name,
             Action<BooleanPreferenceBuilder> action)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
             var builder = BooleanPreferenceBuilder.Create(processedName);
 
             if (!(action is null))
@@ -72,7 +127,7 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Will add a <see cref="BooleanPreference"/> with the provided
-        /// <paramref name="name"/> and <paramref name="value"/>.
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
@@ -84,14 +139,15 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddBoolean(string name, bool? value)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddBoolean(processedName, b => b.WithValue(value));
         }
 
         /// <summary>
         /// Will add a <see cref="BooleanPreference"/> with the provided
-        /// <paramref name="name"/>.
+        /// <paramref name="name"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -102,7 +158,8 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddBoolean(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddBoolean(processedName, action: null);
         }
@@ -110,7 +167,7 @@ namespace PreferenceGroups
         /// <summary>
         /// Will add the resulting <see cref="Int32Preference"/> from the
         /// provided <paramref name="action"/> of the
-        /// <see cref="Int32PreferenceBuilder"/> build steps.
+        /// <see cref="Int32PreferenceBuilder"/> build steps to the group.
         /// </summary>
         /// <param name="name">What the name of the
         /// <see cref="Int32Preference"/> is to be.</param>
@@ -124,7 +181,8 @@ namespace PreferenceGroups
         public PreferenceGroupBuilder AddInt32(string name,
             Action<Int32PreferenceBuilder> action)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
             var builder = Int32PreferenceBuilder.Create(processedName);
 
             if (!(action is null))
@@ -137,7 +195,7 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Will add a <see cref="Int32Preference"/> with the provided
-        /// <paramref name="name"/> and <paramref name="value"/>.
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
@@ -149,14 +207,15 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddInt32(string name, int? value)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddInt32(processedName, b => b.WithValue(value));
         }
 
         /// <summary>
         /// Will add a <see cref="Int32Preference"/> with the provided
-        /// <paramref name="name"/>.
+        /// <paramref name="name"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -167,7 +226,8 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddInt32(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddInt32(processedName, action: null);
         }
@@ -175,7 +235,7 @@ namespace PreferenceGroups
         /// <summary>
         /// Will add the resulting <see cref="StringPreference"/> from the
         /// provided <paramref name="action"/> of the
-        /// <see cref="StringPreferenceBuilder"/> build steps.
+        /// <see cref="StringPreferenceBuilder"/> build steps to the group.
         /// </summary>
         /// <param name="name">What the name of the
         /// <see cref="StringPreference"/> is to be.</param>
@@ -189,7 +249,8 @@ namespace PreferenceGroups
         public PreferenceGroupBuilder AddString(string name,
             Action<StringPreferenceBuilder> action)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
             var builder = StringPreferenceBuilder.Create(processedName);
 
             if (!(action is null))
@@ -202,7 +263,7 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Will add a <see cref="StringPreference"/> with the provided
-        /// <paramref name="name"/> and <paramref name="value"/>.
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
@@ -214,14 +275,15 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddString(string name, string value)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddString(processedName, b => b.WithValue(value));
         }
 
         /// <summary>
         /// Will add a <see cref="StringPreference"/> with the provided
-        /// <paramref name="name"/>.
+        /// <paramref name="name"/> to the group.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -232,7 +294,8 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         public PreferenceGroupBuilder AddString(string name)
         {
-            var processedName = Preference.ProcessNameOrThrowIfInvalid(name);
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
 
             return AddString(processedName, action: null);
         }

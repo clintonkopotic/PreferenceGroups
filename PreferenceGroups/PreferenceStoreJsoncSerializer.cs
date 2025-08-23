@@ -5,51 +5,51 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Contains <see langword="static"/> methods for serializing a
-    /// <see cref="PreferenceGroup"/> into JSONC data including the metadata
+    /// <see cref="PreferenceStore"/> into JSONC data including the metadata
     /// being written in comments, like the
-    /// <see cref="PreferenceGroup.Description"/> property.
+    /// <see cref="PreferenceStore.Description"/> property.
     /// </summary>
     /// <remarks>See <see href="https://www.jsonc.org">jsonc.org</see> for
     /// further details about a JSONC file format.</remarks>
-    public static class PreferenceGroupJsoncSerializer
+    public static class PreferenceStoreJsoncSerializer
     {
         /// <summary>
-        /// Serializes <paramref name="group"/> into JSONC using
+        /// Serializes <paramref name="store"/> into JSONC using
         /// <paramref name="context"/> by calling <see cref="WriteAnyComments(
-        /// JsoncSerializationContext, PreferenceGroup)"/>,
-        /// then if <see cref="PreferenceGroup.Count"/> of
-        /// <paramref name="group"/> is zero then the
+        /// JsoncSerializationContext, PreferenceStore)"/>,
+        /// then if <see cref="PreferenceStore.Count"/> of
+        /// <paramref name="store"/> is zero then the
         /// <see cref="JsoncSerializationContext.WriteEmptyObject()"/> method is
         /// called, otherwise the following are called in sequence:
         /// <list type="number">
         /// <item><see cref="JsoncSerializationContext.StartObject()"/></item>
-        /// <item>For each <see cref="Preference"/> in <paramref name="group"/>
+        /// <item>For each <see cref="Preference"/> in <paramref name="store"/>
         /// the <see cref="PreferenceJsoncSerializer.Serialize(
         /// JsoncSerializationContext, Preference)"/>.</item>
         /// <item><see cref="JsoncSerializationContext.EndObject()"/></item>
         /// </list>
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="group"></param>
+        /// <param name="store"></param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="context"/> or <paramref name="group"/> is
+        /// <paramref name="context"/> or <paramref name="store"/> is
         /// <see langword="null"/>.</exception>
         public static void Serialize(JsoncSerializationContext context,
-            PreferenceGroup group)
+            PreferenceStore store)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (group is null)
+            if (store is null)
             {
-                throw new ArgumentNullException(nameof(group));
+                throw new ArgumentNullException(nameof(store));
             }
 
-            WriteAnyComments(context, group);
+            WriteAnyComments(context, store);
 
-            if (group.Count <= 0)
+            if (store.Count <= 0)
             {
                 context.WriteEmptyObject();
 
@@ -58,11 +58,68 @@ namespace PreferenceGroups
 
             context.StartObject();
 
-            foreach (var preference in group)
+            foreach (var itemWithName in store)
             {
+                var name = itemWithName.Key;
+                var item = itemWithName.Value;
                 context.WriteItemSeparator();
+                PreferenceStoreItem.ThrowIfItemIsNullOrKindIsNone(item);
                 context.CommentsWritten = false;
-                PreferenceJsoncSerializer.Serialize(context, preference);
+
+                if (item.Kind == PreferenceStoreItemKind.Preference)
+                {
+                    PreferenceJsoncSerializer.Serialize(context,
+                        item.GetAsPreference());
+                }
+                else
+                {
+                    context.ResetNeedToWriteLine();
+                    var description = item.Description;
+
+                    if (!string.IsNullOrEmpty(description))
+                    {
+                        context.WriteEmptyLineIfNeeded();
+                        JsoncSerializerHelper.WriteLineComment(
+                            indentedTextWriter: context.Writer,
+                            comment: description);
+                    }
+
+                    context.NeedToWriteLine = false;
+                    context.CommentsWritten = true;
+                    JsoncSerializerHelper.WritePropertyName(
+                        indentedTextWriter: context.Writer,
+                        propertyName: Preference.ProcessNameOrThrowIfInvalid(
+                            name, nameof(name)));
+
+                    switch (item.Kind)
+                    {
+                        case PreferenceStoreItemKind.PreferenceGroup:
+                            PreferenceGroupJsoncSerializer.Serialize(context,
+                                item.GetAsPreferenceGroup());
+
+                            break;
+                        case PreferenceStoreItemKind.ArrayOfPreferenceGroups:
+                            PreferenceGroupJsoncSerializer.Serialize(context,
+                                item.GetAsArrayOfPreferenceGroups());
+
+                            break;
+                        case PreferenceStoreItemKind.PreferenceStore:
+                            Serialize(context, item.GetAsPreferenceStore());
+
+                            break;
+                        case PreferenceStoreItemKind.ArrayOfPreferenceStores:
+                            Serialize(context,
+                                item.GetAsArrayOfPreferenceStores());
+
+                            break;
+                        default:
+                            throw new InvalidOperationException("The following "
+                                + "is an unexpected "
+                                + $"{nameof(PreferenceStoreItemKind)} of "
+                                + $"{item.Kind}.");
+                    }
+                }
+
                 context.IncrementCurrentCount();
             }
 
@@ -70,38 +127,38 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Serializes <paramref name="groups"/> into JSONC using
+        /// Serializes <paramref name="stores"/> into JSONC using
         /// <paramref name="context"/> where if <see cref="Array.Length"/> of
-        /// <paramref name="groups"/> is zero then the
+        /// <paramref name="stores"/> is zero then the
         /// <see cref="JsoncSerializationContext.WriteEmptyArray()"/> method is
         /// called, otherwise the following are called in sequence:
         /// <list type="number">
         /// <item><see cref="JsoncSerializationContext.StartArray()"/></item>
-        /// <item>For each <see cref="PreferenceGroup"/> in
-        /// <paramref name="groups"/> the <see cref="Serialize(
-        /// JsoncSerializationContext, PreferenceGroup)"/>.</item>
+        /// <item>For each <see cref="PreferenceStore"/> in
+        /// <paramref name="stores"/> the <see cref="Serialize(
+        /// JsoncSerializationContext, PreferenceStore)"/>.</item>
         /// <item><see cref="JsoncSerializationContext.EndArray()"/></item>
         /// </list>
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="groups"></param>
+        /// <param name="stores"></param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="context"/> or <paramref name="groups"/> is
+        /// <paramref name="context"/> or <paramref name="stores"/> is
         /// <see langword="null"/>.</exception>
         public static void Serialize(JsoncSerializationContext context,
-            PreferenceGroup[] groups)
+            PreferenceStore[] stores)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (groups is null)
+            if (stores is null)
             {
-                throw new ArgumentNullException(nameof(groups));
+                throw new ArgumentNullException(nameof(stores));
             }
 
-            if (groups.Length <= 0)
+            if (stores.Length <= 0)
             {
                 context.WriteEmptyArray();
 
@@ -110,7 +167,7 @@ namespace PreferenceGroups
 
             context.StartArray();
 
-            foreach (var group in groups)
+            foreach (var group in stores)
             {
                 context.WriteItemSeparator();
                 context.CommentsWritten = false;
@@ -128,7 +185,7 @@ namespace PreferenceGroups
         /// <item><see cref="JsoncSerializationContext.ResetNeedToWriteLine()"/>
         /// from <paramref name="context"/>.</item>
         /// <item><see cref="WriteDescriptionInComment(
-        /// JsoncSerializationContext, PreferenceGroup)"/>.</item>
+        /// JsoncSerializationContext, PreferenceStore)"/>.</item>
         /// <item><see cref="JsoncSerializationContext.CommentsWritten"/> is set
         /// to <see langword="true"/>.</item>
         /// <item><see cref="JsoncSerializationContext.NeedToWriteLine"/> is set
@@ -136,34 +193,34 @@ namespace PreferenceGroups
         /// </list>
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="group"></param>
+        /// <param name="store"></param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="context"/> or <paramref name="group"/> is
+        /// <paramref name="context"/> or <paramref name="store"/> is
         /// <see langword="null"/>.</exception>
         public static void WriteAnyComments(JsoncSerializationContext context,
-            PreferenceGroup group)
+            PreferenceStore store)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (group is null)
+            if (store is null)
             {
-                throw new ArgumentNullException(nameof(group));
+                throw new ArgumentNullException(nameof(store));
             }
 
             if (!context.CommentsWritten)
             {
                 context.ResetNeedToWriteLine();
-                WriteDescriptionInComment(context, group);
+                WriteDescriptionInComment(context, store);
                 context.CommentsWritten = true;
                 context.NeedToWriteLine = false;
             }
         }
 
         /// <summary>
-        /// If <see cref="PreferenceGroup.Description"/> does not return
+        /// If <see cref="PreferenceStore.Description"/> does not return
         /// <see langword="null"/> and is not an empty <see cref="string"/>,
         /// then its result is called with the
         /// <see cref="JsoncSerializerHelper.WriteLineComment(
@@ -172,24 +229,24 @@ namespace PreferenceGroups
         /// method is called.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="group"></param>
+        /// <param name="store"></param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="context"/> or <paramref name="group"/> is
+        /// <paramref name="context"/> or <paramref name="store"/> is
         /// <see langword="null"/>.</exception>
         public static void WriteDescriptionInComment(
-            JsoncSerializationContext context, PreferenceGroup group)
+            JsoncSerializationContext context, PreferenceStore store)
         {
             if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (group is null)
+            if (store is null)
             {
-                throw new ArgumentNullException(nameof(group));
+                throw new ArgumentNullException(nameof(store));
             }
 
-            var description = group.Description;
+            var description = store.Description;
 
             if (!string.IsNullOrEmpty(description))
             {

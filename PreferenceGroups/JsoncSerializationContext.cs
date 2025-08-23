@@ -302,6 +302,42 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Serializes <paramref name="store"/> by calling
+        /// <see cref="PreferenceStoreJsoncSerializer.Serialize(
+        /// JsoncSerializationContext, PreferenceStore)"/>.
+        /// </summary>
+        /// <param name="store"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="store"/> is <see langword="null"/>.</exception>
+        public void Serialize(PreferenceStore store)
+        {
+            if (store is null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            PreferenceStoreJsoncSerializer.Serialize(this, store);
+        }
+
+        /// <summary>
+        /// Serializes <paramref name="stores"/> by calling
+        /// <see cref="PreferenceStoreJsoncSerializer.Serialize(
+        /// JsoncSerializationContext, PreferenceStore[])"/>.
+        /// </summary>
+        /// <param name="stores"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="stores"/> is <see langword="null"/>.</exception>
+        public void Serialize(PreferenceStore[] stores)
+        {
+            if (stores is null)
+            {
+                throw new ArgumentNullException(nameof(stores));
+            }
+
+            PreferenceStoreJsoncSerializer.Serialize(this, stores);
+        }
+
+        /// <summary>
         /// Writes the start of an array by using the <see cref
         /// ="JsoncSerializerHelper.WriteStartArray(IndentedTextWriter)"/> and
         /// maintains <see cref="CurrentTypeAndCount"/>.

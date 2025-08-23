@@ -22,8 +22,8 @@ namespace PreferenceGroups
         /// <summary>
         /// While ensuring that the <see cref="Preference.Name"/> was valid, by
         /// calling the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string)"/> method,
-        /// an <see cref="Exception"/> was generated.
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method, an <see cref="Exception"/> was generated.
         /// </summary>
         ProcessingName,
 

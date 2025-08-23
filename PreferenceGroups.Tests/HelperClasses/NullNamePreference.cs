@@ -1,6 +1,5 @@
 ﻿namespace PreferenceGroups.Tests.HelperClasses;
 using System;
-using System.Collections.Generic;
 
 internal class NullNamePreference(string name) : Preference(name)
 {

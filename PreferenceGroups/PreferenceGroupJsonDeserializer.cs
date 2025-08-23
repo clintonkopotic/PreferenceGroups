@@ -6,7 +6,8 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Contains <see langword="static"/> methods for updating a
-    /// <see cref="PreferenceGroup"/> by deserializing from a <see cref="JObject"/>.
+    /// <see cref="PreferenceGroup"/> by deserializing from a
+    /// <see cref="JObject"/>.
     /// </summary>
     public static class PreferenceGroupJsonDeserializer
     {
