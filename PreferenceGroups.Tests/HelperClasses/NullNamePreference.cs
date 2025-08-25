@@ -29,6 +29,9 @@ internal class NullNamePreference(string name) : Preference(name)
     public override Type GetValueType()
         => typeof(object);
 
+    public override bool IsValueValid(object value)
+        => false;
+
     public override void SetDefaultValueFromObject(object? defaultValue)
     { }
 

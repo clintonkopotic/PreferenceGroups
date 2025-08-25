@@ -4,41 +4,42 @@ using System.Collections.Generic;
 namespace PreferenceGroups
 {
     /// <summary>
-    /// Uses the fluent builder pattern to build a
-    /// <see cref="Int32Preference"/>.
+    /// Uses the fluent builder pattern to build an int32
+    /// <see cref="EnumPreference{TEnum}"/>.
     /// </summary>
-    public class Int32PreferenceBuilder
+    /// <typeparam name="TEnum">An <see cref="Enum"/>.</typeparam>
+    public class EnumPreferenceBuilder<TEnum> where TEnum : struct, Enum
     {
         private string _description;
 
         private string _name = string.Empty;
 
-        private int? _value = null;
+        private TEnum? _value = null;
 
-        private int? _defaultValue = null;
+        private TEnum? _defaultValue = null;
 
-        private List<int?> _allowedValues = null;
+        private List<TEnum?> _allowedValues = null;
 
-        private bool _allowUndefinedValues = true;
+        private bool _allowUndefinedValues = false;
 
         private bool _sortAllowedValues = false;
 
-        private StructValueValidityProcessor<int> _validityProcessor
-            = new StructValueValidityProcessor<int>();
+        private StructValueValidityProcessor<TEnum> _validityProcessor
+            = new StructValueValidityProcessor<TEnum>();
 
-        private Int32PreferenceBuilder() { }
+        private EnumPreferenceBuilder() { }
 
         /// <summary>
         /// Specifies that only values defined by the
-        /// <see cref="WithAllowedValues(int?[])"/> methods (or related
+        /// <see cref="WithAllowedValues(TEnum?[])"/> methods (or related
         /// methods) will be allowed.<br/>
-        /// <b>NOTE</b>: If <see cref="WithAllowedValues(int?[])"/> is not
+        /// <b>NOTE</b>: If <see cref="WithAllowedValues(TEnum?[])"/> is not
         /// used or <see cref="WithNoAllowedValues()"/> is used, then the
         /// <see cref="Preference.AllowUndefinedValues"/> will be set to
         /// <see langword="true"/> (which is the default behavior).
         /// </summary>
         /// <returns></returns>
-        public Int32PreferenceBuilder AllowOnlyDefinedValues()
+        public EnumPreferenceBuilder<TEnum> AllowOnlyDefinedValues()
         {
             _allowUndefinedValues = false;
 
@@ -51,7 +52,7 @@ namespace PreferenceGroups
         /// This is the default behavior.
         /// </summary>
         /// <returns></returns>
-        public Int32PreferenceBuilder AllowUndefinedValues()
+        public EnumPreferenceBuilder<TEnum> AllowUndefinedValues()
         {
             _allowUndefinedValues = true;
 
@@ -59,12 +60,13 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Builds the <see cref="Int32Preference"/>.
+        /// Builds the <see cref="EnumPreference{TEnum}"/>.
         /// </summary>
         /// <returns></returns>
-        public Int32Preference Build() =>
-            new Int32Preference(_name, _description, _allowUndefinedValues,
-                _allowedValues, _sortAllowedValues, _validityProcessor)
+        public EnumPreference<TEnum> Build() =>
+            new EnumPreference<TEnum>(_name, _description,
+                _allowUndefinedValues, _allowedValues, _sortAllowedValues,
+                _validityProcessor)
             {
                 Value = _value,
                 DefaultValue = _defaultValue,
@@ -75,7 +77,7 @@ namespace PreferenceGroups
         /// <see cref="Build()"/>. This is the default behavior.
         /// </summary>
         /// <returns></returns>
-        public Int32PreferenceBuilder DoNotSortAllowedValues()
+        public EnumPreferenceBuilder<TEnum> DoNotSortAllowedValues()
         {
             _sortAllowedValues = false;
 
@@ -88,7 +90,7 @@ namespace PreferenceGroups
         /// upon <see cref="Build()"/>.
         /// </summary>
         /// <returns></returns>
-        public Int32PreferenceBuilder SortAllowedValues()
+        public EnumPreferenceBuilder<TEnum> SortAllowedValues()
         {
             _sortAllowedValues = true;
 
@@ -105,38 +107,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValues(
-            IEnumerable<int?> allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValues(
+            IEnumerable<TEnum> allowedValues)
         {
             if (allowedValues is null)
             {
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            _allowedValues = new List<int?>(allowedValues);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
-        /// provided <paramref name="allowedValues"/> upon
-        /// <see cref="Build()"/>.
-        /// </summary>
-        /// <param name="allowedValues"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="allowedValues"/> is
-        /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValues(
-            IEnumerable<int> allowedValues)
-        {
-            if (allowedValues is null)
-            {
-                throw new ArgumentNullException(nameof(allowedValues));
-            }
-
-            var values = new List<int?>();
+            var values = new List<TEnum?>();
 
             foreach (var allowedValue in allowedValues)
             {
@@ -158,15 +137,17 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValues(
-            params int?[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValues(
+            IEnumerable<TEnum?> allowedValues)
         {
             if (allowedValues is null)
             {
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            return WithAllowedValues((IEnumerable<int?>)allowedValues);
+            _allowedValues = new List<TEnum?>(allowedValues);
+
+            return this;
         }
 
         /// <summary>
@@ -179,15 +160,36 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValues(
-            params int[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValues(
+            params TEnum?[] allowedValues)
         {
             if (allowedValues is null)
             {
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            return WithAllowedValues((IEnumerable<int>)allowedValues);
+            return WithAllowedValues((IEnumerable<TEnum?>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public EnumPreferenceBuilder<TEnum> WithAllowedValues(
+            params TEnum[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues((IEnumerable<TEnum>)allowedValues);
         }
 
         /// <summary>
@@ -201,8 +203,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
-            IEnumerable<int?> allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndDoNotSort(
+            IEnumerable<TEnum?> allowedValues)
         {
             if (allowedValues is null)
             {
@@ -223,8 +225,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
-            IEnumerable<int> allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndDoNotSort(
+            IEnumerable<TEnum> allowedValues)
         {
             if (allowedValues is null)
             {
@@ -245,8 +247,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
-            params int?[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndDoNotSort(
+            params TEnum?[] allowedValues)
         {
             if (allowedValues is null)
             {
@@ -254,7 +256,7 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValuesAndDoNotSort(
-                (IEnumerable<int?>)allowedValues);
+                (IEnumerable<TEnum?>)allowedValues);
         }
 
         /// <summary>
@@ -268,8 +270,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndDoNotSort(
-            params int[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndDoNotSort(
+            params TEnum[] allowedValues)
         {
             if (allowedValues is null)
             {
@@ -277,7 +279,7 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValuesAndDoNotSort(
-                (IEnumerable<int>)allowedValues);
+                (IEnumerable<TEnum>)allowedValues);
         }
 
         /// <summary>
@@ -290,8 +292,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndSort(
-            IEnumerable<int?> allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndSort(
+            IEnumerable<TEnum> allowedValues)
         {
             if (allowedValues is null)
             {
@@ -311,8 +313,8 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndSort(
-            IEnumerable<int> allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndSort(
+            IEnumerable<TEnum?> allowedValues)
         {
             if (allowedValues is null)
             {
@@ -332,15 +334,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndSort(
-            params int?[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndSort(
+            params TEnum?[] allowedValues)
         {
             if (allowedValues is null)
             {
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            return WithAllowedValuesAndSort((IEnumerable<int?>)allowedValues);
+            return WithAllowedValuesAndSort((IEnumerable<TEnum?>)allowedValues);
         }
 
         /// <summary>
@@ -353,15 +355,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException">
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithAllowedValuesAndSort(
-            params int[] allowedValues)
+        public EnumPreferenceBuilder<TEnum> WithAllowedValuesAndSort(
+            params TEnum[] allowedValues)
         {
             if (allowedValues is null)
             {
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            return WithAllowedValuesAndSort((IEnumerable<int>)allowedValues);
+            return WithAllowedValuesAndSort((IEnumerable<TEnum>)allowedValues);
         }
 
         /// <summary>
@@ -370,7 +372,7 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public Int32PreferenceBuilder WithDefaultValue(int? defaultValue)
+        public EnumPreferenceBuilder<TEnum> WithDefaultValue(TEnum? defaultValue)
         {
             _defaultValue = defaultValue;
 
@@ -387,7 +389,7 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="description"></param>
         /// <returns></returns>
-        public Int32PreferenceBuilder WithDescription(string description)
+        public EnumPreferenceBuilder<TEnum> WithDescription(string description)
         {
             _description = description?.Trim();
 
@@ -396,12 +398,15 @@ namespace PreferenceGroups
 
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> to
-        /// <see langword="null"/> upon <see cref="Build()"/>.
+        /// <see langword="null"/> and forces
+        /// <see cref="Preference.AllowUndefinedValues"/> to
+        /// <see langword="true"/> upon <see cref="Build()"/>.
         /// </summary>
         /// <returns></returns>
-        public Int32PreferenceBuilder WithNoAllowedValues()
+        public EnumPreferenceBuilder<TEnum> WithNoAllowedValues()
         {
             _allowedValues = null;
+            _allowUndefinedValues = true;
 
             return this;
         }
@@ -414,8 +419,8 @@ namespace PreferenceGroups
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithValidityProcessor(
-            Int32ValueValidityProcessor processor)
+        public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
+            EnumValueValidityProcessor<TEnum> processor)
         {
             if (processor is null)
             {
@@ -423,7 +428,7 @@ namespace PreferenceGroups
             }
 
             return WithValidityProcessor(
-                (StructValueValidityProcessor<int>)processor);
+                (StructValueValidityProcessor<TEnum>)processor);
         }
 
         /// <summary>
@@ -434,8 +439,8 @@ namespace PreferenceGroups
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
-        public Int32PreferenceBuilder WithValidityProcessor(
-            StructValueValidityProcessor<int> processor)
+        public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
+            StructValueValidityProcessor<TEnum> processor)
         {
             if (processor is null)
             {
@@ -453,7 +458,7 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Int32PreferenceBuilder WithValue(int? value)
+        public EnumPreferenceBuilder<TEnum> WithValue(TEnum? value)
         {
             _value = value;
 
@@ -467,13 +472,13 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="valueAndAsDefault"></param>
         /// <returns></returns>
-        public Int32PreferenceBuilder WithValueAndAsDefault(
-            int? valueAndAsDefault)
+        public EnumPreferenceBuilder<TEnum> WithValueAndAsDefault(
+            TEnum? valueAndAsDefault)
             => WithValue(valueAndAsDefault)
                 .WithDefaultValue(valueAndAsDefault);
 
         /// <summary>
-        /// Builds a <see cref="Int32Preference"/> with
+        /// Builds a <see cref="EnumPreference{TEnum}"/> with
         /// <paramref name="name"/> (after it is processed with
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
         /// string)"/>).
@@ -485,13 +490,13 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static Int32Preference Build(string name)
+        public static EnumPreference<TEnum> Build(string name)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name,
                     nameof(name)))
                 .Build();
 
         /// <summary>
-        /// Builds a <see cref="Int32Preference"/> with
+        /// Builds a <see cref="EnumPreference{TEnum}"/> with
         /// <paramref name="name"/> (after it is processed with
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
         /// string)"/>) and with <paramref name="value"/>.
@@ -504,14 +509,14 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static Int32Preference Build(string name, int? value)
+        public static EnumPreference<TEnum> Build(string name, TEnum? value)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name,
                     nameof(name)))
                 .WithValue(value)
                 .Build();
 
         /// <summary>
-        /// Creates a <see cref="Int32PreferenceBuilder"/> with
+        /// Creates a <see cref="EnumPreferenceBuilder{TEnum}"/> with
         /// <paramref name="name"/> (after it is processed with
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
         /// string)"/>).
@@ -523,8 +528,8 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static Int32PreferenceBuilder Create(string name)
-            => new Int32PreferenceBuilder()
+        public static EnumPreferenceBuilder<TEnum> Create(string name)
+            => new EnumPreferenceBuilder<TEnum>()
             {
                 _name = Preference.ProcessNameOrThrowIfInvalid(name,
                     nameof(name)),

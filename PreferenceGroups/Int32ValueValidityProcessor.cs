@@ -3,7 +3,7 @@
 namespace PreferenceGroups
 {
     /// <summary>
-    /// Provides <see langword="static"/> methods for common
+    /// Provides <see langword="static"/> properties and methods for common
     /// <see cref="StructValueValidityProcessor{T}.Pre"/> and
     /// <see cref="StructValueValidityProcessor{T}.Post"/> processing steps, and
     /// <see cref="StructValueValidityProcessor{T}.IsValid"/> validity checks.

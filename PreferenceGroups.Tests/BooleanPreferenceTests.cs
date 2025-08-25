@@ -319,8 +319,8 @@ public sealed class BooleanPreferenceTests
         Assert.IsTrue(preference.AllowUndefinedValues);
 
         // Test if there are AllowedValues and AllowUndefinedValues is true.
-        bool?[] allowedValues = [true];
-        bool?[] sortedAllowedValues = [true];
+        bool[] allowedValues = [true];
+        bool[] sortedAllowedValues = [true];
         preference = BooleanPreferenceBuilder
             .Create(name)
             .WithValue(false)
@@ -367,7 +367,7 @@ public sealed class BooleanPreferenceTests
             .WithValue(true)
             .WithDescription(null)
             .WithDefaultValue(null)
-            .WithAllowedValues((IEnumerable<bool?>)allowedValues)
+            .WithAllowedValues((IEnumerable<bool>)allowedValues)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -407,7 +407,7 @@ public sealed class BooleanPreferenceTests
             .WithValue(false)
             .WithDescription(null)
             .WithDefaultValue(null)
-            .WithAllowedValuesAndSort((IEnumerable<bool?>)allowedValues)
+            .WithAllowedValuesAndSort((IEnumerable<bool>)allowedValues)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -469,8 +469,7 @@ public sealed class BooleanPreferenceTests
             .WithValue(false)
             .WithDescription(null)
             .WithDefaultValue(null)
-            .WithAllowedValuesAndDoNotSort(
-                (IEnumerable<bool?>)allowedValues)
+            .WithAllowedValuesAndDoNotSort((IEnumerable<bool>)allowedValues)
             .AllowUndefinedValues()
             .Build();
 

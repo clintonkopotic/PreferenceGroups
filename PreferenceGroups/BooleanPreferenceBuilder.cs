@@ -130,6 +130,36 @@ namespace PreferenceGroups
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
         public BooleanPreferenceBuilder WithAllowedValues(
+            IEnumerable<bool> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            var values = new List<bool?>();
+
+            foreach (var allowedValue in allowedValues)
+            {
+                values.Add(allowedValue);
+            }
+
+            _allowedValues = values;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValues(
             params bool?[] allowedValues)
         {
             if (allowedValues is null)
@@ -138,6 +168,27 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValues((IEnumerable<bool?>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValues(
+            params bool[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues((IEnumerable<bool>)allowedValues);
         }
 
         /// <summary>
@@ -174,6 +225,28 @@ namespace PreferenceGroups
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
         public BooleanPreferenceBuilder WithAllowedValuesAndDoNotSort(
+            IEnumerable<bool> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).DoNotSortAllowedValues();
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> and they will not be
+        /// sorted (by using <see cref="HashSet{T}"/>) upon
+        /// <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValuesAndDoNotSort(
             params bool?[] allowedValues)
         {
             if (allowedValues is null)
@@ -183,6 +256,29 @@ namespace PreferenceGroups
 
             return WithAllowedValuesAndDoNotSort(
                 (IEnumerable<bool?>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> and they will not be
+        /// sorted (by using <see cref="HashSet{T}"/>) upon
+        /// <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValuesAndDoNotSort(
+            params bool[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndDoNotSort(
+                (IEnumerable<bool>)allowedValues);
         }
 
         /// <summary>
@@ -217,6 +313,27 @@ namespace PreferenceGroups
         /// <paramref name="allowedValues"/> is
         /// <see langword="null"/>.</exception>
         public BooleanPreferenceBuilder WithAllowedValuesAndSort(
+            IEnumerable<bool> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValues(allowedValues).SortAllowedValues();
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> and they will be sorted
+        /// (by using <see cref="SortedSet{T}"/>) upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValuesAndSort(
             params bool?[] allowedValues)
         {
             if (allowedValues is null)
@@ -225,6 +342,27 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValuesAndSort((IEnumerable<bool?>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> and they will be sorted
+        /// (by using <see cref="SortedSet{T}"/>) upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="allowedValues"/> is
+        /// <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder WithAllowedValuesAndSort(
+            params bool[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                throw new ArgumentNullException(nameof(allowedValues));
+            }
+
+            return WithAllowedValuesAndSort((IEnumerable<bool>)allowedValues);
         }
 
         /// <summary>

@@ -19,6 +19,11 @@ namespace PreferenceGroups
     public abstract class Preference
     {
         /// <summary>
+        /// The default value for <see cref="AllowUndefinedValues"/>.
+        /// </summary>
+        public const bool DefaultAllowUndefinedValues = true;
+
+        /// <summary>
         /// The name of the <see cref="Preference"/> and must be unique amoung
         /// other Preferences in a group. It must not be <see langword="null"/>,
         /// not empty, and not consist only of white-space characters, or in
@@ -56,7 +61,8 @@ namespace PreferenceGroups
         /// <see cref="AllowUndefinedValues"/> must be set to
         /// <see langword="true"/>.
         /// </summary>
-        public virtual bool AllowUndefinedValues { get; } = true;
+        public virtual bool AllowUndefinedValues { get; }
+            = DefaultAllowUndefinedValues;
 
         /// <summary>
         /// Is <c>DefaultValue</c> <see langword="null"/>.
@@ -366,6 +372,16 @@ namespace PreferenceGroups
         /// </summary>
         /// <returns></returns>
         public abstract Type GetValueType();
+
+        /// <summary>
+        /// Determines whether or not <paramref name="value"/> is a valid value.
+        /// This takes into account the <c>AllowedValues</c>,
+        /// <see cref="AllowUndefinedValues"/>, and the
+        /// <c>ValidityProcessor</c>.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public abstract bool IsValueValid(object value);
 
         /// <summary>
         /// Sets <c>DefaultValue</c> from <paramref name="defaultValue"/>.

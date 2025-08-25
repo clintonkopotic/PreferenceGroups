@@ -319,8 +319,8 @@ public sealed class Int32PreferenceTests
         Assert.IsTrue(preference.AllowUndefinedValues);
 
         // Test if there are AllowedValues and AllowUndefinedValues is true.
-        int?[] allowedValues = [3, 2, 1];
-        int?[] sortedAllowedValues = [1, 2, 3];
+        int[] allowedValues = [3, 2, 1];
+        int[] sortedAllowedValues = [1, 2, 3];
         preference = Int32PreferenceBuilder
             .Create(name)
             .WithValue(0)
@@ -367,7 +367,7 @@ public sealed class Int32PreferenceTests
             .WithValue(2)
             .WithDescription(null)
             .WithDefaultValue(null)
-            .WithAllowedValues((IEnumerable<int?>)allowedValues)
+            .WithAllowedValues((IEnumerable<int>)allowedValues)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -407,7 +407,7 @@ public sealed class Int32PreferenceTests
             .WithValue(0)
             .WithDescription(null)
             .WithDefaultValue(null)
-            .WithAllowedValuesAndSort((IEnumerable<int?>)allowedValues)
+            .WithAllowedValuesAndSort((IEnumerable<int>)allowedValues)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -470,7 +470,7 @@ public sealed class Int32PreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .WithAllowedValuesAndDoNotSort(
-                (IEnumerable<int?>)allowedValues)
+                (IEnumerable<int>)allowedValues)
             .AllowUndefinedValues()
             .Build();
 

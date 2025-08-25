@@ -360,6 +360,54 @@ namespace PreferenceGroups
         public override Type GetValueType() => typeof(T);
 
         /// <summary>
+        /// Determines whether or not <paramref name="value"/> is a valid value.
+        /// This takes into account the <see cref="AllowedValues"/>,
+        /// <see cref="Preference.AllowUndefinedValues"/>, and the
+        /// <see cref="ValidityProcessor"/>.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public override bool IsValueValid(object value)
+        {
+            try
+            {
+                return IsValueValid(ConvertObjectToValue(value));
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines whether or not <paramref name="value"/> is a valid value.
+        /// This takes into account the <see cref="AllowedValues"/>,
+        /// <see cref="Preference.AllowUndefinedValues"/>, and the
+        /// <see cref="ValidityProcessor"/>.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public virtual bool IsValueValid(T value)
+        {
+            if (value is null)
+            {
+                return true;
+            }
+
+            try
+            {
+                _ = ValidityProcessForSetValue(Name, value, ValidityProcessor,
+                    AllowUndefinedValues, AllowedValues);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Sets <see cref="DefaultValue"/> from
         /// <paramref name="defaultValue"/>.
         /// </summary>

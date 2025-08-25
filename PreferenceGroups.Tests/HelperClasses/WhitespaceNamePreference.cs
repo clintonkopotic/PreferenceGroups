@@ -29,6 +29,9 @@ namespace PreferenceGroups.Tests.HelperClasses
         public override Type GetValueType()
             => typeof(object);
 
+        public override bool IsValueValid(object value)
+            => false;
+
         public override void SetDefaultValueFromObject(object? defaultValue)
         { }
 
