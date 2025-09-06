@@ -28,6 +28,12 @@ namespace PreferenceGroups
         ProcessingName,
 
         /// <summary>
+        /// While ensuring that the <see cref="Type"/> of the value is valid for
+        /// the <see cref="Preference"/>.
+        /// </summary>
+        ProcessingType,
+
+        /// <summary>
         /// While retrieving a <see cref="Preference"/> an
         /// <see cref="Exception"/> was generated.
         /// </summary>

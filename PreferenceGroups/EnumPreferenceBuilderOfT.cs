@@ -4,10 +4,10 @@ using System.Collections.Generic;
 namespace PreferenceGroups
 {
     /// <summary>
-    /// Uses the fluent builder pattern to build an int32
-    /// <see cref="EnumPreference{TEnum}"/>.
+    /// Uses the fluent builder pattern to build an
+    /// <see cref="EnumPreference"/> with the <typeparamref name="TEnum"/> which
+    /// must be a specific <see cref="Enum"/>.
     /// </summary>
-    /// <typeparam name="TEnum">An <see cref="Enum"/>.</typeparam>
     public class EnumPreferenceBuilder<TEnum> where TEnum : struct, Enum
     {
         private string _description;
@@ -18,14 +18,14 @@ namespace PreferenceGroups
 
         private TEnum? _defaultValue = null;
 
-        private List<TEnum?> _allowedValues = null;
+        private List<Enum> _allowedValues = null;
 
         private bool _allowUndefinedValues = false;
 
         private bool _sortAllowedValues = false;
 
-        private StructValueValidityProcessor<TEnum> _validityProcessor
-            = new StructValueValidityProcessor<TEnum>();
+        private ClassValueValidityProcessor<Enum> _validityProcessor
+            = new ClassValueValidityProcessor<Enum>();
 
         private EnumPreferenceBuilder() { }
 
@@ -60,13 +60,13 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Builds the <see cref="EnumPreference{TEnum}"/>.
+        /// Builds the <see cref="EnumPreference"/>.
         /// </summary>
         /// <returns></returns>
-        public EnumPreference<TEnum> Build() =>
-            new EnumPreference<TEnum>(_name, _description,
-                _allowUndefinedValues, _allowedValues, _sortAllowedValues,
-                _validityProcessor)
+        public EnumPreference Build() =>
+            new EnumPreference(_name, new EnumTypeInfo(typeof(TEnum)),
+                _description, _allowUndefinedValues, _allowedValues,
+                _sortAllowedValues, _validityProcessor)
             {
                 Value = _value,
                 DefaultValue = _defaultValue,
@@ -115,7 +115,7 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            var values = new List<TEnum?>();
+            var values = new List<Enum>();
 
             foreach (var allowedValue in allowedValues)
             {
@@ -145,7 +145,17 @@ namespace PreferenceGroups
                 throw new ArgumentNullException(nameof(allowedValues));
             }
 
-            _allowedValues = new List<TEnum?>(allowedValues);
+            var values = new List<Enum>();
+
+            foreach (var allowedValue in allowedValues)
+            {
+                if (!(allowedValue is null))
+                {
+                    values.Add(allowedValue);
+                }
+            }
+
+            _allowedValues = values;
 
             return this;
         }
@@ -420,7 +430,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
-            EnumValueValidityProcessor<TEnum> processor)
+            EnumValueValidityProcessor processor)
         {
             if (processor is null)
             {
@@ -428,7 +438,7 @@ namespace PreferenceGroups
             }
 
             return WithValidityProcessor(
-                (StructValueValidityProcessor<TEnum>)processor);
+                (ClassValueValidityProcessor<Enum>)processor);
         }
 
         /// <summary>
@@ -440,7 +450,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
-            StructValueValidityProcessor<TEnum> processor)
+            ClassValueValidityProcessor<Enum> processor)
         {
             if (processor is null)
             {
@@ -478,7 +488,7 @@ namespace PreferenceGroups
                 .WithDefaultValue(valueAndAsDefault);
 
         /// <summary>
-        /// Builds a <see cref="EnumPreference{TEnum}"/> with
+        /// Builds a <see cref="EnumPreference"/> with
         /// <paramref name="name"/> (after it is processed with
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
         /// string)"/>).
@@ -490,13 +500,13 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static EnumPreference<TEnum> Build(string name)
+        public static EnumPreference Build(string name)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name,
                     nameof(name)))
                 .Build();
 
         /// <summary>
-        /// Builds a <see cref="EnumPreference{TEnum}"/> with
+        /// Builds a <see cref="EnumPreference"/> with
         /// <paramref name="name"/> (after it is processed with
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string,
         /// string)"/>) and with <paramref name="value"/>.
@@ -509,7 +519,7 @@ namespace PreferenceGroups
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public static EnumPreference<TEnum> Build(string name, TEnum? value)
+        public static EnumPreference Build(string name, TEnum? value)
             => Create(Preference.ProcessNameOrThrowIfInvalid(name,
                     nameof(name)))
                 .WithValue(value)

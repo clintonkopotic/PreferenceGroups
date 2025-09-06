@@ -6,7 +6,7 @@
 		<Authors>Clinton Kopotic</Authors>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>PreferenceGroups</Title>
-		<Version>0.0.9-alpha</Version>
+		<Version>0.0.10-alpha</Version>
 		<Description>.NET Package Library for working with preferences for the user.</Description>
 		<Copyright>Copyright (c) Clinton Kopotic</Copyright>
 		<PackageProjectUrl>https://github.com/clintonkopotic/PreferenceGroups</PackageProjectUrl>
@@ -31,8 +31,8 @@
 
 	<ItemGroup>
 		<None Include="..\Icon.png">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="..\LICENSE">
 			<Pack>True</Pack>

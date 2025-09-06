@@ -41,6 +41,8 @@ public sealed class PreferenceStoreTests
         var stringPreferenceDescription = "Test string.";
         var stringPreferenceName = "String";
         string? stringPreferenceValue = "String";
+        var enumPreferenceName = "Enum";
+        MultiDay? enumPreferenceValue = MultiDay.Weekend;
 
         store = PreferenceStoreBuilder.Create()
             .WithDescription(storeDescription)
@@ -55,12 +57,15 @@ public sealed class PreferenceStoreTests
                     .WithDescription(stringPreferenceDescription))
                 .AddInt32(int32PreferenceName, int32PreferenceValue)
                 .AddString(stringPreferenceName, stringPreferenceValue))
+            .AddEnum<MultiDay>(enumPreferenceName, b => b
+                .WithValue(enumPreferenceValue)
+                .Build())
             .Build();
 
         Assert.IsNotNull(store);
         Assert.AreEqual(storeDescription, store.Description);
-        Assert.AreEqual(2, store.Count);
-        Assert.AreEqual(2, store.Names.Count);
+        Assert.AreEqual(3, store.Count);
+        Assert.AreEqual(3, store.Names.Count);
         Assert.IsFalse(
             ((ICollection<KeyValuePair<string, PreferenceStoreItem>>)store)
             .IsReadOnly);
@@ -68,9 +73,15 @@ public sealed class PreferenceStoreTests
             expected: new string[]
             {
                 emptyStringPreferenceName,
-                groupName
+                groupName,
+                enumPreferenceName,
             },
             actual: store.Names.ToArray());
+
+        Assert.IsNull(store.GetItemAsPreference(emptyStringPreferenceName)
+            .GetValueAs<string?>());
+        Assert.AreEqual(expected: enumPreferenceValue,
+            actual: store.GetValueAs<MultiDay?>(enumPreferenceName));
 
         var group = store.GetItemAsPreferenceGroup(groupName);
 

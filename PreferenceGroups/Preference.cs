@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 
 namespace PreferenceGroups
@@ -24,6 +23,12 @@ namespace PreferenceGroups
         public const bool DefaultAllowUndefinedValues = true;
 
         /// <summary>
+        /// The default behavior for whether the <c>AllowedValues</c> are
+        /// sorted.
+        /// </summary>
+        public const bool DefaultSortAllowedValues = true;
+
+        /// <summary>
         /// The name of the <see cref="Preference"/> and must be unique amoung
         /// other Preferences in a group. It must not be <see langword="null"/>,
         /// not empty, and not consist only of white-space characters, or in
@@ -42,8 +47,7 @@ namespace PreferenceGroups
 
         /// <summary>
         /// The <c>Value</c> is an <see cref="Enum"/> and the
-        /// <see cref="FlagsAttribute"/> is defined (using the
-        /// <see cref="MemberInfo.IsDefined(Type, bool)"/> method).
+        /// <see cref="FlagsAttribute"/> is applied to it.
         /// </summary>
         public virtual bool HasEnumFlags => false;
 
@@ -83,11 +87,11 @@ namespace PreferenceGroups
         /// <param name="name">The name of the <see cref="Preference"/> and
         /// must be not <see langword="null"/>, not empty and not consist only
         /// of white-space characters.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
-        /// <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
         protected Preference(string name)
         {
             Name = ProcessNameOrThrowIfInvalid(name);

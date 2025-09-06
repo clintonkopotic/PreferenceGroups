@@ -432,8 +432,15 @@ namespace PreferenceGroups
                 return;
             }
 
-            var valueType = preference.GetValueType();
+            if (preference.IsEnum)
+            {
+                preference.SetValueFromObject(jValue.Value);
 
+                return;
+            }
+
+            var valueType = preference.GetValueType();
+            
             if (valueType == typeof(bool?))
             {
                 var booleanPreference = (BooleanPreference)preference;

@@ -8,6 +8,7 @@ namespace PreferenceGroups
     /// An <typeparamref name="TEnum"/> <see cref="Preference"/>.
     /// </summary>
     /// <typeparam name="TEnum">An <see cref="Enum"/>.</typeparam>
+    [Obsolete(message: "Use EnumPreference instead.")]
     public class EnumPreference<TEnum> : StructPreference<TEnum>
         where TEnum : struct, Enum
     {
@@ -15,6 +16,12 @@ namespace PreferenceGroups
         /// The default value for <see cref="Preference.AllowUndefinedValues"/>.
         /// </summary>
         public new const bool DefaultAllowUndefinedValues = false;
+
+        /// <summary>
+        /// The default behavior for whether the
+        /// <see cref="StructPreference{T}.AllowedValues"/> are sorted.
+        /// </summary>
+        public new const bool DefaultSortAllowedValues = true;
 
         private TEnum? _defaultValue = default;
 
@@ -142,7 +149,7 @@ namespace PreferenceGroups
             bool allowUndefinedValues, IEnumerable<TEnum?> allowedValues,
             StructValueValidityProcessor<TEnum> validityProcessor)
             : this(name, description, allowUndefinedValues, allowedValues,
-                  true, validityProcessor)
+                  DefaultSortAllowedValues, validityProcessor)
         { }
 
         /// <summary>
@@ -390,7 +397,8 @@ namespace PreferenceGroups
                     // If it isn't a member, but it is using flags
                     if (!isAllowedValue && EnumHelpers.HasFlags<TEnum>())
                     {
-                        isAllowedValue = valueOut.IsDefinedAndNotZero();
+                        isAllowedValue = EnumHelpers.IsDefinedAndNotZero(
+                            valueOut);
                     }
 
                     if (!isAllowedValue && !allowUndefinedValues)

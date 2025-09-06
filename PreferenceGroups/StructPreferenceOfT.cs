@@ -363,7 +363,8 @@ namespace PreferenceGroups
                 : Value?.ToString();
 
         /// <summary>
-        /// Returns the <see cref="Type"/> of <typeparamref name="T"/>.
+        /// Returns the <see cref="Type"/> of <see cref="Nullable{T}"/> of
+        /// <typeparamref name="T"/>.
         /// </summary>
         /// <returns></returns>
         public override Type GetValueType() => typeof(T?);

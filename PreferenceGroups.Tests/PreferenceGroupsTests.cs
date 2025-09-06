@@ -39,6 +39,8 @@ public sealed class PreferenceGroupsTests
         var stringPreferenceDescription = "Test string.";
         var stringPreferenceName = "String";
         string? stringPreferenceValue = "String";
+        var enumPreferenceName = "Enum";
+        MultiDay? enumPreferenceValue = MultiDay.Week;
 
         group = PreferenceGroupBuilder.Create()
             .WithDescription(groupDescription)
@@ -52,12 +54,15 @@ public sealed class PreferenceGroupsTests
                 .WithDescription(stringPreferenceDescription))
             .AddInt32(int32PreferenceName, int32PreferenceValue)
             .AddString(stringPreferenceName, stringPreferenceValue)
+            .AddEnum<MultiDay>(enumPreferenceName, b => b
+                .WithValue(enumPreferenceValue)
+                .Build())
             .Build();
 
         Assert.IsNotNull(group);
         Assert.AreEqual(groupDescription, group.Description);
-        Assert.AreEqual(6, group.Count);
-        Assert.AreEqual(6, group.Names.Count);
+        Assert.AreEqual(7, group.Count);
+        Assert.AreEqual(7, group.Names.Count);
         Assert.IsFalse(((ICollection<Preference>)group).IsReadOnly);
         CollectionAssert.AreEqual(
             expected: new string[]
@@ -67,7 +72,8 @@ public sealed class PreferenceGroupsTests
                 emptyInt32PreferenceName,
                 stringPreferenceWithDescriptionName,
                 int32PreferenceName,
-                stringPreferenceName
+                stringPreferenceName,
+                enumPreferenceName,
             },
             actual: group.Names.ToArray());
 
@@ -84,6 +90,8 @@ public sealed class PreferenceGroupsTests
                 stringPreferenceWithDescriptionName));
         Assert.AreEqual(expected: stringPreferenceValue,
             actual: group.GetValueAs<string?>(stringPreferenceName));
+        Assert.AreEqual(expected: enumPreferenceValue,
+            actual: group.GetValueAs<MultiDay?>(enumPreferenceName));
 
         group.SetValuesToNull();
 
@@ -245,6 +253,8 @@ public sealed class PreferenceGroupsTests
         Assert.AreEqual(PreferenceGroupWithAttributes.StringDescription,
             actual: preferenceGroup[PreferenceGroupWithAttributes.StringName]
                 .Description);
+        Assert.AreEqual(MultiDay.None, preferenceGroup.GetValueAs<MultiDay>(
+            PreferenceGroupWithAttributes.EnumName));
 
         int32Value = 6;
         stringValue = "Testing…1…2…3";

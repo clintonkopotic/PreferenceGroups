@@ -17,6 +17,10 @@ internal class PreferenceGroupWithAttributes
 
     public const string StringDescription = "A string.";
 
+    public const string EnumName = "MultiDayEnum";
+
+    public const string NullableEnumName = "SingleDayEnum";
+
     [Preference(Description = Int32Description,
         DefaultValue = Int32DefaultValue)]
     public int? Int32 { get; set; } = null;
@@ -27,4 +31,10 @@ internal class PreferenceGroupWithAttributes
 
     [Preference]
     public bool Boolean { get; set; } = BooleanDefaultValue;
+
+    [Preference(EnumName)]
+    public MultiDay MultiDay { get; set; } = MultiDay.None;
+
+    [Preference(NullableEnumName)]
+    public SingleDay? SingleDay { get; set; } = HelperClasses.SingleDay.None;
 }

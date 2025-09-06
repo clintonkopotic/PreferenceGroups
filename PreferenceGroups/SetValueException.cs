@@ -30,9 +30,31 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="result"></param>
         public SetValueException(SetValueResult result)
-            : base(result.Exception?.Message, result.Exception)
+            : base(FormatMessage(result), result.Exception)
         {
             Result = result;
+        }
+
+        /// <summary>
+        /// Formats the <see cref="Exception.Message"/> from the
+        /// <paramref name="result"/>.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static string FormatMessage(SetValueResult result)
+        {
+            string innerMessage = result.Exception?.Message;
+
+            if (string.IsNullOrWhiteSpace(innerMessage))
+            {
+                innerMessage = string.Empty;
+            }
+            else
+            {
+                innerMessage = ": " + innerMessage.Trim();
+            }
+            
+            return $"Failure at step {result.StepFailure}{innerMessage}";
         }
     }
 }

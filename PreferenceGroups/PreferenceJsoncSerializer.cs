@@ -77,15 +77,23 @@ namespace PreferenceGroups
 
         /// <summary>
         /// A wrapper method for the <see cref="JsonConvert.ToString(object)"/>
-        /// method.
+        /// method. If <paramref name="object"/> is an <see cref="Enum"/>, then
+        /// the result of <see cref="Enum.ToString()"/> used with the
+        /// <see cref="JsonConvert.ToString(object)"/> method.
         /// </summary>
-        /// <param name="object"></param>
-        /// <returns></returns>
+        /// <param name="object">What to get as a JSON string.</param>
+        /// <returns>A JSON string representation of
+        /// <paramref name="object"/>.</returns>
         public static string GetObjectAsString(object @object)
         {
             if (@object is null)
             {
                 return JsonConvert.Null;
+            }
+
+            if (@object is Enum @enum)
+            {
+                @object = @enum.ToString();
             }
 
             return JsonConvert.ToString(@object);
@@ -154,54 +162,6 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Determines if <see cref="Preference.GetValueType()"/> should be in a
-        /// JSON string or not.
-        /// </summary>
-        /// <param name="preference"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="preference"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">The
-        /// <see cref="Preference.GetValueType()"/> method of
-        /// <paramref name="preference"/> returned
-        /// <see langword="null"/>.</exception>
-        [Obsolete("Use the GetObjectAsString(object) method for JSON "
-            + "encoding.")]
-        public static bool ShouldValueBeInJsonString(Preference preference)
-        {
-            if (preference is null)
-            {
-                throw new ArgumentNullException(nameof(preference));
-            }
-
-            var type = preference.GetValueType()
-                ?? throw new InvalidOperationException("The value type of "
-                    + $"{nameof(preference)} cannot be null.");
-
-            return ShouldValueBeInJsonString(type);
-        }
-
-        /// <summary>
-        /// Determines if <paramref name="type"/> should be in a JSON string or
-        /// not.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="type"/> is <see langword="null"/>.</exception>
-        [Obsolete("Use the GetObjectAsString(object) method for JSON "
-            + "encoding.")]
-        public static bool ShouldValueBeInJsonString(Type type)
-        {
-            if (type is null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            return type == typeof(string);
-        }
-
-        /// <summary>
         /// Writes the <c>AllowedValues</c> of <paramref name="preference"/>
         /// using <paramref name="context"/> by calling the
         /// <see cref="JsoncSerializerHelper.WriteListInComment(
@@ -236,7 +196,8 @@ namespace PreferenceGroups
                     indentedTextWriter: context.Writer,
                     list: allowedValues,
                     prefix: preference.IsEnum && preference.HasEnumFlags
-                        ? "Allowed values are combinations of: "
+                        ? "Allowed values are combinations of (separated by "
+                            + "\',\'): "
                         : "Allowed values: ",
                     postfix: ".");
             }

@@ -98,20 +98,44 @@ namespace PreferenceGroups
         public virtual ClassValueValidityProcessor<T> ValidityProcessor { get; }
 
         /// <summary>
-        /// Initializes <see cref="Preference.Name"/> with
-        /// <paramref name="name"/> after it is processed with the
-        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
-        /// method.
+        /// A wrapper constructor of <see cref="Preference(string)"/>.
         /// </summary>
         /// <param name="name">The name of the <see cref="Preference"/> and
         /// must be not <see langword="null"/>, not empty and not consist only
         /// of white-space characters.</param>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        protected ClassPreference(string name) : base(name)
+        { }
+
+        /// <summary>
+        /// A wrapper constructor of
+        /// <see cref="Preference(string, string, bool)"/>.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Preference"/> and
+        /// must be not <see langword="null"/>, not empty and not consist only
+        /// of white-space characters.</param>
+        /// <param name="description">A description of the
+        /// <see cref="Preference"/> that is intended to be shown to the user
+        /// and in the file as a comment.</param>
+        /// <param name="allowUndefinedValues">Whether or not the
+        /// <see cref="Value"/> and <see cref="DefaultValue"/> properties can be
+        /// set to something other than what is specified in
+        /// <see cref="AllowedValues"/>. If <see cref="AllowedValues"/> is not
+        /// used (it is <see langword="null"/> or empty), then
+        /// <see cref="Preference.AllowUndefinedValues"/> must be set to
+        /// <see langword="true"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        protected ClassPreference(string name) : base(name)
+        protected ClassPreference(string name, string description,
+            bool allowUndefinedValues)
+            : base(name, description, allowUndefinedValues)
         { }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace PreferenceGroups.Tests
         public void SimpleBuildTest(string name, MultiDay? value,
             string? description, MultiDay? defaultValue)
         {
-            EnumPreference<MultiDay> enumPreference
+            EnumPreference enumPreference
                 = EnumPreferenceBuilder<MultiDay>
                     .Create(name)
                     .WithValue(value)
@@ -130,7 +130,7 @@ namespace PreferenceGroups.Tests
         public void SameValueAndDefaultBuildTest(string name, MultiDay? value,
             string? description)
         {
-            EnumPreference<MultiDay> preference = EnumPreferenceBuilder<MultiDay>
+            EnumPreference preference = EnumPreferenceBuilder<MultiDay>
                 .Create(name)
                 .WithValue(value)
                 .WithDescription(description)
@@ -168,7 +168,7 @@ namespace PreferenceGroups.Tests
             // Test if no allowed values is set that the AllowUndefinedValues
             // property is forced to true and AllowedValues defaults to null.
             var name = "name";
-            EnumPreference<MultiDay> preference = EnumPreferenceBuilder<MultiDay>
+            EnumPreference preference = EnumPreferenceBuilder<MultiDay>
                 .Create(name)
                 .WithValue(null)
                 .WithDescription(null)
@@ -400,14 +400,14 @@ namespace PreferenceGroups.Tests
         public void IsValidTests()
         {
             var name = "name";
-            EnumPreference<MultiDay> preference = EnumPreferenceBuilder<MultiDay>
+            EnumPreference preference = EnumPreferenceBuilder<MultiDay>
                 .Create(name)
                 .WithValue(MultiDay.Week)
                 .WithDescription(null)
                 .WithDefaultValue(null)
                 .WithNoAllowedValues()
                 .WithValidityProcessor(
-                    EnumValueValidityProcessor<MultiDay>.IsDefinedAndNotZero)
+                    EnumValueValidityProcessor.IsDefinedAndNotZero)
                 .Build();
 
             Assert.IsTrue(preference.IsEnum);
@@ -429,11 +429,12 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        new StructValueValidityProcessor<MultiDay>()
+                        new ClassValueValidityProcessor<Enum>()
                         {
-                            IsValid = dayValue => dayValue != MultiDay.Sunday
-                                ? StructValueValidityResult<MultiDay>.IsValid()
-                                : StructValueValidityResult<MultiDay>.NotValid(
+                            IsValid = dayValue =>
+                                !dayValue.Equals(MultiDay.Sunday)
+                                ? ClassValueValidityResult<Enum>.IsValid()
+                                : ClassValueValidityResult<Enum>.NotValid(
                                     new ArgumentException(
                                         paramName: nameof(dayValue),
                                         message: "Cannot be Sunday"))
@@ -455,8 +456,7 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        EnumValueValidityProcessor<MultiDay>
-                        .IsDefinedAndNotZero)
+                        EnumValueValidityProcessor.IsDefinedAndNotZero)
                     .Build();
             });
 
@@ -474,7 +474,7 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        EnumValueValidityProcessor<MultiDay>.IsDefinedAndNotZero)
+                        EnumValueValidityProcessor.IsDefinedAndNotZero)
                     .Build();
             });
 

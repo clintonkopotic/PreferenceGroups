@@ -162,7 +162,7 @@ namespace PreferenceGroups
         {
             var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
                 nameof(name));
-            
+
             if (groups is null)
             {
                 throw new ArgumentNullException(nameof(groups));
@@ -320,6 +320,77 @@ namespace PreferenceGroups
                 nameof(name));
 
             return AddBoolean(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="EnumPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="EnumPreferenceBuilder{TEnum}"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="EnumPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddEnum<TEnum>(string name,
+            Action<EnumPreferenceBuilder<TEnum>> action)
+            where TEnum : struct, Enum
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = EnumPreferenceBuilder<TEnum>.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="EnumPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddEnum<TEnum>(string name, TEnum? value)
+            where TEnum : struct, Enum
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddEnum<TEnum>(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="EnumPreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddEnum<TEnum>(string name)
+            where TEnum : struct, Enum
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddEnum<TEnum>(processedName, action: null);
         }
 
         /// <summary>

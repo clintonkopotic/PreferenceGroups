@@ -609,6 +609,67 @@ namespace PreferenceGroups
             => this[name].GetAsPreferenceStore();
 
         /// <summary>
+        /// Gets the <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="Preference.GetValueAsObject()"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>The <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="InvalidCastException">The store item could not be
+        /// cast to a <see cref="Preference"/>.</exception>
+        /// <exception cref="InvalidOperationException">The
+        /// <see cref="PreferenceStoreItem.Kind"/> of the item does not equal
+        /// <see cref="PreferenceStoreItemKind.Preference"/>.
+        /// </exception>
+        /// <exception cref="KeyNotFoundException">The <paramref name="name"/>
+        /// does not exist in the store.</exception>
+        public object GetValue(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return GetItemAsPreference(processedName).GetValueAsObject();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Preference"/>'s <c>Value</c>, as a
+        /// <typeparamref name="T"/>, where its <see cref="Preference.Name"/> is
+        /// <paramref name="name"/> using the
+        /// <see cref="Preference.GetValueAs{T}"/> method.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>The <see cref="Preference"/>'s <c>Value</c>, as an
+        /// <see cref="object"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        /// <exception cref="InvalidCastException">The store item could not be
+        /// cast to a <see cref="Preference"/> or its value to
+        /// <typeparamref name="T"/>.</exception>
+        /// <exception cref="InvalidOperationException">The
+        /// <see cref="PreferenceStoreItem.Kind"/> of the item does not equal
+        /// <see cref="PreferenceStoreItemKind.Preference"/>.
+        /// </exception>
+        /// <exception cref="KeyNotFoundException">The <paramref name="name"/>
+        /// does not exist in the store.</exception>
+        public T GetValueAs<T>(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return GetItemAsPreference(processedName).GetValueAs<T>();
+        }
+
+        /// <summary>
         /// Removes the item with the specified <paramref name="name"/> from the
         /// store.
         /// </summary>

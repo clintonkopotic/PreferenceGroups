@@ -4,24 +4,21 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Provides <see langword="static"/> properties for common
-    /// <see cref="StructValueValidityProcessor{T}.Pre"/> and
-    /// <see cref="StructValueValidityProcessor{T}.Post"/> processing steps, and
-    /// <see cref="StructValueValidityProcessor{T}.IsValid"/> validity checks.
+    /// <see cref="ClassValueValidityProcessor{T}.Pre"/> and
+    /// <see cref="ClassValueValidityProcessor{T}.Post"/> processing steps, and
+    /// <see cref="ClassValueValidityProcessor{T}.IsValid"/> validity checks.
     /// </summary>
-    [Obsolete(message: "Use EnumValueValidityProcessor instead.")]
-    public class EnumValueValidityProcessor<TEnum>
-        : StructValueValidityProcessor<TEnum>
-        where TEnum : struct, Enum
+    public class EnumValueValidityProcessor : ClassValueValidityProcessor<Enum>
     {
         /// <summary>
         /// Ensures that a <c>value</c>
         /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
         /// defined and not zero.
         /// </summary>
-        public static EnumValueValidityProcessor<TEnum> IsDefinedAndNotZero
-            => new EnumValueValidityProcessor<TEnum>()
+        public static ClassValueValidityProcessor<Enum> IsDefinedAndNotZero
+            => new ClassValueValidityProcessor<Enum>()
             {
-                IsValid = enumValue => new StructValueValidityResult<TEnum>(
+                IsValid = enumValue => new ClassValueValidityResult<Enum>(
                     EnumHelpers.GetExceptionIfNotDefinedOrIsZero(enumValue,
                         nameof(enumValue)))
             };
@@ -31,10 +28,10 @@ namespace PreferenceGroups
         /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
         /// defined.
         /// </summary>
-        public static EnumValueValidityProcessor<TEnum> IsDefined
-            => new EnumValueValidityProcessor<TEnum>()
+        public static ClassValueValidityProcessor<Enum> IsDefined
+            => new ClassValueValidityProcessor<Enum>()
             {
-                IsValid = enumValue => new StructValueValidityResult<TEnum>(
+                IsValid = enumValue => new ClassValueValidityResult<Enum>(
                     EnumHelpers.GetExceptionIfNotDefined(enumValue,
                         nameof(enumValue)))
             };
@@ -43,10 +40,10 @@ namespace PreferenceGroups
         /// Ensures that a <c>value</c>
         /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is zero.
         /// </summary>
-        public static EnumValueValidityProcessor<TEnum> NotZero
-            => new EnumValueValidityProcessor<TEnum>()
+        public static ClassValueValidityProcessor<Enum> NotZero
+            => new ClassValueValidityProcessor<Enum>()
             {
-                IsValid = enumValue => new StructValueValidityResult<TEnum>(
+                IsValid = enumValue => new ClassValueValidityResult<Enum>(
                     EnumHelpers.GetExceptionIfZero(enumValue,
                         nameof(enumValue)))
             };

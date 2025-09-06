@@ -125,22 +125,6 @@ namespace PreferenceGroups
         public string Description { get; }
 
         /// <summary>
-        /// Do not use. Use the <see cref="From(object, bool, bool)"/> instead.
-        /// </summary>
-        /// <remarks>This was removed as having the first parameter as an
-        /// <see cref="object"/> and the second parameter as optional is
-        /// ambiguous with other constructors with a single parameter.</remarks>
-        /// <param name="object"></param>
-        /// <param name="useValuesAsDefault"></param>
-        /// <exception cref="NotSupportedException"></exception>
-        [Obsolete(message: "Use the static From(object, bool) method instead.",
-            error: true)]
-        public PreferenceGroup(object @object, bool useValuesAsDefault = false)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
         /// Initializes a <see cref="PreferenceGroup"/> from
         /// <paramref name="object"/>, which must be a <see langword="class"/>
         /// and the <see langword="public"/> properties that have an attached
@@ -200,6 +184,8 @@ namespace PreferenceGroups
 
             foreach (var property in _associatedObjectType.GetProperties())
             {
+                // TODO: Update to include AllowedValues.
+                // TODO: Update to include ValueValidityProcessor.
                 var propertyName = Preference.ProcessNameOrThrowIfInvalid(
                     property.Name, nameof(property));
                 var preferenceName = propertyName;
@@ -224,7 +210,24 @@ namespace PreferenceGroups
 
                 var propertyType = property.PropertyType;
 
-                if (propertyType == typeof(bool?))
+                if (EnumTypeInfo.IsEnum(propertyType, out var enumTypeInfo,
+                    nameof(propertyType)))
+                {
+                    var valueAsObject = property.GetValue(_associatedObject);
+                    var value = enumTypeInfo.ToEnum(valueAsObject,
+                        nameof(valueAsObject));
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : enumTypeInfo.ToEnum(preferenceDefaultValue,
+                            nameof(preferenceDefaultValue));
+                    _dictionary[preferenceName] = EnumPreferenceBuilder
+                        .Create(preferenceName, enumTypeInfo)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .WithDescription(preferenceDescription)
+                        .Build();
+                }
+                else if (propertyType == typeof(bool?))
                 {
                     var value = (bool?)property.GetValue(_associatedObject);
                     bool? defaultValue = preferenceDefaultValue is null

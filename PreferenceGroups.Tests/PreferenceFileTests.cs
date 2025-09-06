@@ -46,14 +46,22 @@ public sealed class PreferenceFileTests
                 "String123": null,
             
                 // Default value: false.
-                "Boolean": false
+                "Boolean": false,
+            
+                // Allowed values are combinations of (separated by ','): "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Weekdays" | "Saturday" | "Weekend" | "Week".
+                // Default value: "None".
+                "MultiDayEnum": "None",
+            
+                // Allowed values: "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday".
+                // Default value: "None".
+                "SingleDayEnum": "None"
             }
             """;
         Assert.AreEqual(expected, file.ReadAsString());
 
         // Overwrite the file with an empty file.
         File.Create(preferencesFilePath).Dispose();
-        
+
         // Attempt to update again, but this should 
         updates = file.Update(group);
 
@@ -98,6 +106,7 @@ public sealed class PreferenceFileTests
         var numberName = "Number";
         var stringName = "String";
         var booleanName = "Boolean";
+        var enumName = "Enum";
         PreferenceGroup group = PreferenceGroupBuilder
             .Create()
             .AddInt32(name: numberName, b => b
@@ -106,6 +115,19 @@ public sealed class PreferenceFileTests
                 .WithDescription("A string prefence."))
             .AddBoolean(name: booleanName, b => b
                 .WithAllowedValuesAndSort(true, false))
+            .AddEnum<MultiDay>(name: enumName, b => b
+                .WithValue(MultiDay.Friday | MultiDay.Monday)
+                .WithAllowedValuesAndDoNotSort(
+                    MultiDay.Sunday,
+                    MultiDay.Monday,
+                    MultiDay.Tuesday,
+                    MultiDay.Wednesday,
+                    MultiDay.Thursday,
+                    MultiDay.Friday,
+                    MultiDay.Saturday,
+                    MultiDay.Weekdays,
+                    MultiDay.Weekend,
+                    MultiDay.Week))
             .Build();
 
         var jsoncString = PreferenceFile.WriteToString(group);
@@ -118,7 +140,10 @@ public sealed class PreferenceFileTests
                 "String": null,
             
                 // Allowed values: false | true.
-                "Boolean": null
+                "Boolean": null,
+
+                // Allowed values are combinations of (separated by ','): "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Weekdays" | "Weekend" | "Week".
+                "Enum": "Monday, Friday"
             }
             """;
 
@@ -127,7 +152,7 @@ public sealed class PreferenceFileTests
         var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
 
         Assert.IsNotNull(jObject);
-        Assert.AreEqual(3, jObject.Count);
+        Assert.AreEqual(4, jObject.Count);
         Assert.IsTrue(jObject.ContainsKey(numberName));
         var numberJToken = jObject[numberName];
         Assert.IsNotNull(numberJToken);
@@ -139,6 +164,11 @@ public sealed class PreferenceFileTests
         var booleanJToken = jObject[booleanName];
         Assert.IsNotNull(booleanJToken);
         Assert.AreEqual(JTokenType.Null, booleanJToken.Type);
+        var enumJToken = jObject[enumName];
+        Assert.IsNotNull(enumJToken);
+        Assert.AreEqual(JTokenType.String, enumJToken.Type);
+        Assert.AreEqual(expected: MultiDay.Friday | MultiDay.Monday,
+            actual: group.GetValueAs<MultiDay?>(enumName));
     }
 
     [TestMethod]
@@ -171,13 +201,21 @@ public sealed class PreferenceFileTests
                 // An integer.
                 // Default value: 4.
                 "Int32": 10,
-            
+
                 // A string.
                 // Default value: "".
                 "String123": "Testing…1…2…3",
             
                 // Default value: false.
-                "Boolean": false
+                "Boolean": false,
+            
+                // Allowed values are combinations of (separated by ','): "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Weekdays" | "Saturday" | "Weekend" | "Week".
+                // Default value: "None".
+                "MultiDayEnum": "None",
+            
+                // Allowed values: "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday".
+                // Default value: "None".
+                "SingleDayEnum": "None"
             }
             """;
 
@@ -186,7 +224,7 @@ public sealed class PreferenceFileTests
         var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
 
         Assert.IsNotNull(jObject);
-        Assert.AreEqual(3, jObject.Count);
+        Assert.AreEqual(5, jObject.Count);
         Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
             .Int32)));
         var numberJToken = jObject[nameof(PreferenceGroupWithAttributes
