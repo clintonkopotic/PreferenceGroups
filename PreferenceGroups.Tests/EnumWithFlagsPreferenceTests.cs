@@ -407,7 +407,7 @@ namespace PreferenceGroups.Tests
                 .WithDefaultValue(null)
                 .WithNoAllowedValues()
                 .WithValidityProcessor(
-                    EnumValueValidityProcessor.IsDefinedAndNotZero)
+                    EnumValidityProcessor.IsDefinedAndNotZero)
                 .Build();
 
             Assert.IsTrue(preference.IsEnum);
@@ -429,12 +429,12 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        new ClassValueValidityProcessor<Enum>()
+                        new ClassValidityProcessor<Enum>()
                         {
                             IsValid = dayValue =>
                                 !dayValue.Equals(MultiDay.Sunday)
-                                ? ClassValueValidityResult<Enum>.IsValid()
-                                : ClassValueValidityResult<Enum>.NotValid(
+                                ? ClassValidityResult<Enum>.IsValid()
+                                : ClassValidityResult<Enum>.NotValid(
                                     new ArgumentException(
                                         paramName: nameof(dayValue),
                                         message: "Cannot be Sunday"))
@@ -456,7 +456,7 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        EnumValueValidityProcessor.IsDefinedAndNotZero)
+                        EnumValidityProcessor.IsDefinedAndNotZero)
                     .Build();
             });
 
@@ -474,7 +474,7 @@ namespace PreferenceGroups.Tests
                     .WithDefaultValue(null)
                     .WithNoAllowedValues()
                     .WithValidityProcessor(
-                        EnumValueValidityProcessor.IsDefinedAndNotZero)
+                        EnumValidityProcessor.IsDefinedAndNotZero)
                     .Build();
             });
 

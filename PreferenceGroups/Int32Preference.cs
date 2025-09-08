@@ -58,7 +58,7 @@ namespace PreferenceGroups
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="StructPreference{T}.Value"/> and
         /// <see cref="StructPreference{T}.DefaultValue"/> to ensure that
-        /// only <see cref="StructValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="StructValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -68,7 +68,7 @@ namespace PreferenceGroups
         public Int32Preference(string name, string description,
             bool allowUndefinedValues,
             IEnumerable<int?> allowedValues,
-            StructValueValidityProcessor<int> validityProcessor)
+            StructValidityProcessor<int> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
         { }
@@ -107,7 +107,7 @@ namespace PreferenceGroups
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="StructPreference{T}.Value"/> and
         /// <see cref="StructPreference{T}.DefaultValue"/> to ensure that only
-        /// <see cref="StructValueValidityResult{T}.IsValid"/> values are
+        /// <see cref="StructValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -117,7 +117,7 @@ namespace PreferenceGroups
         public Int32Preference(string name, string description,
             bool allowUndefinedValues, IEnumerable<int?> allowedValues,
             bool sortAllowedValues,
-            StructValueValidityProcessor<int> validityProcessor)
+            StructValidityProcessor<int> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
@@ -133,6 +133,19 @@ namespace PreferenceGroups
         /// <exception cref="SetValueException">An exception was thrown while
         /// converting.</exception>
         public override int? ConvertObjectToValue(object value)
+            => ConvertObjectToValueBase(value);
+
+        /// <summary>
+        /// Uses <see cref="Convert.ToInt32(object)"/> to convert
+        /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
+        /// <see cref="int"/>. If <paramref name="value"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">An exception was thrown while
+        /// converting.</exception>
+        public static int? ConvertObjectToValueBase(object value)
         {
             if (value is null)
             {

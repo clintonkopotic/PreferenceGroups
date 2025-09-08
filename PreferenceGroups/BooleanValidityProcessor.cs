@@ -4,209 +4,208 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Provides <see langword="static"/> methods for common
-    /// <see cref="StructValueValidityProcessor{T}.Pre"/> and
-    /// <see cref="StructValueValidityProcessor{T}.Post"/> processing steps, and
-    /// <see cref="StructValueValidityProcessor{T}.IsValid"/> validity checks
+    /// <see cref="StructValidityProcessor{T}.Pre"/> and
+    /// <see cref="StructValidityProcessor{T}.Post"/> processing steps, and
+    /// <see cref="StructValidityProcessor{T}.IsValid"/> validity checks
     /// for a <see cref="BooleanPreference"/>.
     /// </summary>
-    public class BooleanValueValidityProcessor
-        : StructValueValidityProcessor<bool>
+    public class BooleanValidityProcessor : StructValidityProcessor<bool>
     {
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// not <see langword="null"/> and equal to <see langword="false"/>.
         /// </summary>
-        public static BooleanValueValidityProcessor IsFalse
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsFalse
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (value.Value != false)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is not equal to false."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
 
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// not <see langword="null"/> and not equal to <see langword="false"/>.
         /// </summary>
-        public static BooleanValueValidityProcessor IsNotFalse
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsNotFalse
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (value.Value == false)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is equal to false."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
 
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// not <see langword="null"/> and not equal to <see langword="true"/>.
         /// </summary>
-        public static BooleanValueValidityProcessor IsNotTrue
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsNotTrue
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (value.Value == true)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is equal to true."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
 
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// not <see langword="null"/> and equal to <see langword="true"/>.
         /// </summary>
-        public static BooleanValueValidityProcessor IsTrue
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsTrue
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (value.Value != true)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is not equal to one."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
 
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// equal to <paramref name="other"/>, including if both are
         /// <see langword="null"/>. If either the <c>value</c> or
         /// <paramref name="other"/> is <see langword="null"/> while the other
         /// one is not, then a
-        /// <see cref="StructValueValidityResult{T}.NotValid(Exception)"/> is
+        /// <see cref="StructValidityResult{T}.NotValid(Exception)"/> is
         /// called with an <see cref="ArgumentNullException"/> indicating which
         /// parameter is <see langword="null"/>.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public static BooleanValueValidityProcessor IsEqualTo(bool? other)
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsEqualTo(bool? other)
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null && other is null)
                     {
-                        return StructValueValidityResult<bool>.IsValid();
+                        return StructValidityResult<bool>.IsValid();
                     }
                     else if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (other is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(other),
                                 message: "Is null."));
                     }
                     else if (value.Value != other.Value)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is not equal to other."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
 
         /// <summary>
         /// Ensures that a <c>value</c>
-        /// <see cref="StructValueValidityProcessor{T}.IsValid"/> if it is
+        /// <see cref="StructValidityProcessor{T}.IsValid"/> if it is
         /// not equal to <paramref name="other"/>, including if both are
         /// <see langword="null"/>. If either the <c>value</c> or
         /// <paramref name="other"/> is <see langword="null"/> while the other
         /// one is not, then a
-        /// <see cref="StructValueValidityResult{T}.NotValid(Exception)"/> is
+        /// <see cref="StructValidityResult{T}.NotValid(Exception)"/> is
         /// called with an <see cref="ArgumentNullException"/> indicating which
         /// parameter is <see langword="null"/>.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public static BooleanValueValidityProcessor IsNotEqualTo(bool? other)
-            => new BooleanValueValidityProcessor()
+        public static BooleanValidityProcessor IsNotEqualTo(bool? other)
+            => new BooleanValidityProcessor()
             {
                 IsValid = value =>
                 {
                     if (value is null && other is null)
                     {
-                        return StructValueValidityResult<bool>.IsValid();
+                        return StructValidityResult<bool>.IsValid();
                     }
                     else if (value is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(value),
                                 message: "Is null."));
                     }
                     else if (other is null)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentNullException(paramName: nameof(other),
                                 message: "Is null."));
                     }
                     else if (value.Value == other.Value)
                     {
-                        return StructValueValidityResult<bool>.NotValid(
+                        return StructValidityResult<bool>.NotValid(
                             new ArgumentException(paramName: nameof(value),
                                 message: "Is greater than or equal to other."));
                     }
 
-                    return StructValueValidityResult<bool>.IsValid();
+                    return StructValidityResult<bool>.IsValid();
                 },
             };
     }

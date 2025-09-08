@@ -9,7 +9,6 @@ namespace PreferenceGroups
     /// </summary>
     public class BooleanPreferenceBuilder
     {
-
         private string _description;
 
         private string _name = string.Empty;
@@ -24,8 +23,8 @@ namespace PreferenceGroups
 
         private bool _sortAllowedValues = false;
 
-        private StructValueValidityProcessor<bool> _validityProcessor
-            = new StructValueValidityProcessor<bool>();
+        private StructValidityProcessor<bool> _validityProcessor
+            = new StructValidityProcessor<bool>();
 
         private BooleanPreferenceBuilder() { }
 
@@ -79,6 +78,63 @@ namespace PreferenceGroups
         public BooleanPreferenceBuilder DoNotSortAllowedValues()
         {
             _sortAllowedValues = false;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to allow values that are not specified by
+        /// <see cref="StructPreference{T}.AllowedValues"/>.
+        /// </summary>
+        /// <returns></returns>
+        public BooleanPreferenceBuilder SetAllowUndefinedValues(
+            bool allowUndefinedValues)
+        {
+            _allowUndefinedValues = allowUndefinedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to sort
+        /// <see cref="StructPreference{T}.AllowedValues"/> when the
+        /// <see cref="BooleanPreference"/> is built.
+        /// </summary>
+        /// <returns></returns>
+        public BooleanPreferenceBuilder SetSortAllowedValues(
+            bool sortAllowedValues)
+        {
+            _sortAllowedValues = sortAllowedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder SetValidityProcessor(
+            BooleanValidityProcessor processor)
+            => SetValidityProcessor(
+                (StructValidityProcessor<bool>)processor);
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
+        public BooleanPreferenceBuilder SetValidityProcessor(
+            StructValidityProcessor<bool> processor)
+        {
+            _validityProcessor = processor
+                ?? new StructValidityProcessor<bool>();
 
             return this;
         }
@@ -152,6 +208,46 @@ namespace PreferenceGroups
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
         /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="BooleanPreference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public BooleanPreferenceBuilder WithAllowedValues(
+            IEnumerable<object> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            var values = new List<bool?>();
+
+            foreach (var allowedValue in allowedValues)
+            {
+                try
+                {
+                    var value = BooleanPreference.ConvertObjectToValueBase(
+                        allowedValue);
+
+                    if (!(value is null))
+                    {
+                        values.Add(value);
+                    }
+                }
+                catch
+                { }
+            }
+
+            _allowedValues = values;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
         /// <see cref="Build()"/>.
         /// </summary>
         /// <param name="allowedValues"></param>
@@ -189,6 +285,26 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValues((IEnumerable<bool>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="BooleanPreference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public BooleanPreferenceBuilder WithAllowedValues(
+            params object[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            return WithAllowedValues((IEnumerable<object>)allowedValues);
         }
 
         /// <summary>
@@ -416,7 +532,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public BooleanPreferenceBuilder WithValidityProcessor(
-            BooleanValueValidityProcessor processor)
+            BooleanValidityProcessor processor)
         {
             if (processor is null)
             {
@@ -424,7 +540,7 @@ namespace PreferenceGroups
             }
 
             return WithValidityProcessor(
-                (StructValueValidityProcessor<bool>)processor);
+                (StructValidityProcessor<bool>)processor);
         }
 
         /// <summary>
@@ -436,7 +552,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public BooleanPreferenceBuilder WithValidityProcessor(
-            StructValueValidityProcessor<bool> processor)
+            StructValidityProcessor<bool> processor)
         {
             if (processor is null)
             {

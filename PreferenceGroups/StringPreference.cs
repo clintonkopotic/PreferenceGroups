@@ -115,7 +115,7 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</param>
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
-        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="ClassValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -125,7 +125,7 @@ namespace PreferenceGroups
         public StringPreference(string name, string description,
             bool allowUndefinedValues,
             IEnumerable<string> allowedValues,
-            ClassValueValidityProcessor<string> validityProcessor)
+            ClassValidityProcessor<string> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
         { }
@@ -162,7 +162,7 @@ namespace PreferenceGroups
         /// <param name="sortAllowedValues"></param>
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
-        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="ClassValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -172,7 +172,7 @@ namespace PreferenceGroups
         public StringPreference(string name, string description,
             bool allowUndefinedValues,
             IEnumerable<string> allowedValues, bool sortAllowedValues,
-            ClassValueValidityProcessor<string> validityProcessor)
+            ClassValidityProcessor<string> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
@@ -189,26 +189,7 @@ namespace PreferenceGroups
         /// <exception cref="SetValueException">An exception was thrown while
         /// calling <see cref="object.ToString()"/>.</exception>
         public override string ConvertObjectToValue(object value)
-        {
-            if (value is null)
-            {
-                return null;
-            }
-
-            try
-            {
-                if (value is string stringValue)
-                {
-                    return stringValue;
-                }
-
-                return value.ToString();
-            }
-            catch (Exception ex)
-            {
-                throw new SetValueException(ex, SetValueStepFailure.Converting);
-            }
-        }
+            => ConvertObjectToValueBase(value);
 
         /// <summary>
         /// Returns an <see cref="Array"/> of <see cref="string"/>s of the
@@ -267,6 +248,39 @@ namespace PreferenceGroups
             => Value;
 
         /// <summary>
+        /// Uses <see cref="object.ToString()"/> to convert
+        /// <paramref name="value"/> to <see cref="string"/>, if
+        /// <paramref name="value"/> is not a <see cref="string"/>. If it is,
+        /// then it is returned. If <paramref name="value"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">An exception was thrown while
+        /// calling <see cref="object.ToString()"/>.</exception>
+        public static string ConvertObjectToValueBase(object value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (value is string stringValue)
+                {
+                    return stringValue;
+                }
+
+                return value.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new SetValueException(ex, SetValueStepFailure.Converting);
+            }
+        }
+
+        /// <summary>
         /// A helper <see langword="static"/> method for setting the
         /// <see cref="Value"/> and the <see cref="DefaultValue"/>.
         /// </summary>
@@ -293,7 +307,7 @@ namespace PreferenceGroups
         /// valid.</exception>
         public static new string ValidityProcessForSetValue(string name,
             string valueIn,
-            ClassValueValidityProcessor<string> validityProcessor,
+            ClassValidityProcessor<string> validityProcessor,
             bool allowUndefinedValues,
             IReadOnlyCollection<string> allowedValues)
         {

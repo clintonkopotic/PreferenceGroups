@@ -184,13 +184,15 @@ namespace PreferenceGroups
 
             foreach (var property in _associatedObjectType.GetProperties())
             {
-                // TODO: Update to include AllowedValues.
-                // TODO: Update to include ValueValidityProcessor.
                 var propertyName = Preference.ProcessNameOrThrowIfInvalid(
                     property.Name, nameof(property));
                 var preferenceName = propertyName;
+                bool? preferenceAllowUndefinedValues = null;
+                bool? preferenceSortAllowedValues = null;
                 object preferenceDefaultValue = null;
                 string preferenceDescription = null;
+                object[] preferenceAllowedValues = null;
+                Type preferenceValueValidtyProcessorClassType = null;
                 var preferenceAttribute = property
                     .GetCustomAttribute<PreferenceAttribute>();
 
@@ -203,8 +205,15 @@ namespace PreferenceGroups
                             nameof(preferenceAttribute));
                     }
 
+                    preferenceAllowUndefinedValues = preferenceAttribute
+                        .AllowUndefinedValues;
+                    preferenceSortAllowedValues = preferenceAttribute
+                        .SortAllowValues;
+                    preferenceValueValidtyProcessorClassType
+                        = preferenceAttribute.ValueValidityProcessorClassType;
                     preferenceDefaultValue = preferenceAttribute.DefaultValue;
                     preferenceDescription = preferenceAttribute.Description;
+                    preferenceAllowedValues = preferenceAttribute.AllowedValues;
                     _associatedNames[preferenceName] = propertyName;
                 }
 
@@ -213,6 +222,17 @@ namespace PreferenceGroups
                 if (EnumTypeInfo.IsEnum(propertyType, out var enumTypeInfo,
                     nameof(propertyType)))
                 {
+                    ClassValidityProcessor<Enum> valueValidityProcessor = null;
+                    
+                    try
+                    {
+                        valueValidityProcessor = (ClassValidityProcessor<Enum>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var valueAsObject = property.GetValue(_associatedObject);
                     var value = enumTypeInfo.ToEnum(valueAsObject,
                         nameof(valueAsObject));
@@ -224,11 +244,28 @@ namespace PreferenceGroups
                         .Create(preferenceName, enumTypeInfo)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? EnumPreference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? EnumPreference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
                 else if (propertyType == typeof(bool?))
                 {
+                    StructValidityProcessor<bool> valueValidityProcessor = null;
+                    
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<bool>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var value = (bool?)property.GetValue(_associatedObject);
                     bool? defaultValue = preferenceDefaultValue is null
                         ? (useValuesAsDefault ? value : null)
@@ -238,12 +275,30 @@ namespace PreferenceGroups
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
                 else if (propertyType == typeof(bool)
                     && _allowedNonNullableStructs)
                 {
+                    StructValidityProcessor<bool> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<bool>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var value = (bool)property.GetValue(_associatedObject);
 #pragma warning disable IDE0075 // Simplify conditional expression
                     var defaultValue = preferenceDefaultValue is null
@@ -255,11 +310,29 @@ namespace PreferenceGroups
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
                 else if (propertyType == typeof(int?))
                 {
+                    StructValidityProcessor<int> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<int>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var value = (int?)property.GetValue(_associatedObject);
                     int? defaultValue = preferenceDefaultValue is null
                         ? (useValuesAsDefault ? value : null)
@@ -269,12 +342,30 @@ namespace PreferenceGroups
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
                 else if (propertyType == typeof(int)
                     && _allowedNonNullableStructs)
                 {
+                    StructValidityProcessor<int> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<int>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var value = (int)property.GetValue(_associatedObject);
                     var defaultValue = preferenceDefaultValue is null
                         ? (useValuesAsDefault ? value : default)
@@ -284,11 +375,30 @@ namespace PreferenceGroups
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
                 else if (propertyType == typeof(string))
                 {
+                    ClassValidityProcessor<string> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor
+                            = (ClassValidityProcessor<string>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
                     var value = (string)property.GetValue(_associatedObject);
                     string defaultValue = preferenceDefaultValue is null
                         ? (useValuesAsDefault ? value : null)
@@ -298,7 +408,13 @@ namespace PreferenceGroups
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
                         .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
             }

@@ -23,8 +23,8 @@ namespace PreferenceGroups
 
         private bool _sortAllowedValues = false;
 
-        private ClassValueValidityProcessor<string> _validityProcessor
-            = new ClassValueValidityProcessor<string>();
+        private ClassValidityProcessor<string> _validityProcessor
+            = new ClassValidityProcessor<string>();
 
         private StringPreferenceBuilder() { }
 
@@ -83,6 +83,62 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Specifies whether or not to allow values that are not specified by
+        /// <see cref="ClassPreference{T}.AllowedValues"/>.
+        /// </summary>
+        /// <returns></returns>
+        public StringPreferenceBuilder SetAllowUndefinedValues(
+            bool allowUndefinedValues)
+        {
+            _allowUndefinedValues = allowUndefinedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to sort
+        /// <see cref="ClassPreference{T}.AllowedValues"/> when the
+        /// <see cref="StringPreference"/> is built.
+        /// </summary>
+        /// <returns></returns>
+        public StringPreferenceBuilder SetSortAllowedValues(
+            bool sortAllowedValues)
+        {
+            _sortAllowedValues = sortAllowedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="ClassPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
+        public StringPreferenceBuilder SetValidityProcessor(
+            ClassValidityProcessor<string> processor)
+        {
+            _validityProcessor = processor
+                ?? new ClassValidityProcessor<string>();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="ClassPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="processor"/>
+        /// is <see langword="null"/>.</exception>
+        public StringPreferenceBuilder SetValidityProcessor(
+            StringValidityProcessor processor)
+            => SetValidityProcessor((ClassValidityProcessor<string>)processor);
+
+        /// <summary>
         /// If <c>AllowedValues</c> is not <see langword="null"/> and is not
         /// empty, then it will be sorted (using a <see cref="SortedSet{T}"/>)
         /// upon <see cref="Build()"/>.
@@ -121,6 +177,46 @@ namespace PreferenceGroups
         /// <summary>
         /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
         /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="StringPreference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public StringPreferenceBuilder WithAllowedValues(
+            IEnumerable<object> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            var values = new List<string>();
+
+            foreach (var allowedValue in allowedValues)
+            {
+                try
+                {
+                    var value = StringPreference.ConvertObjectToValueBase(
+                        allowedValue);
+
+                    if (!(value is null))
+                    {
+                        values.Add(value);
+                    }
+                }
+                catch
+                { }
+            }
+
+            _allowedValues = values;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
         /// <see cref="Build()"/>.
         /// </summary>
         /// <param name="allowedValues"></param>
@@ -137,6 +233,26 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValues((IEnumerable<string>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="ClassPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="StringPreference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public StringPreferenceBuilder WithAllowedValues(
+            params object[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            return WithAllowedValues((IEnumerable<object>)allowedValues);
         }
 
         /// <summary>
@@ -277,15 +393,16 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithValidityProcessor(
-            StringValueValidityProcessor processor)
+            ClassValidityProcessor<string> processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            return WithValidityProcessor(
-                (ClassValueValidityProcessor<string>)processor);
+            _validityProcessor = processor;
+
+            return this;
         }
 
         /// <summary>
@@ -297,16 +414,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public StringPreferenceBuilder WithValidityProcessor(
-            ClassValueValidityProcessor<string> processor)
+            StringValidityProcessor processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            _validityProcessor = processor;
-
-            return this;
+            return WithValidityProcessor(
+                (ClassValidityProcessor<string>)processor);
         }
 
         /// <summary>

@@ -519,7 +519,7 @@ public sealed class StringPreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
-            .WithValidityProcessor(StringValueValidityProcessor.PreTrimIfNotNull)
+            .WithValidityProcessor(StringValidityProcessor.PreTrimIfNotNull)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -538,8 +538,8 @@ public sealed class StringPreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
-            .WithValidityProcessor((ClassValueValidityProcessor<string>)
-                StringValueValidityProcessor.EnsureNotNullOrWhiteSpaceAndPostTrim)
+            .WithValidityProcessor((ClassValidityProcessor<string>)
+                StringValidityProcessor.EnsureNotNullOrWhiteSpaceAndPostTrim)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -572,7 +572,7 @@ public sealed class StringPreferenceTests
                 .WithDescription(null)
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
-                .WithValidityProcessor(StringValueValidityProcessor
+                .WithValidityProcessor(StringValidityProcessor
                     .EnsureNotNullOrWhiteSpaceAndPostTrim)
                 .Build();
         });

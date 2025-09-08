@@ -4,13 +4,13 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Contains the result from the
-    /// <see cref="ClassValueValidityProcessor{T}.IsValid"/> step, with either
+    /// <see cref="ClassValidityProcessor{T}.IsValid"/> step, with either
     /// <see cref="Valid"/> set to <see langword="true"/> or a not
     /// <see langword="null"/> <see cref="Exception"/> with why the value is not
     /// valid.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class StructValueValidityResult<T> where T : struct
+    public class ClassValidityResult<T> where T : class
     {
         /// <summary>
         /// If <see cref="Valid"/> is <see langword="false"/>, this is the
@@ -28,7 +28,7 @@ namespace PreferenceGroups
         /// <summary>
         /// Intantiates a <see cref="Valid"/> result.
         /// </summary>
-        public StructValueValidityResult() : this(null)
+        public ClassValidityResult() : this(null)
         { }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace PreferenceGroups
         /// <see langword="false"/> and this is why.
         /// </summary>
         /// <param name="exception"></param>
-        public StructValueValidityResult(Exception exception)
+        public ClassValidityResult(Exception exception)
         {
             Exception = exception;
         }
@@ -48,8 +48,8 @@ namespace PreferenceGroups
         /// <summary>
         /// Intantiates a <see cref="Valid"/> result.
         /// </summary>
-        public static StructValueValidityResult<T> IsValid()
-            => new StructValueValidityResult<T>();
+        public static ClassValidityResult<T> IsValid()
+            => new ClassValidityResult<T>();
 
         /// <summary>
         /// Intantiates a not <see cref="Valid"/> result with a not
@@ -59,14 +59,14 @@ namespace PreferenceGroups
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="exception"/> is <see langword="null"/>.</exception>
-        public static StructValueValidityResult<T> NotValid(Exception exception)
+        public static ClassValidityResult<T> NotValid(Exception exception)
         {
             if (exception is null)
             {
                 throw new ArgumentNullException(nameof(exception));
             }
 
-            return new StructValueValidityResult<T>(exception);
+            return new ClassValidityResult<T>(exception);
         }
     }
 }

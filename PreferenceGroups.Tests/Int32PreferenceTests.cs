@@ -520,7 +520,7 @@ public sealed class Int32PreferenceTests
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
             .WithValidityProcessor(
-                Int32ValueValidityProcessor.IsGreaterThanZero)
+                Int32ValidityProcessor.IsGreaterThanZero)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -539,8 +539,8 @@ public sealed class Int32PreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
-            .WithValidityProcessor((StructValueValidityProcessor<int>)
-                Int32ValueValidityProcessor.IsGreaterThanZero)
+            .WithValidityProcessor((StructValidityProcessor<int>)
+                Int32ValidityProcessor.IsGreaterThanZero)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -574,7 +574,7 @@ public sealed class Int32PreferenceTests
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
                 .WithValidityProcessor(
-                    Int32ValueValidityProcessor.IsGreaterThanZero)
+                    Int32ValidityProcessor.IsGreaterThanZero)
                 .Build();
         });
 
@@ -592,7 +592,7 @@ public sealed class Int32PreferenceTests
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
                 .WithValidityProcessor(
-                    Int32ValueValidityProcessor.IsGreaterThan(null))
+                    Int32ValidityProcessor.IsGreaterThan(null))
                 .Build();
         });
 
@@ -610,7 +610,7 @@ public sealed class Int32PreferenceTests
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
                 .WithValidityProcessor(
-                    Int32ValueValidityProcessor.IsGreaterThan(5))
+                    Int32ValidityProcessor.IsGreaterThan(5))
                 .Build();
         });
 

@@ -16,8 +16,9 @@ namespace PreferenceGroups
         /// <summary>
         /// The <see cref="Preference.Name"/> of the <see cref="Preference"/>.
         /// Defaults to the property name that this attribute is attached to. If
-        /// the <see cref="PreferenceAttribute(string)"/> constructor is used,
-        /// then this will be set to the <c>name</c> parameter.
+        /// the <see cref="PreferenceAttribute(string, bool, object[])"/>
+        /// constructor is used, then this will be set to the <c>name</c>
+        /// parameter.
         /// </summary>
         public string Name { get; set; } = null;
 
@@ -42,10 +43,33 @@ namespace PreferenceGroups
         public string Description { get; set; } = null;
 
         /// <summary>
-        /// The <see cref="Preference.AllowUndefinedValues"/> of the
-        /// <see cref="Preference"/>. Defaults to <see langword="true"/>.
+        /// Any <c>AllowedValues</c> for the <see cref="Preference"/>.
         /// </summary>
-        public bool AllowUndefinedValues { get; set; } = true;
+        public object[] AllowedValues { get; }
+
+        /// <summary>
+        /// The <see cref="Preference.AllowUndefinedValues"/> of the
+        /// <see cref="Preference"/>. Defaults to <see langword="null"/> which
+        /// will attempt to use the default behavior of the type of
+        /// <see cref="Preference"/>.
+        /// </summary>
+        public bool? AllowUndefinedValues { get; }
+
+        /// <summary>
+        /// Allows for the <see cref="AllowedValues"/> to be sorted during the
+        /// build process.
+        /// </summary>
+        public bool? SortAllowValues { get; }
+
+        /// <summary>
+        /// Allows for specifiying the <see cref="Type"/> of the
+        /// <see langword="class"/> that is for the <c>ValidityProcessor</c>.
+        /// For <see cref="ClassPreference{T}"/> inherit from
+        /// <see cref="ClassValidityProcessor{T}"/>, and for
+        /// <see cref="StructPreference{T}"/> inherit from
+        /// <see cref="StructValidityProcessor{T}"/>.
+        /// </summary>
+        public Type ValueValidityProcessorClassType { get; set; }
 
         /// <summary>
         /// Default empty constructor.
@@ -61,14 +85,75 @@ namespace PreferenceGroups
         /// <param name="name">The <see cref="Preference.Name"/> of the
         /// <see cref="Preference"/> and overrides the value and behavior of
         /// <see cref="Name"/>.</param>
+        /// <param name="allowedValues">Any <c>AllowedValues</c> for the
+        /// <see cref="Preference"/>.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
-        public PreferenceAttribute(string name)
+        public PreferenceAttribute(string name, params object[] allowedValues)
         {
             Name = Preference.ProcessNameOrThrowIfInvalid(name, nameof(name));
+            AllowedValues = allowedValues;
+        }
+
+        /// <summary>
+        /// Initializes the attribute with <paramref name="name"/> where it is
+        /// valid according to the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
+        /// </summary>
+        /// <param name="name">The <see cref="Preference.Name"/> of the
+        /// <see cref="Preference"/> and overrides the value and behavior of
+        /// <see cref="Name"/>.</param>
+        /// <param name="allowUndefinedValues">Specifies whether or not to allow
+        /// values that are not specified by
+        /// <paramref name="allowedValues"/>.</param>
+        /// <param name="allowedValues">Any <c>AllowedValues</c> for the
+        /// <see cref="Preference"/>.</param>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceAttribute(string name, bool allowUndefinedValues,
+            params object[] allowedValues)
+        {
+            Name = Preference.ProcessNameOrThrowIfInvalid(name, nameof(name));
+            AllowUndefinedValues = allowUndefinedValues;
+            AllowedValues = allowedValues;
+        }
+
+        /// <summary>
+        /// Initializes the attribute with <paramref name="name"/> where it is
+        /// valid according to the
+        /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
+        /// method.
+        /// </summary>
+        /// <param name="name">The <see cref="Preference.Name"/> of the
+        /// <see cref="Preference"/> and overrides the value and behavior of
+        /// <see cref="Name"/>.</param>
+        /// <param name="allowUndefinedValues">Specifies whether or not to allow
+        /// values that are not specified by
+        /// <paramref name="allowedValues"/>.</param>
+        /// <param name="sortAllowedValues">Specifies whether or not to sort
+        /// <paramref name="allowedValues"/> when the <see cref="Preference"/>
+        /// is built.</param>
+        /// <param name="allowedValues">Any <c>AllowedValues</c> for the
+        /// <see cref="Preference"/>.</param>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceAttribute(string name, bool allowUndefinedValues,
+            bool sortAllowedValues, params object[] allowedValues)
+        {
+            Name = Preference.ProcessNameOrThrowIfInvalid(name, nameof(name));
+            AllowUndefinedValues = allowUndefinedValues;
+            SortAllowValues = sortAllowedValues;
+            AllowedValues = allowedValues;
         }
     }
 }

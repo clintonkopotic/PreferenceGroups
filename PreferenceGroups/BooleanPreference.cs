@@ -58,7 +58,7 @@ namespace PreferenceGroups
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="StructPreference{T}.Value"/> and
         /// <see cref="StructPreference{T}.DefaultValue"/> to ensure that
-        /// only <see cref="StructValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="StructValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -67,7 +67,7 @@ namespace PreferenceGroups
         /// characters.</exception>
         public BooleanPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<bool?> allowedValues,
-            StructValueValidityProcessor<bool> validityProcessor)
+            StructValidityProcessor<bool> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
         { }
@@ -106,7 +106,7 @@ namespace PreferenceGroups
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="StructPreference{T}.Value"/> and
         /// <see cref="StructPreference{T}.DefaultValue"/> to ensure that only
-        /// <see cref="StructValueValidityResult{T}.IsValid"/> values are
+        /// <see cref="StructValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         /// <see langword="null"/>.</exception>
@@ -116,13 +116,13 @@ namespace PreferenceGroups
         public BooleanPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<bool?> allowedValues,
             bool sortAllowedValues,
-            StructValueValidityProcessor<bool> validityProcessor)
+            StructValidityProcessor<bool> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
 
         /// <summary>
-        /// Uses <see cref="Convert.ToInt32(object)"/> to convert
+        /// Uses <see cref="Convert.ToBoolean(object)"/> to convert
         /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
         /// <see cref="bool"/>. If <paramref name="value"/> is
         /// <see langword="null"/>, then <see langword="null"/> is returned.
@@ -132,6 +132,19 @@ namespace PreferenceGroups
         /// <exception cref="SetValueException">An exception was thrown while
         /// converting.</exception>
         public override bool? ConvertObjectToValue(object value)
+            => ConvertObjectToValueBase(value);
+
+        /// <summary>
+        /// Uses <see cref="Convert.ToBoolean(object)"/> to convert
+        /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
+        /// <see cref="bool"/>. If <paramref name="value"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">An exception was thrown while
+        /// converting.</exception>
+        public static bool? ConvertObjectToValueBase(object value)
         {
             if (value is null)
             {

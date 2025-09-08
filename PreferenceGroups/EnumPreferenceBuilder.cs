@@ -27,8 +27,8 @@ namespace PreferenceGroups
 
         private bool _sortAllowedValues = false;
 
-        private ClassValueValidityProcessor<Enum> _validityProcessor
-            = new ClassValueValidityProcessor<Enum>();
+        private ClassValidityProcessor<Enum> _validityProcessor
+            = new ClassValidityProcessor<Enum>();
 
         private EnumPreferenceBuilder(string name, EnumTypeInfo enumTypeInfo)
         {
@@ -99,6 +99,60 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Specifies whether or not to allow values that are not specified by
+        /// <see cref="ClassPreference{T}.AllowedValues"/>.
+        /// </summary>
+        /// <returns></returns>
+        public EnumPreferenceBuilder SetAllowUndefinedValues(
+            bool allowUndefinedValues)
+        {
+            _allowUndefinedValues = allowUndefinedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to sort
+        /// <see cref="ClassPreference{T}.AllowedValues"/> when the
+        /// <see cref="EnumPreference"/> is built.
+        /// </summary>
+        /// <returns></returns>
+        public EnumPreferenceBuilder SetSortAllowedValues(
+            bool sortAllowedValues)
+        {
+            _sortAllowedValues = sortAllowedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="EnumPreference.ValidityProcessor"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        public EnumPreferenceBuilder SetValidityProcessor(
+            ClassValidityProcessor<Enum> processor)
+        {
+            _validityProcessor = processor
+                ?? new ClassValidityProcessor<Enum>();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="EnumPreference.ValidityProcessor"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        public EnumPreferenceBuilder SetValidityProcessor(
+            EnumValidityProcessor processor)
+        {
+            _validityProcessor = processor;
+
+            return this;
+        }
+
+        /// <summary>
         /// If <c>AllowedValues</c> is not <see langword="null"/> and is not
         /// empty, then it will be sorted (using a <see cref="SortedSet{T}"/>)
         /// upon <see cref="Build()"/>.
@@ -136,6 +190,29 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will set <see cref="EnumPreference.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="EnumPreference.ConvertObjectToValueBase(EnumTypeInfo,
+        /// object)"/> method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public EnumPreferenceBuilder WithAllowedValues(
+            IEnumerable<object> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            _allowedValues = EnumPreference.ProcessAllowedValues(_enumTypeInfo,
+                allowedValues, false);
+
+            return this;
+        }
+
+        /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
         /// provided <paramref name="allowedValues"/> upon
         /// <see cref="Build()"/>.
@@ -154,6 +231,26 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValues((IEnumerable<Enum>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="EnumPreference.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="EnumPreference.ConvertObjectToValueBase(EnumTypeInfo,
+        /// object)"/> method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public EnumPreferenceBuilder WithAllowedValues(
+            params object[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            return WithAllowedValues((IEnumerable<object>)allowedValues);
         }
 
         /// <summary>
@@ -303,15 +400,16 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder WithValidityProcessor(
-            EnumValueValidityProcessor processor)
+            ClassValidityProcessor<Enum> processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            return WithValidityProcessor(
-                (ClassValueValidityProcessor<Enum>)processor);
+            _validityProcessor = processor;
+
+            return this;
         }
 
         /// <summary>
@@ -323,16 +421,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder WithValidityProcessor(
-            ClassValueValidityProcessor<Enum> processor)
+            EnumValidityProcessor processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            _validityProcessor = processor;
-
-            return this;
+            return WithValidityProcessor(
+                (ClassValidityProcessor<Enum>)processor);
         }
 
         /// <summary>

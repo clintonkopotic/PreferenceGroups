@@ -4,20 +4,19 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Provides <see langword="static"/> methods for common
-    /// <see cref="ClassValueValidityProcessor{T}.Pre"/> and
-    /// <see cref="ClassValueValidityProcessor{T}.Post"/> processing steps, and
-    /// <see cref="ClassValueValidityProcessor{T}.IsValid"/> validity checks.
+    /// <see cref="ClassValidityProcessor{T}.Pre"/> and
+    /// <see cref="ClassValidityProcessor{T}.Post"/> processing steps, and
+    /// <see cref="ClassValidityProcessor{T}.IsValid"/> validity checks.
     /// </summary>
-    public class StringValueValidityProcessor
-        : ClassValueValidityProcessor<string>
+    public class StringValidityProcessor : ClassValidityProcessor<string>
     {
         /// <summary>
         /// If the <see cref="string"/> is not <see langword="null"/>, then it
         /// will first be trimmed with the <see cref="string.Trim()"/> method.
         /// </summary>
-        public static StringValueValidityProcessor
+        public static StringValidityProcessor
             EnsureNotNullOrWhiteSpaceAndPostTrim
-            => new StringValueValidityProcessor()
+            => new StringValidityProcessor()
             {
                 Pre = NoChange,
                 IsValid = EnsureNotNullOrWhiteSpace,
@@ -29,8 +28,8 @@ namespace PreferenceGroups
         /// <see cref="string"/> is not <see langword="null"/>, then it will be
         /// trimmed with the <see cref="string.Trim()"/> method.
         /// </summary>
-        public static StringValueValidityProcessor PreTrimIfNotNull
-            => new StringValueValidityProcessor()
+        public static StringValidityProcessor PreTrimIfNotNull
+            => new StringValidityProcessor()
             {
                 Pre = TrimIfNotNull,
                 IsValid = ForceValidity,
@@ -38,15 +37,15 @@ namespace PreferenceGroups
             };
 
         /// <summary>
-        /// Returns a valid <see cref="ClassValueValidityResult{T}"/> if
+        /// Returns a valid <see cref="ClassValidityResult{T}"/> if
         /// <paramref name="valueIn"/> is not <see langword="null"/> or is not
         /// an empty <see cref="string"/>; otherwise an invalid result is
         /// returned with the
-        /// <see cref="ClassValueValidityResult{T}.Exception"/> explaining why.
+        /// <see cref="ClassValidityResult{T}.Exception"/> explaining why.
         /// </summary>
         /// <param name="valueIn"></param>
         /// <returns></returns>
-        public static ClassValueValidityResult<string> EnsureNotNullOrEmpty(
+        public static ClassValidityResult<string> EnsureNotNullOrEmpty(
             string valueIn)
         {
             Exception exception;
@@ -66,20 +65,20 @@ namespace PreferenceGroups
                 return ForceValidity(valueIn);
             }
 
-            return ClassValueValidityResult<string>.NotValid(exception);
+            return ClassValidityResult<string>.NotValid(exception);
         }
 
         /// <summary>
-        /// Returns a valid <see cref="ClassValueValidityResult{T}"/> if
+        /// Returns a valid <see cref="ClassValidityResult{T}"/> if
         /// <paramref name="valueIn"/> is not <see langword="null"/>, is not an
         /// empty <see cref="string"/>, or is not a <see cref="string"/> that
         /// consists only of white-space characters; otherwise an invalid result
         /// is returned with the
-        /// <see cref="ClassValueValidityResult{T}.Exception"/> explaining why.
+        /// <see cref="ClassValidityResult{T}.Exception"/> explaining why.
         /// </summary>
         /// <param name="valueIn"></param>
         /// <returns></returns>
-        public static ClassValueValidityResult<string>
+        public static ClassValidityResult<string>
             EnsureNotNullOrWhiteSpace(string valueIn)
         {
             Exception exception;
@@ -104,7 +103,7 @@ namespace PreferenceGroups
                 return ForceValidity(valueIn);
             }
 
-            return new ClassValueValidityResult<string>(exception);
+            return new ClassValidityResult<string>(exception);
         }
 
         /// <summary>
@@ -114,8 +113,8 @@ namespace PreferenceGroups
         /// <param name="valueIn">What to <see cref="string.Trim()"/> if it is
         /// not <see langword="null"/>.</param>
         /// <returns></returns>
-        public static ClassValueProcessorResult<string> TrimIfNotNull(
+        public static ClassValidityProcessorResult<string> TrimIfNotNull(
             string valueIn)
-            => ClassValueProcessorResult<string>.Success(valueIn?.Trim());
+            => ClassValidityProcessorResult<string>.Success(valueIn?.Trim());
     }
 }

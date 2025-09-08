@@ -518,7 +518,7 @@ public sealed class BooleanPreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
-            .WithValidityProcessor(BooleanValueValidityProcessor.IsTrue)
+            .WithValidityProcessor(BooleanValidityProcessor.IsTrue)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -537,8 +537,8 @@ public sealed class BooleanPreferenceTests
             .WithDescription(null)
             .WithDefaultValue(null)
             .AllowOnlyDefinedValues()
-            .WithValidityProcessor((StructValueValidityProcessor<bool>)
-                BooleanValueValidityProcessor.IsFalse)
+            .WithValidityProcessor((StructValidityProcessor<bool>)
+                BooleanValidityProcessor.IsFalse)
             .Build();
 
         Assert.IsFalse(preference.IsEnum);
@@ -571,7 +571,7 @@ public sealed class BooleanPreferenceTests
                 .WithDescription(null)
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
-                .WithValidityProcessor(BooleanValueValidityProcessor.IsTrue)
+                .WithValidityProcessor(BooleanValidityProcessor.IsTrue)
                 .Build();
         });
 
@@ -589,7 +589,7 @@ public sealed class BooleanPreferenceTests
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
                 .WithValidityProcessor(
-                    BooleanValueValidityProcessor.IsNotEqualTo(null))
+                    BooleanValidityProcessor.IsNotEqualTo(null))
                 .Build();
         });
 
@@ -607,7 +607,7 @@ public sealed class BooleanPreferenceTests
                 .WithDefaultValue(null)
                 .AllowOnlyDefinedValues()
                 .WithValidityProcessor(
-                    BooleanValueValidityProcessor.IsEqualTo(true))
+                    BooleanValidityProcessor.IsEqualTo(true))
                 .Build();
         });
 

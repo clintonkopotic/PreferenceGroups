@@ -32,9 +32,10 @@ internal class PreferenceGroupWithAttributes
     [Preference]
     public bool Boolean { get; set; } = BooleanDefaultValue;
 
-    [Preference(EnumName)]
+    [Preference(name: EnumName, allowUndefinedValues: true,
+        MultiDay.Sunday, MultiDay.Monday, Description = "Testing")]
     public MultiDay MultiDay { get; set; } = MultiDay.None;
 
-    [Preference(NullableEnumName)]
+    [Preference(name: NullableEnumName)]
     public SingleDay? SingleDay { get; set; } = HelperClasses.SingleDay.None;
 }

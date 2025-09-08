@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -192,13 +193,17 @@ namespace PreferenceGroups
             if (!(allowedValues is null) && allowedValues.Length > 0)
             {
                 context.WriteEmptyLineIfNeeded();
+                var prefix = new StringBuilder()
+                    .Append(preference.AllowUndefinedValues
+                        ? "Suggested values" : "Allowed values")
+                    .Append(preference.IsEnum && preference.HasEnumFlags
+                        ? " are combinations of (separated by \',\'): "
+                        : ": ")
+                    .ToString();
                 JsoncSerializerHelper.WriteListInComment(
                     indentedTextWriter: context.Writer,
                     list: allowedValues,
-                    prefix: preference.IsEnum && preference.HasEnumFlags
-                        ? "Allowed values are combinations of (separated by "
-                            + "\',\'): "
-                        : "Allowed values: ",
+                    prefix: prefix,
                     postfix: ".");
             }
         }

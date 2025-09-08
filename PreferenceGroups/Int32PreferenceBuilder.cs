@@ -23,8 +23,8 @@ namespace PreferenceGroups
 
         private bool _sortAllowedValues = false;
 
-        private StructValueValidityProcessor<int> _validityProcessor
-            = new StructValueValidityProcessor<int>();
+        private StructValidityProcessor<int> _validityProcessor
+            = new StructValidityProcessor<int>();
 
         private Int32PreferenceBuilder() { }
 
@@ -78,6 +78,58 @@ namespace PreferenceGroups
         public Int32PreferenceBuilder DoNotSortAllowedValues()
         {
             _sortAllowedValues = false;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to allow values that are not specified by
+        /// <see cref="StructPreference{T}.AllowedValues"/>.
+        /// </summary>
+        /// <returns></returns>
+        public Int32PreferenceBuilder SetAllowUndefinedValues(
+            bool allowUndefinedValues)
+        {
+            _allowUndefinedValues = allowUndefinedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies whether or not to sort
+        /// <see cref="StructPreference{T}.AllowedValues"/> when the
+        /// <see cref="BooleanPreference"/> is built.
+        /// </summary>
+        /// <returns></returns>
+        public Int32PreferenceBuilder SetSortAllowedValues(
+            bool sortAllowedValues)
+        {
+            _sortAllowedValues = sortAllowedValues;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        public Int32PreferenceBuilder SetValidityProcessor(
+            Int32ValidityProcessor processor)
+            => SetValidityProcessor((StructValidityProcessor<int>)processor);
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.ValidityProcessor"/> to
+        /// <paramref name="processor"/> upon <see cref="Build()"/>.
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <returns></returns>
+        public Int32PreferenceBuilder SetValidityProcessor(
+            StructValidityProcessor<int> processor)
+        {
+            _validityProcessor = processor
+                ?? new StructValidityProcessor<int>();
 
             return this;
         }
@@ -151,6 +203,46 @@ namespace PreferenceGroups
         /// <summary>
         /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
         /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="Int32Preference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public Int32PreferenceBuilder WithAllowedValues(
+            IEnumerable<object> allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            var values = new List<int?>();
+
+            foreach (var allowedValue in allowedValues)
+            {
+                try
+                {
+                    var value = Int32Preference.ConvertObjectToValueBase(
+                        allowedValue);
+
+                    if (!(value is null))
+                    {
+                        values.Add(value);
+                    }
+                }
+                catch
+                { }
+            }
+
+            _allowedValues = values;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
         /// <see cref="Build()"/>.
         /// </summary>
         /// <param name="allowedValues"></param>
@@ -188,6 +280,26 @@ namespace PreferenceGroups
             }
 
             return WithAllowedValues((IEnumerable<int>)allowedValues);
+        }
+
+        /// <summary>
+        /// Will set <see cref="StructPreference{T}.AllowedValues"/> with the
+        /// provided <paramref name="allowedValues"/> upon
+        /// <see cref="Build()"/>, by calling the
+        /// <see cref="Int32Preference.ConvertObjectToValueBase(object)"/>
+        /// method on each item of <paramref name="allowedValues"/>.
+        /// </summary>
+        /// <param name="allowedValues"></param>
+        /// <returns></returns>
+        public Int32PreferenceBuilder WithAllowedValues(
+            params object[] allowedValues)
+        {
+            if (allowedValues is null)
+            {
+                return this;
+            }
+
+            return WithAllowedValues((IEnumerable<object>)allowedValues);
         }
 
         /// <summary>
@@ -415,7 +527,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithValidityProcessor(
-            Int32ValueValidityProcessor processor)
+            Int32ValidityProcessor processor)
         {
             if (processor is null)
             {
@@ -423,7 +535,7 @@ namespace PreferenceGroups
             }
 
             return WithValidityProcessor(
-                (StructValueValidityProcessor<int>)processor);
+                (StructValidityProcessor<int>)processor);
         }
 
         /// <summary>
@@ -435,7 +547,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public Int32PreferenceBuilder WithValidityProcessor(
-            StructValueValidityProcessor<int> processor)
+            StructValidityProcessor<int> processor)
         {
             if (processor is null)
             {

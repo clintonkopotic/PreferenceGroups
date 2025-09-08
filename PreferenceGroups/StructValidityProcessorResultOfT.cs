@@ -4,13 +4,13 @@ namespace PreferenceGroups
 {
     /// <summary>
     /// Contains the result from a
-    /// <see cref="ClassValueValidityProcessor{T}.Pre"/> or
-    /// <see cref="ClassValueValidityProcessor{T}.Post"/> step, with either the
+    /// <see cref="StructValidityProcessor{T}.Pre"/> or
+    /// <see cref="StructValidityProcessor{T}.Post"/> step, with either the
     /// processed value (see <see cref="ValueOut"/>) or an
     /// <see cref="Exception"/> with why the value could not be processed.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ClassValueProcessorResult<T> where T : class
+    public class StructValidityProcessorResult<T> where T : struct
     {
         /// <summary>
         /// If not <see langword="null"/>, contains the generated
@@ -34,7 +34,7 @@ namespace PreferenceGroups
         /// If <see cref="Exception"/> is <see langword="null"/>, then this
         /// contains the processed value.
         /// </summary>
-        public T ValueOut { get; }
+        public T? ValueOut { get; }
 
         /// <summary>
         /// Instantiates with both an <paramref name="exception"/> and a
@@ -48,7 +48,7 @@ namespace PreferenceGroups
         /// <param name="valueOut">If <see cref="Exception"/> is
         /// <see langword="null"/>, then this contains the processed
         /// value.</param>
-        public ClassValueProcessorResult(Exception exception, T valueOut)
+        public StructValidityProcessorResult(Exception exception, T? valueOut)
         {
             Exception = exception;
             ValueOut = valueOut;
@@ -64,14 +64,14 @@ namespace PreferenceGroups
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="exception"/>
         /// is <see langword="null"/>.</exception>
-        public static ClassValueProcessorResult<T> Failure(Exception exception)
+        public static StructValidityProcessorResult<T> Failure(Exception exception)
         {
             if (exception is null)
             {
                 throw new ArgumentNullException(nameof(exception));
             }
 
-            return new ClassValueProcessorResult<T>(exception, null);
+            return new StructValidityProcessorResult<T>(exception, null);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace PreferenceGroups
         /// </summary>
         /// <param name="valueOut">Contains the processed value.</param>
         /// <returns></returns>
-        public static ClassValueProcessorResult<T> Success(T valueOut)
-            => new ClassValueProcessorResult<T>(null, valueOut);
+        public static StructValidityProcessorResult<T> Success(T? valueOut)
+            => new StructValidityProcessorResult<T>(null, valueOut);
     }
 }

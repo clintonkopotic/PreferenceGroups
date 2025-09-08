@@ -93,9 +93,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Used for setting the <see cref="Value"/> and
         /// <see cref="DefaultValue"/> to ensure that only
-        /// <see cref="ClassValueValidityResult{T}.IsValid"/> values are used.
+        /// <see cref="ClassValidityResult{T}.IsValid"/> values are used.
         /// </summary>
-        public virtual ClassValueValidityProcessor<T> ValidityProcessor { get; }
+        public virtual ClassValidityProcessor<T> ValidityProcessor { get; }
 
         /// <summary>
         /// A wrapper constructor of <see cref="Preference(string)"/>.
@@ -169,7 +169,7 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</param>
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
-        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="ClassValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
@@ -179,7 +179,7 @@ namespace PreferenceGroups
         /// <see langword="null"/>.</exception>
         protected ClassPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<T> allowedValues,
-            ClassValueValidityProcessor<T> validityProcessor)
+            ClassValidityProcessor<T> validityProcessor)
             : this(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues: false, validityProcessor)
         { }
@@ -216,7 +216,7 @@ namespace PreferenceGroups
         /// <param name="sortAllowedValues"></param>
         /// <param name="validityProcessor">Used for setting the
         /// <see cref="Value"/> and <see cref="DefaultValue"/> to ensure that
-        /// only <see cref="ClassValueValidityResult{T}.IsValid"/> values are
+        /// only <see cref="ClassValidityResult{T}.IsValid"/> values are
         /// used.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
@@ -227,7 +227,7 @@ namespace PreferenceGroups
         protected ClassPreference(string name, string description,
             bool allowUndefinedValues, IEnumerable<T> allowedValues,
             bool sortAllowedValues,
-            ClassValueValidityProcessor<T> validityProcessor)
+            ClassValidityProcessor<T> validityProcessor)
             : base(name, description,
                   ProcessAllowUndefinedValuesAndAllowedValues(
                       allowUndefinedValues, allowedValues, sortAllowedValues,
@@ -615,7 +615,7 @@ namespace PreferenceGroups
         /// <paramref name="valueIn"/> cannot be processed or is not
         /// valid.</exception>
         public static T ValidityProcessForSetValue(string name, T valueIn,
-            ClassValueValidityProcessor<T> validityProcessor,
+            ClassValidityProcessor<T> validityProcessor,
             bool allowUndefinedValues, IReadOnlyCollection<T> allowedValues)
         {
             if (validityProcessor is null)

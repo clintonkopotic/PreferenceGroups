@@ -48,7 +48,8 @@ public sealed class PreferenceFileTests
                 // Default value: false.
                 "Boolean": false,
             
-                // Allowed values are combinations of (separated by ','): "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Weekdays" | "Saturday" | "Weekend" | "Week".
+                // Testing
+                // Suggested values are combinations of (separated by ','): "Sunday" | "Monday".
                 // Default value: "None".
                 "MultiDayEnum": "None",
             
@@ -139,7 +140,7 @@ public sealed class PreferenceFileTests
                 // A string prefence.
                 "String": null,
             
-                // Allowed values: false | true.
+                // Suggested values: false | true.
                 "Boolean": null,
 
                 // Allowed values are combinations of (separated by ','): "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Weekdays" | "Weekend" | "Week".
@@ -209,7 +210,8 @@ public sealed class PreferenceFileTests
                 // Default value: false.
                 "Boolean": false,
             
-                // Allowed values are combinations of (separated by ','): "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Weekdays" | "Saturday" | "Weekend" | "Week".
+                // Testing
+                // Suggested values are combinations of (separated by ','): "Sunday" | "Monday".
                 // Default value: "None".
                 "MultiDayEnum": "None",
             

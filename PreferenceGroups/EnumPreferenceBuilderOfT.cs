@@ -24,8 +24,8 @@ namespace PreferenceGroups
 
         private bool _sortAllowedValues = false;
 
-        private ClassValueValidityProcessor<Enum> _validityProcessor
-            = new ClassValueValidityProcessor<Enum>();
+        private ClassValidityProcessor<Enum> _validityProcessor
+            = new ClassValidityProcessor<Enum>();
 
         private EnumPreferenceBuilder() { }
 
@@ -430,15 +430,16 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
-            EnumValueValidityProcessor processor)
+            ClassValidityProcessor<Enum> processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            return WithValidityProcessor(
-                (ClassValueValidityProcessor<Enum>)processor);
+            _validityProcessor = processor;
+
+            return this;
         }
 
         /// <summary>
@@ -450,16 +451,15 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentNullException"><paramref name="processor"/>
         /// is <see langword="null"/>.</exception>
         public EnumPreferenceBuilder<TEnum> WithValidityProcessor(
-            ClassValueValidityProcessor<Enum> processor)
+            EnumValidityProcessor processor)
         {
             if (processor is null)
             {
                 throw new ArgumentNullException(nameof(processor));
             }
 
-            _validityProcessor = processor;
-
-            return this;
+            return WithValidityProcessor(
+                (ClassValidityProcessor<Enum>)processor);
         }
 
         /// <summary>

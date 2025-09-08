@@ -114,9 +114,9 @@ namespace PreferenceGroups
         /// <summary>
         /// Used for setting the <see cref="Value"/> and
         /// <see cref="DefaultValue"/> to ensure that only
-        /// <see cref="ClassValueValidityResult{T}.IsValid"/> values are used.
+        /// <see cref="ClassValidityResult{T}.IsValid"/> values are used.
         /// </summary>
-        public override ClassValueValidityProcessor<Enum> ValidityProcessor
+        public override ClassValidityProcessor<Enum> ValidityProcessor
             { get; }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace PreferenceGroups
         public EnumPreference(string name, EnumTypeInfo enumTypeInfo,
             string description, bool allowUndefinedValues,
             IEnumerable<Enum> allowedValues, bool sortAllowedValues,
-            ClassValueValidityProcessor<Enum> validityProcessor)
+            ClassValidityProcessor<Enum> validityProcessor)
             : base(name, description,
                   ProcessAllowUndefinedValuesAndAllowedValues(enumTypeInfo,
                       allowUndefinedValues, allowedValues, sortAllowedValues,
@@ -188,7 +188,7 @@ namespace PreferenceGroups
         public EnumPreference(string name, EnumTypeInfo enumTypeInfo,
             string description, bool allowUndefinedValues,
             IEnumerable<Enum> allowedValues,
-            ClassValueValidityProcessor<Enum> validityProcessor)
+            ClassValidityProcessor<Enum> validityProcessor)
             : this(name, enumTypeInfo, description, allowUndefinedValues,
                   allowedValues, DefaultSortAllowedValues, validityProcessor)
         { }
@@ -245,7 +245,7 @@ namespace PreferenceGroups
         public EnumPreference(string name, Type enumType,
             string description, bool allowUndefinedValues,
             IEnumerable<Enum> allowedValues, bool sortAllowedValues,
-            ClassValueValidityProcessor<Enum> validityProcessor)
+            ClassValidityProcessor<Enum> validityProcessor)
             : this(name, new EnumTypeInfo(enumType), description,
                   allowUndefinedValues, allowedValues, sortAllowedValues,
                   validityProcessor)
@@ -274,7 +274,7 @@ namespace PreferenceGroups
         public EnumPreference(string name, Type enumType,
             string description, bool allowUndefinedValues,
             IEnumerable<Enum> allowedValues,
-            ClassValueValidityProcessor<Enum> validityProcessor)
+            ClassValidityProcessor<Enum> validityProcessor)
             : this(name, new EnumTypeInfo(enumType), description,
                   allowUndefinedValues, allowedValues, validityProcessor)
         { }
@@ -299,9 +299,47 @@ namespace PreferenceGroups
             : this(name, new EnumTypeInfo(enumType))
         { }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Converts <paramref name="value"/> to <see cref="Enum"/> by calling
+        /// the <see cref="EnumTypeInfo.ToEnum(object, string, bool)"/> method.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException">There was an
+        /// <see cref="Exception"/> thrown by the
+        /// <see cref="EnumTypeInfo.ToEnum(object, string, bool)"/>
+        /// method.</exception>
         public override Enum ConvertObjectToValue(object value)
+            => ConvertObjectToValueBase(_typeInfo, value);
+
+        /// <summary>
+        /// Returns a <see cref="Nullable{T}"/> of an <see cref="Enum"/>.
+        /// </summary>
+        /// <returns></returns>
+        public override Type GetValueType() => _typeInfo.NullableType;
+
+        /// <summary>
+        /// Converts <paramref name="value"/> to <see cref="Enum"/> by calling
+        /// the <see cref="EnumTypeInfo.ToEnum(object, string, bool)"/> method.
+        /// </summary>
+        /// <param name="enumTypeInfo"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="SetValueException"><paramref name="enumTypeInfo"/>
+        /// is <see langword="null"/> or there was an <see cref="Exception"/>
+        /// thrown by the
+        /// <see cref="EnumTypeInfo.ToEnum(object, string, bool)"/>
+        /// method.</exception>
+        public static Enum ConvertObjectToValueBase(EnumTypeInfo enumTypeInfo,
+            object value)
         {
+            if (enumTypeInfo is null)
+            {
+                throw new SetValueException(
+                    new ArgumentNullException(nameof(enumTypeInfo)),
+                    SetValueStepFailure.Converting);
+            }
+
             if (value is null)
             {
                 return null;
@@ -309,19 +347,13 @@ namespace PreferenceGroups
 
             try
             {
-                return _typeInfo.ToEnum(value, paramName: nameof(value));
+                return enumTypeInfo.ToEnum(value, paramName: nameof(value));
             }
             catch (Exception ex)
             {
                 throw new SetValueException(ex, SetValueStepFailure.Converting);
             }
         }
-
-        /// <summary>
-        /// Returns a <see cref="Nullable{T}"/> of an <see cref="Enum"/>.
-        /// </summary>
-        /// <returns></returns>
-        public override Type GetValueType() => _typeInfo.NullableType;
 
         /// <summary>
         /// Processes <paramref name="allowedValuesIn"/> by instatiating either
@@ -370,6 +402,81 @@ namespace PreferenceGroups
                         {
                             _ = set.Add(allowedValue);
                         }
+                    }
+
+                    allowedValuesOut = set;
+                }
+            }
+
+            return allowedValuesOut;
+        }
+
+        /// <summary>
+        /// Processes <paramref name="allowedValuesIn"/> by instatiating either
+        /// a <see cref="SortedSet{T}"/>, if
+        /// <paramref name="sortAllowedValues"/> is <see langword="true"/>, or a
+        /// <see cref="HashSet{T}"/> if <paramref name="sortAllowedValues"/> is
+        /// <see langword="false"/>. If <paramref name="allowedValuesIn"/> is
+        /// <see langword="null"/>, then <see langword="null"/> is returned. Any
+        /// elements of <paramref name="allowedValuesIn"/> that are
+        /// <see langword="null"/> will not be added to the returning
+        /// <see cref="IReadOnlyCollection{T}"/> of <see cref="Enum"/>. For each
+        /// item in <paramref name="allowedValuesIn"/> is converted to
+        /// <see cref="Enum"/> by calling the
+        /// <see cref="ConvertObjectToValueBase(EnumTypeInfo, object)"/> method.
+        /// </summary>
+        /// <param name="enumTypeInfo"></param>
+        /// <param name="allowedValuesIn"></param>
+        /// <param name="sortAllowedValues"></param>
+        /// <returns>The processed <paramref name="allowedValuesIn"/>.</returns>
+        public static IReadOnlyCollection<Enum> ProcessAllowedValues(
+            EnumTypeInfo enumTypeInfo, IEnumerable<object> allowedValuesIn,
+            bool sortAllowedValues)
+        {
+            IReadOnlyCollection<Enum> allowedValuesOut = null;
+
+            if (!(allowedValuesIn is null))
+            {
+                if (sortAllowedValues)
+                {
+                    var set = new SortedSet<Enum>();
+
+                    foreach (var allowedValue in allowedValuesIn)
+                    {
+                        try
+                        {
+                            var enumValue = ConvertObjectToValueBase(
+                                enumTypeInfo, allowedValue);
+
+                            if (!(enumValue is null))
+                            {
+                                _ = set.Add(enumValue);
+                            }
+                        }
+                        catch
+                        { }
+                    }
+
+                    allowedValuesOut = set;
+                }
+                else
+                {
+                    var set = new HashSet<Enum>();
+
+                    foreach (var allowedValue in allowedValuesIn)
+                    {
+                        try
+                        {
+                            var enumValue = ConvertObjectToValueBase(
+                                enumTypeInfo, allowedValue);
+
+                            if (!(enumValue is null))
+                            {
+                                _ = set.Add(enumValue);
+                            }
+                        }
+                        catch
+                        { }
                     }
 
                     allowedValuesOut = set;
@@ -454,7 +561,7 @@ namespace PreferenceGroups
         /// valid.</exception>
         public static Enum ValidityProcessForSetValue(string name,
             EnumTypeInfo enumTypeInfo, Enum valueIn,
-            ClassValueValidityProcessor<Enum> validityProcessor,
+            ClassValidityProcessor<Enum> validityProcessor,
             bool allowUndefinedValues,
             IReadOnlyCollection<Enum> allowedValues)
         {

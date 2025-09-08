@@ -31,7 +31,7 @@ public sealed class ScenarioTests
                 // A string prefence.
                 "String": null,
             
-                // Allowed values: false | true.
+                // Suggested values: false | true.
                 "Boolean": null
             }
             """;

@@ -18,41 +18,41 @@ namespace PreferenceGroups
     ///  </list>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ClassValueValidityProcessor<T> where T : class
+    public class ClassValidityProcessor<T> where T : class
     {
         /// <summary>
         /// Is the pre-validity check function step that takes a value of
         /// <typeparamref name="T"/> and returns a
-        /// <see cref="ClassValueProcessorResult{T}"/> indicating either the
-        /// process <see cref="ClassValueProcessorResult{T}.Succeeded"/> or
-        /// <see cref="ClassValueProcessorResult{T}.Failed"/>. Defaults to using
+        /// <see cref="ClassValidityProcessorResult{T}"/> indicating either the
+        /// process <see cref="ClassValidityProcessorResult{T}.Succeeded"/> or
+        /// <see cref="ClassValidityProcessorResult{T}.Failed"/>. Defaults to using
         /// the <see cref="NoChange(T)"/> <see langword="static"/> method.
         /// </summary>
-        public Func<T, ClassValueProcessorResult<T>> Pre { get; set; }
+        public Func<T, ClassValidityProcessorResult<T>> Pre { get; set; }
             = NoChange;
 
         /// <summary>
         /// The validity check function that takes a value of
         /// <typeparamref name="T"/> to validate and returns a
-        /// <see cref="ClassValueValidityResult{T}"/> indicating
-        /// either the value is <see cref="ClassValueValidityResult{T}.Valid"/>
+        /// <see cref="ClassValidityResult{T}"/> indicating
+        /// either the value is <see cref="ClassValidityResult{T}.Valid"/>
         /// or there was an
-        /// <see cref="ClassValueValidityResult{T}.Exception"/>. Defaults to
+        /// <see cref="ClassValidityResult{T}.Exception"/>. Defaults to
         /// using the <see cref="ForceValidity(T)"/> <see langword="static"/>
         /// method.
         /// </summary>
-        public Func<T, ClassValueValidityResult<T>> IsValid { get; set; }
+        public Func<T, ClassValidityResult<T>> IsValid { get; set; }
             = ForceValidity;
 
         /// <summary>
         /// Is the post-validity check function step that takes a value of
         /// <typeparamref name="T"/> and returns a
-        /// <see cref="ClassValueProcessorResult{T}"/> indicating either the
-        /// process <see cref="ClassValueProcessorResult{T}.Succeeded"/> or
-        /// <see cref="ClassValueProcessorResult{T}.Failed"/>. Defaults to using
+        /// <see cref="ClassValidityProcessorResult{T}"/> indicating either the
+        /// process <see cref="ClassValidityProcessorResult{T}.Succeeded"/> or
+        /// <see cref="ClassValidityProcessorResult{T}.Failed"/>. Defaults to using
         /// the <see cref="NoChange(T)"/> <see langword="static"/> method.
         /// </summary>
-        public Func<T, ClassValueProcessorResult<T>> Post { get; set; }
+        public Func<T, ClassValidityProcessorResult<T>> Post { get; set; }
             = NoChange;
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace PreferenceGroups
         /// or <see cref="Post"/> steps by ensuring that
         /// <paramref name="valueIn"/> is not <see langword="null"/>. If
         /// <paramref name="valueIn"/> is <see langword="null"/>, then a
-        /// <see cref="ClassValueProcessorResult{T}.Failure(Exception)"/> will
+        /// <see cref="ClassValidityProcessorResult{T}.Failure(Exception)"/> will
         /// be returned with an <see cref="ArgumentNullException"/>. If
         /// <paramref name="valueIn"/> is not <see langword="null"/>, then the
         /// <see cref="NoChange(T)"/> method is called.
@@ -68,11 +68,11 @@ namespace PreferenceGroups
         /// <param name="valueIn">What to ensure is not
         /// <see langword="null"/>.</param>
         /// <returns></returns>
-        public static ClassValueProcessorResult<T> EnsureNotNull(T valueIn)
+        public static ClassValidityProcessorResult<T> EnsureNotNull(T valueIn)
         {
             if (valueIn is null)
             {
-                ClassValueProcessorResult<T>.Failure(new ArgumentNullException(
+                ClassValidityProcessorResult<T>.Failure(new ArgumentNullException(
                     paramName: nameof(valueIn),
                     message: "Cannot be null."));
             }
@@ -81,25 +81,25 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Will return <see cref="ClassValueValidityResult{T}.IsValid"/>, while
+        /// Will return <see cref="ClassValidityResult{T}.IsValid"/>, while
         /// ignoring the <paramref name="_"/> parameter. This is the default for
         /// the <see cref="IsValid"/> step.
         /// </summary>
         /// <param name="_">This parameter is ignored.</param>
         /// <returns></returns>
-        public static ClassValueValidityResult<T> ForceValidity(T _)
-            => ClassValueValidityResult<T>.IsValid();
+        public static ClassValidityResult<T> ForceValidity(T _)
+            => ClassValidityResult<T>.IsValid();
 
         /// <summary>
         /// A helper method intended to be used for either the <see cref="Pre"/>
         /// or <see cref="Post"/> steps by calling the
-        /// <see cref="ClassValueProcessorResult{T}.Success(T)"/> method with
+        /// <see cref="ClassValidityProcessorResult{T}.Success(T)"/> method with
         /// no change to <paramref name="valueIn"/>. This is the default function
         /// for both the <see cref="Pre"/> and <see cref="Post"/> steps.
         /// </summary>
         /// <param name="valueIn">What not to change.</param>
         /// <returns></returns>
-        public static ClassValueProcessorResult<T> NoChange(T valueIn)
-            => ClassValueProcessorResult<T>.Success(valueIn);
+        public static ClassValidityProcessorResult<T> NoChange(T valueIn)
+            => ClassValidityProcessorResult<T>.Success(valueIn);
     }
 }

@@ -509,7 +509,7 @@ public sealed class EnumPreferenceTests
             .WithDefaultValue(null)
             .WithNoAllowedValues()
             .WithValidityProcessor(
-                EnumValueValidityProcessor.IsDefinedAndNotZero)
+                EnumValidityProcessor.IsDefinedAndNotZero)
             .Build();
 
         Assert.IsTrue(preference.IsEnum);
@@ -531,12 +531,12 @@ public sealed class EnumPreferenceTests
                 .WithDefaultValue(null)
                 .WithNoAllowedValues()
                 .WithValidityProcessor(
-                    new ClassValueValidityProcessor<Enum>()
+                    new ClassValidityProcessor<Enum>()
                     {
                         IsValid = dayValue =>
                             !dayValue.Equals(SingleDay.Sunday)
-                            ? ClassValueValidityResult<Enum>.IsValid()
-                            : ClassValueValidityResult<Enum>.NotValid(
+                            ? ClassValidityResult<Enum>.IsValid()
+                            : ClassValidityResult<Enum>.NotValid(
                                 new ArgumentException(
                                     paramName: nameof(dayValue),
                                     message: "Cannot be Sunday"))
@@ -558,7 +558,7 @@ public sealed class EnumPreferenceTests
                 .WithDefaultValue(null)
                 .WithNoAllowedValues()
                 .WithValidityProcessor(
-                    EnumValueValidityProcessor.IsDefinedAndNotZero)
+                    EnumValidityProcessor.IsDefinedAndNotZero)
                 .Build();
         });
 
@@ -576,7 +576,7 @@ public sealed class EnumPreferenceTests
                 .WithDefaultValue(null)
                 .WithNoAllowedValues()
                 .WithValidityProcessor(
-                    EnumValueValidityProcessor.IsDefinedAndNotZero)
+                    EnumValidityProcessor.IsDefinedAndNotZero)
                 .Build();
         });
 
