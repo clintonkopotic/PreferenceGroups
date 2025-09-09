@@ -323,6 +323,210 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will add the resulting <see cref="BytePreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="BytePreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="BytePreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddByte(string name,
+            Action<BytePreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = BytePreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BytePreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddByte(string name, byte? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddByte(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BytePreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddByte(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddByte(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="DecimalPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="DecimalPreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="DecimalPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDecimal(string name,
+            Action<DecimalPreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = DecimalPreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="DecimalPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDecimal(string name, decimal? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddDecimal (processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="DecimalPreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDecimal(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddDecimal(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="DoublePreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="DoublePreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="DoublePreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDouble(string name,
+            Action<DoublePreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = DoublePreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="DoublePreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDouble(string name, double? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddDouble(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="DoublePreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddDouble(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddDouble(processedName, action: null);
+        }
+
+        /// <summary>
         /// Will add the resulting <see cref="EnumPreference"/> from the
         /// provided <paramref name="action"/> of the
         /// <see cref="EnumPreferenceBuilder{TEnum}"/> build steps to the store.
@@ -553,6 +757,74 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will add the resulting <see cref="Int16Preference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="Int16PreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="Int16Preference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt16(string name,
+            Action<Int16PreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = Int16PreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="Int16Preference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt16(string name, short? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddInt16(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="Int16Preference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt16(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddInt16(processedName, action: null);
+        }
+
+        /// <summary>
         /// Will add the resulting <see cref="Int32Preference"/> from the
         /// provided <paramref name="action"/> of the
         /// <see cref="Int32PreferenceBuilder"/> build steps to the store.
@@ -621,6 +893,74 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will add the resulting <see cref="Int64Preference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="Int64PreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="Int64Preference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt64(string name,
+            Action<Int64PreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = Int64PreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="Int64Preference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt64(string name, long? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddInt64(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="Int64Preference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddInt64(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddInt64(processedName, action: null);
+        }
+
+        /// <summary>
         /// Adds <paramref name="preference"/> to the store, using its
         /// <see cref="Preference.Name"/> to the store.
         /// </summary>
@@ -644,6 +984,142 @@ namespace PreferenceGroups
             Add(processedName, new PreferenceStoreItem(preference));
 
             return this;
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="SBytePreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="SBytePreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="SBytePreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSByte(string name,
+            Action<SBytePreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = SBytePreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="SBytePreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSByte(string name, sbyte? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddSByte(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="SBytePreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSByte(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddSByte(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="SinglePreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="SinglePreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="SinglePreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSingle(string name,
+            Action<SinglePreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = SinglePreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="SinglePreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSingle(string name, float? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddSingle(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="SinglePreference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddSingle(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddSingle(processedName, action: null);
         }
 
         /// <summary>
@@ -875,7 +1351,211 @@ namespace PreferenceGroups
         }
 
         /// <summary>
-        /// Builds and returns the <see cref="PreferenceGroup"/>.
+        /// Will add the resulting <see cref="UInt16Preference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="UInt16PreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="UInt16Preference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt16(string name,
+            Action<UInt16PreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = UInt16PreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt16Preference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt16(string name, ushort? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt16(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt16Preference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt16(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt16(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="UInt32Preference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="UInt32PreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="UInt32Preference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt32(string name,
+            Action<UInt32PreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = UInt32PreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt32Preference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt32(string name, uint? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt32(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt32Preference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt32(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt32(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="UInt64Preference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="UInt64PreferenceBuilder"/> build steps to the store.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="UInt64Preference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt64(string name,
+            Action<UInt64PreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = UInt64PreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return AddPreference(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt64Preference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt64(string name, uint? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt64(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="UInt64Preference"/> with the provided
+        /// <paramref name="name"/> to the store.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceStoreBuilder AddUInt64(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddUInt64(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Builds and returns the <see cref="PreferenceStore"/>.
         /// </summary>
         /// <returns></returns>
         public PreferenceStore Build()

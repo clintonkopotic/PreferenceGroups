@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace PreferenceGroups
 {
     /// <summary>
-    /// An <see cref="int"/> <see cref="Preference"/>.
+    /// An <see cref="ushort"/> <see cref="Preference"/>.
     /// </summary>
-    public class Int32Preference : StructPreference<int>
+    public class UInt16Preference : StructPreference<ushort>
     {
         /// <summary>
         /// Initializes <see cref="Preference.Name"/> with
@@ -14,7 +15,7 @@ namespace PreferenceGroups
         /// <see cref="Preference.ProcessNameOrThrowIfInvalid(string, string)"/>
         /// method.
         /// </summary>
-        /// <param name="name">The name of the <see cref="Int32Preference"/>
+        /// <param name="name">The name of the <see cref="UInt16Preference"/>
         /// and must be not <see langword="null"/>, not empty and not consist
         /// only of white-space characters.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
@@ -22,7 +23,7 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name) : base(name)
+        public UInt16Preference(string name) : base(name)
         { }
 
         /// <summary>
@@ -65,10 +66,10 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name, string description,
+        public UInt16Preference(string name, string description,
             bool allowUndefinedValues,
-            IEnumerable<int?> allowedValues,
-            StructValidityProcessor<int> validityProcessor)
+            IEnumerable<ushort?> allowedValues,
+            StructValidityProcessor<ushort> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   validityProcessor)
         { }
@@ -114,10 +115,10 @@ namespace PreferenceGroups
         /// <exception cref="ArgumentException"><paramref name="name"/> is an
         /// empty <see langword="string"/> or conists only of white-space
         /// characters.</exception>
-        public Int32Preference(string name, string description,
-            bool allowUndefinedValues, IEnumerable<int?> allowedValues,
+        public UInt16Preference(string name, string description,
+            bool allowUndefinedValues, IEnumerable<ushort?> allowedValues,
             bool sortAllowedValues,
-            StructValidityProcessor<int> validityProcessor)
+            StructValidityProcessor<ushort> validityProcessor)
             : base(name, description, allowUndefinedValues, allowedValues,
                   sortAllowedValues, validityProcessor)
         { }
@@ -125,27 +126,27 @@ namespace PreferenceGroups
         /// <summary>
         /// Uses <see cref="Convert.ToInt32(object)"/> to convert
         /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
-        /// <see cref="int"/>. If <paramref name="value"/> is
+        /// <see cref="ushort"/>. If <paramref name="value"/> is
         /// <see langword="null"/>, then <see langword="null"/> is returned.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="SetValueException">An exception was thrown while
         /// converting.</exception>
-        public override int? ConvertObjectToValue(object value)
+        public override ushort? ConvertObjectToValue(object value)
             => ConvertObjectToValueBase(value);
 
         /// <summary>
         /// Uses <see cref="Convert.ToInt32(object)"/> to convert
         /// <paramref name="value"/> to a <see cref="Nullable{T}"/> of
-        /// <see cref="int"/>. If <paramref name="value"/> is
+        /// <see cref="ushort"/>. If <paramref name="value"/> is
         /// <see langword="null"/>, then <see langword="null"/> is returned.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="SetValueException">An exception was thrown while
         /// converting.</exception>
-        public static int? ConvertObjectToValueBase(object value)
+        public static ushort? ConvertObjectToValueBase(object value)
         {
             if (value is null)
             {
@@ -154,12 +155,12 @@ namespace PreferenceGroups
 
             try
             {
-                if (value is int int32Value)
+                if (value is ushort uInt16Value)
                 {
-                    return int32Value;
+                    return uInt16Value;
                 }
 
-                return Convert.ToInt32(value);
+                return Convert.ToUInt16(value);
             }
             catch (Exception ex)
             {

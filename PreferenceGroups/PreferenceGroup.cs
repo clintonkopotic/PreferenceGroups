@@ -319,6 +319,266 @@ namespace PreferenceGroups
                         .WithAllowedValues(preferenceAllowedValues)
                         .Build();
                 }
+                else if (propertyType == typeof(sbyte?))
+                {
+                    StructValidityProcessor<sbyte> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<sbyte>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (sbyte?)property.GetValue(_associatedObject);
+                    sbyte? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (sbyte?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = SBytePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(sbyte)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<sbyte> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<sbyte>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (sbyte)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (sbyte)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = SBytePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(byte?))
+                {
+                    StructValidityProcessor<byte> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<byte>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (byte?)property.GetValue(_associatedObject);
+                    byte? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (byte?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = BytePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(byte)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<byte> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<byte>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (byte)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (byte)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = BytePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(short?))
+                {
+                    StructValidityProcessor<short> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<short>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (short?)property.GetValue(_associatedObject);
+                    short? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (short?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int16PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(short)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<short> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<short>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (short)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (short)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int16PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(ushort?))
+                {
+                    StructValidityProcessor<ushort> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<ushort>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (ushort?)property.GetValue(_associatedObject);
+                    ushort? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (ushort?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt16PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(ushort)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<ushort> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<ushort>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (ushort)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (ushort)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt16PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
                 else if (propertyType == typeof(int?))
                 {
                     StructValidityProcessor<int> valueValidityProcessor
@@ -372,6 +632,396 @@ namespace PreferenceGroups
                         : (int)preferenceDefaultValue;
 
                     _dictionary[preferenceName] = Int32PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(uint?))
+                {
+                    StructValidityProcessor<uint> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<uint>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (uint?)property.GetValue(_associatedObject);
+                    uint? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (uint?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt32PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(uint)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<uint> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<uint>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (uint)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (uint)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt32PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(long?))
+                {
+                    StructValidityProcessor<long> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<long>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (long?)property.GetValue(_associatedObject);
+                    long? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (long?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int64PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(long)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<long> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<long>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (long)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (long)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = Int64PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(ulong?))
+                {
+                    StructValidityProcessor<ulong> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<ulong>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (ulong?)property.GetValue(_associatedObject);
+                    ulong? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (ulong?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt64PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(ulong)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<ulong> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<ulong>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (ulong)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (ulong)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = UInt64PreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(float?))
+                {
+                    StructValidityProcessor<float> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<float>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (float?)property.GetValue(_associatedObject);
+                    float? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (float?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = SinglePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(float)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<float> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<float>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (float)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (float)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = SinglePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(double?))
+                {
+                    StructValidityProcessor<double> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<double>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (double?)property.GetValue(_associatedObject);
+                    double? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (double?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = DoublePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(double)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<double> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<double>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (double)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (double)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = DoublePreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(decimal?))
+                {
+                    StructValidityProcessor<decimal> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<decimal>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (decimal?)property.GetValue(_associatedObject);
+                    decimal? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (decimal?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = DecimalPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(decimal)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<decimal> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<decimal>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (decimal)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (decimal)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = DecimalPreferenceBuilder
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)

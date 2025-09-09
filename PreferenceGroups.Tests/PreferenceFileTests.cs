@@ -55,7 +55,10 @@ public sealed class PreferenceFileTests
             
                 // Allowed values: "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday".
                 // Default value: "None".
-                "SingleDayEnum": "None"
+                "SingleDayEnum": "None",
+
+                // Default value: 1.0.
+                "Double": 1.0
             }
             """;
         Assert.AreEqual(expected, file.ReadAsString());
@@ -217,7 +220,10 @@ public sealed class PreferenceFileTests
             
                 // Allowed values: "None" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday".
                 // Default value: "None".
-                "SingleDayEnum": "None"
+                "SingleDayEnum": "None",
+            
+                // Default value: 1.0.
+                "Double": 1.0
             }
             """;
 
@@ -226,7 +232,7 @@ public sealed class PreferenceFileTests
         var jObject = PreferenceFile.ReadStringAsJObject(jsoncString);
 
         Assert.IsNotNull(jObject);
-        Assert.AreEqual(5, jObject.Count);
+        Assert.AreEqual(6, jObject.Count);
         Assert.IsTrue(jObject.ContainsKey(nameof(PreferenceGroupWithAttributes
             .Int32)));
         var numberJToken = jObject[nameof(PreferenceGroupWithAttributes

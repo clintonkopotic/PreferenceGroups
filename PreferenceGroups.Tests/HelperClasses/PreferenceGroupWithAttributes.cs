@@ -21,6 +21,8 @@ internal class PreferenceGroupWithAttributes
 
     public const string NullableEnumName = "SingleDayEnum";
 
+    public const string DoubleName = "Double";
+
     [Preference(Description = Int32Description,
         DefaultValue = Int32DefaultValue)]
     public int? Int32 { get; set; } = null;
@@ -38,4 +40,7 @@ internal class PreferenceGroupWithAttributes
 
     [Preference(name: NullableEnumName)]
     public SingleDay? SingleDay { get; set; } = HelperClasses.SingleDay.None;
+
+    [Preference(name: DoubleName)]
+    public double Double { get; set; } = 1;
 }
