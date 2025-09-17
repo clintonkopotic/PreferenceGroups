@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -95,6 +96,14 @@ namespace PreferenceGroups
             if (@object is Enum @enum)
             {
                 @object = @enum.ToString();
+            }
+            else if (@object is byte[] bytes)
+            {
+                @object = Convert.ToBase64String(@bytes);
+            }
+            else if (@object is IPAddress ipAddress)
+            {
+                @object = ipAddress.ToString();
             }
 
             return JsonConvert.ToString(@object);

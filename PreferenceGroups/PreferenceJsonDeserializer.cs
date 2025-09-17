@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
 using Newtonsoft.Json.Linq;
 
 namespace PreferenceGroups
@@ -127,6 +128,55 @@ namespace PreferenceGroups
             throw new InvalidOperationException("An unexpected "
                 + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as an "
                 + $"{nameof(Byte)}?.");
+        }
+
+        /// <summary>
+        /// Deserializes <paramref name="jValue"/> into an
+        /// <see cref="Array"/> of <see cref="byte"/>, where if the
+        /// <see cref="JValue.Type"/> is:
+        /// <list type="bullet">
+        /// <item><see cref="JTokenType.Null"/>, then <see langword="null"/> is
+        /// returned.</item>
+        /// <item><see cref="JTokenType.Bytes"/>, then it is just cast into an
+        /// <see cref="Array"/> of <see cref="byte"/> and returned.</item>
+        /// <item><see cref="JTokenType.String"/>, then it is cast into a
+        /// <see cref="string"/>, and the result of calling the
+        /// <see cref="Convert.FromBase64String(string)"/> method is
+        /// returned.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="jValue"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="jValue"/> has an unexpected
+        /// <see cref="JValue.Type"/>.</exception>
+        public static byte[] DeserializeAsBytes(JValue jValue)
+        {
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                return null;
+            }
+            else if (jValue.Type == JTokenType.Bytes)
+            {
+                return (byte[])jValue;
+            }
+            else if (jValue.Type == JTokenType.String)
+            {
+                var @string = (string)jValue;
+
+                if (@string is null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Convert.FromBase64String(@string.Trim());
+                }
+            }
+
+            throw new InvalidOperationException("An unexpected "
+                + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as a "
+                + $"{nameof(Byte)}[].");
         }
 
         /// <summary>
@@ -418,6 +468,68 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Deserializes <paramref name="jValue"/> into an
+        /// <see cref="Array"/> of <see cref="byte"/>, where if the
+        /// <see cref="JValue.Type"/> is:
+        /// <list type="bullet">
+        /// <item><see cref="JTokenType.Null"/>, then <see langword="null"/> is
+        /// returned.</item>
+        /// <item><see cref="JTokenType.Bytes"/>, then it is just cast into an
+        /// <see cref="Array"/> of <see cref="byte"/> and returned.</item>
+        /// <item><see cref="JTokenType.String"/>, then it is cast into a
+        /// <see cref="string"/>, and the result of calling the
+        /// <see cref="Convert.FromBase64String(string)"/> method is
+        /// returned.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="jValue"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="jValue"/> has an unexpected
+        /// <see cref="JValue.Type"/>.</exception>
+        public static IPAddress DeserializeAsIPAddress(JValue jValue)
+        {
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                return null;
+            }
+            else if (jValue.Type == JTokenType.Bytes)
+            {
+                return new IPAddress((byte[])jValue);
+            }
+            else if (jValue.Type == JTokenType.Integer)
+            {
+                return new IPAddress((long)jValue);
+            }
+            else if (jValue.Type == JTokenType.String)
+            {
+                var @string = (string)jValue;
+
+                if (@string is null)
+                {
+                    return null;
+                }
+                else
+                {
+                    @string = @string.Trim();
+
+                    if (@string.StartsWith("0x",
+                        StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return new IPAddress(Convert.ToInt64(@string,
+                            fromBase: 16));
+                    }
+
+                    return IPAddress.Parse(@string);
+                }
+            }
+
+            throw new InvalidOperationException("An unexpected "
+                + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as a "
+                + $"{nameof(IPAddress)}.");
+        }
+
+        /// <summary>
         /// Deserializes <paramref name="jValue"/> into a
         /// <see cref="Nullable{T}"/> <see cref="sbyte"/>, where if the
         /// <see cref="JValue.Type"/> is:
@@ -564,6 +676,62 @@ namespace PreferenceGroups
             throw new InvalidOperationException("An unexpected "
                 + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as an "
                 + $"{nameof(String)}.");
+        }
+
+        /// <summary>
+        /// Deserializes <paramref name="jValue"/> into a
+        /// <see cref="Nullable{T}"/> <see cref="TimeSpan"/>, where if the
+        /// <see cref="JValue.Type"/> is:
+        /// <list type="bullet">
+        /// <item><see cref="JTokenType.Null"/>, then <see langword="null"/> is
+        /// returned.</item>
+        /// <item><see cref="JTokenType.TimeSpan"/>, then it is just cast into a
+        /// <see cref="Nullable{T}"/> <see cref="TimeSpan"/> and returned.</item>
+        /// <item><see cref="JTokenType.Integer"/>, then it is just cast into a
+        /// <see cref="long"/> and the result of instantiating a
+        /// <see cref="TimeSpan"/>, with the <see cref="TimeSpan(long)"/>
+        /// constructor, returned.</item>
+        /// <item><see cref="JTokenType.String"/>, then it is cast into a
+        /// <see cref="string"/>, and the result of calling the
+        /// <see cref="TimeSpan.Parse(string)"/> method is returned.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="jValue"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="jValue"/> has an unexpected
+        /// <see cref="JValue.Type"/>.</exception>
+        public static TimeSpan? DeserializeAsTimeSpan(JValue jValue)
+        {
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                return null;
+            }
+            else if (jValue.Type == JTokenType.TimeSpan)
+            {
+                return (TimeSpan?)jValue;
+            }
+            else if (jValue.Type == JTokenType.Integer)
+            {
+                return new TimeSpan((long)jValue);
+            }
+            else if (jValue.Type == JTokenType.String)
+            {
+                var @string = (string)jValue;
+
+                if (@string is null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return TimeSpan.Parse(@string.Trim());
+                }
+            }
+
+            throw new InvalidOperationException("An unexpected "
+                + $"{nameof(JTokenType)} of {jValue.Type} to deserialize as an "
+                + $"{nameof(TimeSpan)}?.");
         }
 
         /// <summary>
@@ -826,6 +994,50 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Attempts to upate <paramref name="bytesPreference"/> from
+        /// <paramref name="jValue"/> by going through the following sequence:
+        /// <list type="bullet">
+        /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
+        /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
+        /// <item>The <see cref="DeserializeAsBytes(JValue)"/> is called and its
+        /// result is used to set
+        /// <see cref="ClassPreference{T}.Value"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="bytesPreference"></param>
+        /// <param name="jValue"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="bytesPreference"/> is
+        /// <see langword="null"/>.</exception>
+        public static void UpdateFrom(BytesPreference bytesPreference,
+            JValue jValue)
+        {
+            if (bytesPreference is null)
+            {
+                throw new ArgumentNullException(nameof(bytesPreference));
+            }
+
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                bytesPreference.SetValueToNull();
+
+                return;
+            }
+
+            var bytes = DeserializeAsBytes(jValue);
+
+            if (bytes is null)
+            {
+                bytesPreference.SetValueToNull();
+            }
+            else
+            {
+                bytesPreference.Value = bytes;
+            }
+        }
+
+        /// <summary>
         /// Attempts to upate <paramref name="decimalPreference"/> from
         /// <paramref name="jValue"/> by going through the following sequence:
         /// <list type="bullet">
@@ -1046,6 +1258,50 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Attempts to upate <paramref name="ipAddressPreference"/> from
+        /// <paramref name="jValue"/> by going through the following sequence:
+        /// <list type="bullet">
+        /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
+        /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
+        /// <item>The <see cref="DeserializeAsIPAddress(JValue)"/> is called and
+        /// its result is used to set
+        /// <see cref="ClassPreference{T}.Value"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipAddressPreference"></param>
+        /// <param name="jValue"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="ipAddressPreference"/> is
+        /// <see langword="null"/>.</exception>
+        public static void UpdateFrom(IPAddressPreference ipAddressPreference,
+            JValue jValue)
+        {
+            if (ipAddressPreference is null)
+            {
+                throw new ArgumentNullException(nameof(ipAddressPreference));
+            }
+
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                ipAddressPreference.SetValueToNull();
+
+                return;
+            }
+
+            var ipAddress = DeserializeAsIPAddress(jValue);
+
+            if (ipAddress is null)
+            {
+                ipAddressPreference.SetValueToNull();
+            }
+            else
+            {
+                ipAddressPreference.Value = ipAddress;
+            }
+        }
+
+        /// <summary>
         /// Attempts to update <paramref name="preference"/> from
         /// <paramref name="jObject"/> by going through the following sequence:
         /// <list type="bullet">
@@ -1262,6 +1518,21 @@ namespace PreferenceGroups
                 var stringPreference = (StringPreference)preference;
                 UpdateFrom(stringPreference, jValue);
             }
+            else if (valueType == typeof(byte[]))
+            {
+                var bytesPreference = (BytesPreference)preference;
+                UpdateFrom(bytesPreference, jValue);
+            }
+            else if (valueType == typeof(TimeSpan))
+            {
+                var timeSpanPreference = (TimeSpanPreference)preference;
+                UpdateFrom(timeSpanPreference, jValue);
+            }
+            else if (valueType == typeof(IPAddress))
+            {
+                var ipAddressPreference = (IPAddressPreference)preference;
+                UpdateFrom(ipAddressPreference, jValue);
+            }
             else
             {
                 throw new InvalidOperationException("An unexpected value "
@@ -1398,6 +1669,50 @@ namespace PreferenceGroups
             else
             {
                 stringPreference.Value = @string;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to upate <paramref name="timeSpanPreference"/> from
+        /// <paramref name="jValue"/> by going through the following sequence:
+        /// <list type="bullet">
+        /// <item>If <paramref name="jValue"/> is <see langword="null"/> or the
+        /// <see cref="JValue.Type"/> is <see cref="JTokenType.Null"/>, then
+        /// <see cref="Preference.SetValueToNull()"/> is called.</item>
+        /// <item>The <see cref="DeserializeAsTimeSpan(JValue)"/> is called and
+        /// its result is used to set
+        /// <see cref="StructPreference{T}.Value"/>.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="timeSpanPreference"></param>
+        /// <param name="jValue"></param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="timeSpanPreference"/> is
+        /// <see langword="null"/>.</exception>
+        public static void UpdateFrom(TimeSpanPreference timeSpanPreference,
+            JValue jValue)
+        {
+            if (timeSpanPreference is null)
+            {
+                throw new ArgumentNullException(nameof(timeSpanPreference));
+            }
+
+            if (jValue is null || jValue.Type == JTokenType.Null)
+            {
+                timeSpanPreference.SetValueToNull();
+
+                return;
+            }
+
+            var timeSpan = DeserializeAsTimeSpan(jValue);
+
+            if (timeSpan is null)
+            {
+                timeSpanPreference.SetValueToNull();
+            }
+            else
+            {
+                timeSpanPreference.Value = timeSpan;
             }
         }
 

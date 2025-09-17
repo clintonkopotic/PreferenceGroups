@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace PreferenceGroups
 {
@@ -230,6 +231,74 @@ namespace PreferenceGroups
                 nameof(name));
 
             return AddByte(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="BytesPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="BytesPreferenceBuilder"/> build steps to the group.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="BytesPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBytes(string name,
+            Action<BytesPreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = BytesPreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return Add(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BytesPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBytes(string name, byte[] value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddBytes(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="BytesPreference"/> with the provided
+        /// <paramref name="name"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddBytes(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddBytes(processedName, action: null);
         }
 
         /// <summary>
@@ -644,6 +713,74 @@ namespace PreferenceGroups
         }
 
         /// <summary>
+        /// Will add the resulting <see cref="IPAddressPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="IPAddressPreferenceBuilder"/> build steps to the group.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="IPAddressPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddIPAddress(string name,
+            Action<IPAddressPreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = IPAddressPreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return Add(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="IPAddressPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddIPAddress(string name, IPAddress value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddIPAddress(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="IPAddressPreference"/> with the provided
+        /// <paramref name="name"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddIPAddress(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddIPAddress(processedName, action: null);
+        }
+
+        /// <summary>
         /// Will add the resulting <see cref="SBytePreference"/> from the
         /// provided <paramref name="action"/> of the
         /// <see cref="SBytePreferenceBuilder"/> build steps to the group.
@@ -845,6 +982,74 @@ namespace PreferenceGroups
                 nameof(name));
 
             return AddString(processedName, action: null);
+        }
+
+        /// <summary>
+        /// Will add the resulting <see cref="TimeSpanPreference"/> from the
+        /// provided <paramref name="action"/> of the
+        /// <see cref="TimeSpanPreferenceBuilder"/> build steps to the group.
+        /// </summary>
+        /// <param name="name">What the name of the
+        /// <see cref="TimeSpanPreference"/> is to be.</param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddTimeSpan(string name,
+            Action<TimeSpanPreferenceBuilder> action)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+            var builder = TimeSpanPreferenceBuilder.Create(processedName);
+
+            if (!(action is null))
+            {
+                action(builder);
+            }
+
+            return Add(builder.Build());
+        }
+
+        /// <summary>
+        /// Will add a <see cref="TimeSpanPreference"/> with the provided
+        /// <paramref name="name"/> and <paramref name="value"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddTimeSpan(string name, TimeSpan? value)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddTimeSpan(processedName, b => b.WithValue(value));
+        }
+
+        /// <summary>
+        /// Will add a <see cref="TimeSpanPreference"/> with the provided
+        /// <paramref name="name"/> to the group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is an
+        /// empty <see langword="string"/> or conists only of white-space
+        /// characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is
+        /// <see langword="null"/>.</exception>
+        public PreferenceGroupBuilder AddTimeSpan(string name)
+        {
+            var processedName = Preference.ProcessNameOrThrowIfInvalid(name,
+                nameof(name));
+
+            return AddTimeSpan(processedName, action: null);
         }
 
         /// <summary>

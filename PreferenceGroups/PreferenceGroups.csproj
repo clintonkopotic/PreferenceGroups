@@ -6,7 +6,7 @@
 		<Authors>Clinton Kopotic</Authors>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>PreferenceGroups</Title>
-		<Version>0.0.12-alpha</Version>
+		<Version>0.0.13-alpha</Version>
 		<Description>.NET Package Library for working with preferences for the user.</Description>
 		<Copyright>Copyright (c) Clinton Kopotic</Copyright>
 		<PackageProjectUrl>https://github.com/clintonkopotic/PreferenceGroups</PackageProjectUrl>
@@ -45,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
 </Project>

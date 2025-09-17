@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 
 namespace PreferenceGroups
@@ -1055,6 +1056,137 @@ namespace PreferenceGroups
                         : (string)preferenceDefaultValue;
 
                     _dictionary[preferenceName] = StringPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(byte[]))
+                {
+                    ClassValidityProcessor<byte[]> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor
+                            = (ClassValidityProcessor<byte[]>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (byte[])property.GetValue(_associatedObject);
+                    byte[] defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (byte[])preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = BytesPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(TimeSpan?))
+                {
+                    StructValidityProcessor<TimeSpan> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<TimeSpan>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (TimeSpan?)property.GetValue(_associatedObject);
+                    TimeSpan? defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (TimeSpan?)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = TimeSpanPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(TimeSpan)
+                    && _allowedNonNullableStructs)
+                {
+                    StructValidityProcessor<TimeSpan> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor = (StructValidityProcessor<TimeSpan>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (TimeSpan)property.GetValue(_associatedObject);
+                    var defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : default)
+                        : (TimeSpan)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = TimeSpanPreferenceBuilder
+                        .Create(preferenceName)
+                        .WithValue(value)
+                        .WithDefaultValue(defaultValue)
+                        .SetAllowUndefinedValues(preferenceAllowUndefinedValues
+                            ?? Preference.DefaultAllowUndefinedValues)
+                        .SetSortAllowedValues(preferenceSortAllowedValues
+                            ?? Preference.DefaultSortAllowedValues)
+                        .SetValidityProcessor(valueValidityProcessor)
+                        .WithDescription(preferenceDescription)
+                        .WithAllowedValues(preferenceAllowedValues)
+                        .Build();
+                }
+                else if (propertyType == typeof(IPAddress))
+                {
+                    ClassValidityProcessor<IPAddress> valueValidityProcessor
+                        = null;
+
+                    try
+                    {
+                        valueValidityProcessor
+                            = (ClassValidityProcessor<IPAddress>)
+                            Activator.CreateInstance(
+                                preferenceValueValidtyProcessorClassType);
+                    }
+                    catch
+                    { }
+
+                    var value = (IPAddress)property.GetValue(_associatedObject);
+                    IPAddress defaultValue = preferenceDefaultValue is null
+                        ? (useValuesAsDefault ? value : null)
+                        : (IPAddress)preferenceDefaultValue;
+
+                    _dictionary[preferenceName] = IPAddressPreferenceBuilder
                         .Create(preferenceName)
                         .WithValue(value)
                         .WithDefaultValue(defaultValue)
